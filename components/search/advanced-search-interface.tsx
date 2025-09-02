@@ -1,18 +1,17 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
-import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { Mic, MicOff, Search, X, Sparkles, Filter } from "lucide-react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { Slider } from "@/components/ui/slider"
 import type { SearchFilters } from "@/lib/types"
-import { SpeechRecognition } from "speech-recognition"
+import { Filter, Mic, MicOff, Search, Sparkles, X } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 
 interface AdvancedSearchInterfaceProps {
   initialQuery: string
@@ -21,7 +20,6 @@ interface AdvancedSearchInterfaceProps {
 
 export function AdvancedSearchInterface({ initialQuery, initialFilters }: AdvancedSearchInterfaceProps) {
   const router = useRouter()
-  const searchParams = useSearchParams()
 
   const [query, setQuery] = useState(initialQuery)
   const [isListening, setIsListening] = useState(false)
