@@ -2,14 +2,13 @@
 
 import type React from "react"
 
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react"
-import { useAuth } from "@/lib/auth-context"
+import { Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useState } from "react"
 
 export function SignInForm() {
   const [showPassword, setShowPassword] = useState(false)
@@ -20,7 +19,6 @@ export function SignInForm() {
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const { signIn } = useAuth()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -50,9 +48,9 @@ export function SignInForm() {
       }
 
       // Mock sign in - replace with real authentication
-      await signIn(formData.email, formData.password)
+      // await signIn(formData.email, formData.password)
       router.push("/dashboard")
-    } catch (error) {
+    } catch  {
       setErrors({ general: "Invalid email or password" })
     } finally {
       setIsLoading(false)

@@ -2,15 +2,14 @@
 
 import type React from "react"
 
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Eye, EyeOff, Mail, Lock, User, Loader2 } from "lucide-react"
-import { useAuth } from "@/lib/auth-context"
+import { Eye, EyeOff, Loader2, Lock, Mail, User } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useState } from "react"
 
 export function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false)
@@ -25,7 +24,6 @@ export function SignUpForm() {
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const { signUp } = useAuth()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,9 +65,9 @@ export function SignUpForm() {
       }
 
       // Mock sign up - replace with real authentication
-      await signUp(formData.name, formData.email, formData.password)
+      // await signUp(formData.name, formData.email, formData.password)
       router.push("/dashboard")
-    } catch (error) {
+    } catch {
       setErrors({ general: "Failed to create account. Please try again." })
     } finally {
       setIsLoading(false)
