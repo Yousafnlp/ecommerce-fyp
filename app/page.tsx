@@ -98,7 +98,9 @@ export default async function HomePage() {
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
-                    <Badge className="absolute top-2 right-2 bg-primary">Score: {product.score}</Badge>
+{/* <Badge className="absolute top-2 right-2 bg-primary">
+Score: {product.score}
+</Badge> */}
                   </div>
                   <CardTitle className="text-lg line-clamp-2">{product.name}</CardTitle>
                   <CardDescription className="text-sm">{product.brand}</CardDescription>
@@ -156,9 +158,9 @@ export default async function HomePage() {
                       <CardTitle className="text-base line-clamp-2 mb-1">{product.name}</CardTitle>
                       <CardDescription className="text-sm mb-2">{product.brand}</CardDescription>
                       <div className="flex items-center gap-2">
-                        <Badge variant="secondary" className="text-xs">
+{/* <Badge variant="secondary" className="text-xs">
                           Score: {product.score}
-                        </Badge>
+                        </Badge> */}
                         <div className="flex items-center gap-1">
                           <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                           <span className="text-xs">{product.rating}</span>
@@ -170,11 +172,11 @@ export default async function HomePage() {
                 <CardContent className="p-4 pt-0">
                   <div className="flex items-center justify-between">
                     <div className="text-lg font-bold">${product.price}</div>
-                    <Link href={`/compare?products=${product.id}`}>
+{/* <Link href={`/compare?products=${product.id}`}>
                       <Button size="sm" variant="outline">
                         Compare
                       </Button>
-                    </Link>
+                    </Link> */}
                   </div>
                 </CardContent>
               </Card>
@@ -252,11 +254,11 @@ export default async function HomePage() {
             <div>
               <h4 className="font-semibold mb-3">Features</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>
+{/* <li>
                   <Link href="/compare" className="hover:text-foreground">
                     Product Compare
                   </Link>
-                </li>
+                </li> */}
                 <li>
                   <Link href="/search" className="hover:text-foreground">
                     Advanced Search

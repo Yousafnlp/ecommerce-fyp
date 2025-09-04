@@ -47,9 +47,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <Link href="/products" className="text-sm font-medium hover:text-primary transition-colors">
                 Products
               </Link>
-              <Link href="/compare" className="text-sm font-medium hover:text-primary transition-colors">
+{/* <Link href="/compare" className="text-sm font-medium hover:text-primary transition-colors">
                 Compare
-              </Link>
+              </Link> */}
               <Link href="/search" className="text-sm font-medium hover:text-primary transition-colors">
                 Search
               </Link>
@@ -99,10 +99,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 className="object-cover"
                 priority
               />
-              <Badge className="absolute top-4 left-4 bg-primary">
+{/* <Badge className="absolute top-4 left-4 bg-primary">
                 <Zap className="w-3 h-3 mr-1" />
                 Score: {product.score}
-              </Badge>
+              </Badge> */}
             </div>
 
             {product.images.length > 1 && (
@@ -142,8 +142,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 <span className="text-muted-foreground">({product.reviewCount} reviews)</span>
               </div>
               <div className="flex items-center gap-1">
-                <Zap className="w-4 h-4 text-primary" />
-                <span className="font-semibold">SpecSmart Score: {product.score}/100</span>
+{/* <Zap className="w-4 h-4 text-primary" />
+                <span className="font-semibold">
+SpecSmart Score: {product.score}/100
+</span> */}
               </div>
             </div>
 
@@ -195,11 +197,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </Button>
             </div>
 
-            <Link href={`/compare?products=${product.id}`}>
+{/* <Link href={`/compare?products=${product.id}`}>
               <Button variant="outline" className="w-full bg-transparent">
                 Compare with Similar Products
               </Button>
-            </Link>
+            </Link> */}
           </div>
         </div>
 
@@ -256,7 +258,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
-                      <Badge className="absolute top-2 right-2 bg-primary">{relatedProduct.score}</Badge>
+{/* <Badge className="absolute top-2 right-2 bg-primary">
+{relatedProduct.score}
+</Badge> */}
                     </div>
                     <CardTitle className="text-base line-clamp-2">{relatedProduct.name}</CardTitle>
                     <CardDescription className="text-sm">{relatedProduct.brand}</CardDescription>

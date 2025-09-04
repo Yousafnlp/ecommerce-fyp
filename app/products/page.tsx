@@ -55,9 +55,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
               <Link href="/products" className="text-sm font-medium text-primary">
                 Products
               </Link>
-              <Link href="/compare" className="text-sm font-medium hover:text-primary transition-colors">
+{/* <Link href="/compare" className="text-sm font-medium hover:text-primary transition-colors">
                 Compare
-              </Link>
+              </Link> */}
               <Link href="/search" className="text-sm font-medium hover:text-primary transition-colors">
                 Search
               </Link>
@@ -129,11 +129,11 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                     Advanced Search
                   </Button>
                 </Link>
-                <Link href="/compare">
+{/* <Link href="/compare">
                   <Button variant="outline" size="sm">
                     Compare Products
                   </Button>
-                </Link>
+                </Link> */}
               </div>
             </div>
 
