@@ -1,15 +1,21 @@
-import { Database } from "@/lib/database"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Search, Star, Zap, Shield, Headphones } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
-import { AuthenticatedHeader } from "@/components/authenticated-header"
+import { Database } from "@/lib/database";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Search, Star, Zap, Shield, Headphones } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+import { AuthenticatedHeader } from "@/components/authenticated-header";
 
 export default async function HomePage() {
-  const featuredProducts = await Database.getFeaturedProducts()
-  const popularProducts = await Database.getPopularProducts()
+  const featuredProducts = await Database.getFeaturedProducts();
+  const popularProducts = await Database.getPopularProducts();
 
   return (
     <div className="min-h-screen bg-background">
@@ -29,8 +35,8 @@ export default async function HomePage() {
           </h1>
 
           <p className="text-xl text-muted-foreground text-balance mb-8 max-w-2xl mx-auto">
-            Compare specs, get AI recommendations, and make smarter tech purchases with our intelligent product scoring
-            system.
+            Compare specs, get AI recommendations, and make smarter tech
+            purchases with our intelligent product scoring system.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
@@ -41,7 +47,11 @@ export default async function HomePage() {
               </Button>
             </Link>
             <Link href="/advisor">
-              <Button variant="outline" size="lg" className="text-lg px-8 bg-transparent">
+              <Button
+                variant="outline"
+                size="lg"
+                className="text-lg px-8 bg-transparent"
+              >
                 <Headphones className="w-5 h-5 mr-2" />
                 Try AI Advisor
               </Button>
@@ -55,7 +65,9 @@ export default async function HomePage() {
                 <Zap className="w-6 h-6 text-primary" />
               </div>
               <h3 className="font-semibold mb-2">Smart Scoring</h3>
-              <p className="text-sm text-muted-foreground">AI-powered scores based on specs and performance</p>
+              <p className="text-sm text-muted-foreground">
+                AI-powered scores based on specs and performance
+              </p>
             </div>
 
             <div className="flex flex-col items-center text-center p-4">
@@ -63,7 +75,9 @@ export default async function HomePage() {
                 <Search className="w-6 h-6 text-primary" />
               </div>
               <h3 className="font-semibold mb-2">Advanced Search</h3>
-              <p className="text-sm text-muted-foreground">Voice search and natural language queries</p>
+              <p className="text-sm text-muted-foreground">
+                Voice search and natural language queries
+              </p>
             </div>
 
             <div className="flex flex-col items-center text-center p-4">
@@ -71,7 +85,9 @@ export default async function HomePage() {
                 <Shield className="w-6 h-6 text-primary" />
               </div>
               <h3 className="font-semibold mb-2">Expert Comparisons</h3>
-              <p className="text-sm text-muted-foreground">Side-by-side spec analysis and recommendations</p>
+              <p className="text-sm text-muted-foreground">
+                Side-by-side spec analysis and recommendations
+              </p>
             </div>
           </div>
         </div>
@@ -89,7 +105,10 @@ export default async function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {featuredProducts.map((product) => (
-              <Card key={product.id} className="group hover:shadow-lg transition-all duration-300">
+              <Card
+                key={product.id}
+                className="group hover:shadow-lg transition-all duration-300"
+              >
                 <CardHeader className="p-4">
                   <div className="aspect-square relative mb-4 overflow-hidden rounded-lg bg-muted">
                     <Image
@@ -98,24 +117,34 @@ export default async function HomePage() {
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
-{/* <Badge className="absolute top-2 right-2 bg-primary">
-Score: {product.score}
-</Badge> */}
+                    {/* <Badge className="absolute top-2 right-2 bg-primary">
+                      Score: {product.score}
+                    </Badge> */}
                   </div>
-                  <CardTitle className="text-lg line-clamp-2">{product.name}</CardTitle>
-                  <CardDescription className="text-sm">{product.brand}</CardDescription>
+                  <CardTitle className="text-lg line-clamp-2">
+                    {product.name}
+                  </CardTitle>
+                  <CardDescription className="text-sm">
+                    {product.brand}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="p-4 pt-0">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm font-medium">{product.rating}</span>
-                      <span className="text-xs text-muted-foreground">({product.reviewCount})</span>
+                      <span className="text-sm font-medium">
+                        {product.rating}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        ({product.reviewCount})
+                      </span>
                     </div>
                     <div className="text-right">
                       <div className="text-lg font-bold">${product.price}</div>
                       {product.originalPrice && (
-                        <div className="text-xs text-muted-foreground line-through">${product.originalPrice}</div>
+                        <div className="text-xs text-muted-foreground line-through">
+                          ${product.originalPrice}
+                        </div>
                       )}
                     </div>
                   </div>
@@ -143,7 +172,10 @@ Score: {product.score}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {popularProducts.map((product) => (
-              <Card key={product.id} className="group hover:shadow-lg transition-all duration-300">
+              <Card
+                key={product.id}
+                className="group hover:shadow-lg transition-all duration-300"
+              >
                 <CardHeader className="p-4">
                   <div className="flex gap-4">
                     <div className="w-20 h-20 relative overflow-hidden rounded-lg bg-muted flex-shrink-0">
@@ -155,10 +187,14 @@ Score: {product.score}
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <CardTitle className="text-base line-clamp-2 mb-1">{product.name}</CardTitle>
-                      <CardDescription className="text-sm mb-2">{product.brand}</CardDescription>
+                      <CardTitle className="text-base line-clamp-2 mb-1">
+                        {product.name}
+                      </CardTitle>
+                      <CardDescription className="text-sm mb-2">
+                        {product.brand}
+                      </CardDescription>
                       <div className="flex items-center gap-2">
-{/* <Badge variant="secondary" className="text-xs">
+                        {/* <Badge variant="secondary" className="text-xs">
                           Score: {product.score}
                         </Badge> */}
                         <div className="flex items-center gap-1">
@@ -172,7 +208,7 @@ Score: {product.score}
                 <CardContent className="p-4 pt-0">
                   <div className="flex items-center justify-between">
                     <div className="text-lg font-bold">${product.price}</div>
-{/* <Link href={`/compare?products=${product.id}`}>
+                    {/* <Link href={`/compare?products=${product.id}`}>
                       <Button size="sm" variant="outline">
                         Compare
                       </Button>
@@ -188,7 +224,9 @@ Score: {product.score}
       {/* CTA Section */}
       <section className="py-20 px-4 bg-primary text-primary-foreground">
         <div className="container mx-auto text-center max-w-3xl">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Make Smarter Tech Choices?</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+            Ready to Make Smarter Tech Choices?
+          </h2>
           <p className="text-xl opacity-90 mb-8">
             Join thousands of users who trust SpecSmart for their tech purchases
           </p>
@@ -222,29 +260,43 @@ Score: {product.score}
                 </div>
                 <span className="font-bold">SpecSmart</span>
               </div>
-              <p className="text-sm text-muted-foreground">Smarter Choices. Sharper Tech.</p>
+              <p className="text-sm text-muted-foreground">
+                Smarter Choices. Sharper Tech.
+              </p>
             </div>
 
             <div>
               <h4 className="font-semibold mb-3">Products</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>
-                  <Link href="/products/smartphone" className="hover:text-foreground">
+                  <Link
+                    href="/products/smartphone"
+                    className="hover:text-foreground"
+                  >
                     Smartphones
                   </Link>
                 </li>
                 <li>
-                  <Link href="/products/laptop" className="hover:text-foreground">
+                  <Link
+                    href="/products/laptop"
+                    className="hover:text-foreground"
+                  >
                     Laptops
                   </Link>
                 </li>
                 <li>
-                  <Link href="/products/headphones" className="hover:text-foreground">
+                  <Link
+                    href="/products/headphones"
+                    className="hover:text-foreground"
+                  >
                     Headphones
                   </Link>
                 </li>
                 <li>
-                  <Link href="/products/camera" className="hover:text-foreground">
+                  <Link
+                    href="/products/camera"
+                    className="hover:text-foreground"
+                  >
                     Cameras
                   </Link>
                 </li>
@@ -254,7 +306,7 @@ Score: {product.score}
             <div>
               <h4 className="font-semibold mb-3">Features</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-{/* <li>
+                {/* <li>
                   <Link href="/compare" className="hover:text-foreground">
                     Product Compare
                   </Link>
@@ -310,5 +362,5 @@ Score: {product.score}
         </div>
       </footer>
     </div>
-  )
+  );
 }

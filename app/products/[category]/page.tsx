@@ -1,20 +1,21 @@
-import { Database } from "@/lib/database"
-import { ProductGrid } from "@/components/product-grid"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
-import Link from "next/link"
-import { notFound } from "next/navigation"
+import { Database } from "@/lib/database";
+import { ProductGrid } from "@/components/product-grid";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 
 interface CategoryPageProps {
   params: {
-    category: string
-  }
+    category: string;
+  };
 }
 
 const categoryInfo = {
   smartphone: {
     title: "Smartphones",
-    description: "Latest smartphones with cutting-edge features and performance",
+    description:
+      "Latest smartphones with cutting-edge features and performance",
   },
   laptop: {
     title: "Laptops",
@@ -36,17 +37,17 @@ const categoryInfo = {
     title: "Cameras",
     description: "Professional cameras for photography and videography",
   },
-}
+};
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
-  const { category } = params
+  const { category } = params;
 
   if (!categoryInfo[category as keyof typeof categoryInfo]) {
-    notFound()
+    notFound();
   }
 
-  const products = await Database.getProducts({ category: category as any })
-  const info = categoryInfo[category as keyof typeof categoryInfo]
+  const products = await Database.getProducts({ category: category as any });
+  const info = categoryInfo[category as keyof typeof categoryInfo];
 
   return (
     <div className="min-h-screen bg-background">
@@ -56,7 +57,9 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">S</span>
+                <span className="text-primary-foreground font-bold text-sm">
+                  S
+                </span>
               </div>
               <div>
                 <h1 className="text-xl font-bold text-foreground">SpecSmart</h1>
@@ -64,16 +67,25 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             </Link>
 
             <nav className="hidden md:flex items-center gap-6">
-              <Link href="/products" className="text-sm font-medium text-primary">
+              <Link
+                href="/products"
+                className="text-sm font-medium text-primary"
+              >
                 Products
               </Link>
-{/* <Link href="/compare" className="text-sm font-medium hover:text-primary transition-colors">
+              {/* <Link href="/compare" className="text-sm font-medium hover:text-primary transition-colors">
                 Compare
               </Link> */}
-              <Link href="/search" className="text-sm font-medium hover:text-primary transition-colors">
+              <Link
+                href="/search"
+                className="text-sm font-medium hover:text-primary transition-colors"
+              >
                 Search
               </Link>
-              <Link href="/advisor" className="text-sm font-medium hover:text-primary transition-colors">
+              <Link
+                href="/advisor"
+                className="text-sm font-medium hover:text-primary transition-colors"
+              >
                 AI Advisor
               </Link>
             </nav>
@@ -112,7 +124,9 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
         {products.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground mb-4">No products found in this category.</p>
+            <p className="text-muted-foreground mb-4">
+              No products found in this category.
+            </p>
             <Link href="/products">
               <Button>Browse All Products</Button>
             </Link>
@@ -120,5 +134,5 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         )}
       </div>
     </div>
-  )
+  );
 }
