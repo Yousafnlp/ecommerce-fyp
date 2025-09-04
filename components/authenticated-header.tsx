@@ -43,9 +43,9 @@ export function AuthenticatedHeader() {
             <Link href="/products" className="text-sm font-medium hover:text-primary transition-colors">
               Products
             </Link>
-            <Link href="/compare" className="text-sm font-medium hover:text-primary transition-colors">
+{/* <Link href="/compare" className="text-sm font-medium hover:text-primary transition-colors">
               Compare
-            </Link>
+            </Link> */}
             <Link href="/search" className="text-sm font-medium hover:text-primary transition-colors">
               Search
             </Link>

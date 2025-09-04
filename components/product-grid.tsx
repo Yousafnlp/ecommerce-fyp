@@ -34,7 +34,7 @@ export function ProductGrid({ products }: ProductGridProps) {
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-300"
               />
-              <Badge className="absolute top-2 right-2 bg-primary">Score: {product.score}</Badge>
+{/*               <Badge className="absolute top-2 right-2 bg-primary">Score: {product.score}</Badge> */}
               {product.originalPrice && (
                 <Badge variant="destructive" className="absolute top-2 left-2">
                   Sale
