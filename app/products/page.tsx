@@ -1,23 +1,25 @@
-import { Database } from "@/lib/database"
-import { ProductGrid } from "@/components/product-grid"
-import { ProductFilters } from "@/components/product-filters"
-import { Button } from "@/components/ui/button"
-import { Search, Filter } from "lucide-react"
-import Link from "next/link"
+import { Database } from "@/lib/database";
+import { ProductGrid } from "@/components/product-grid";
+import { ProductFilters } from "@/components/product-filters";
+import { Button } from "@/components/ui/button";
+import { Search, Filter } from "lucide-react";
+import Link from "next/link";
 
 interface ProductsPageProps {
   searchParams: {
-    category?: string
-    brand?: string
-    minPrice?: string
-    maxPrice?: string
-    rating?: string
-    sortBy?: string
-    sortOrder?: string
-  }
+    category?: string;
+    brand?: string;
+    minPrice?: string;
+    maxPrice?: string;
+    rating?: string;
+    sortBy?: string;
+    sortOrder?: string;
+  };
 }
 
-export default async function ProductsPage({ searchParams }: ProductsPageProps) {
+export default async function ProductsPage({
+  searchParams,
+}: ProductsPageProps) {
   const filters = {
     category: searchParams.category,
     brand: searchParams.brand ? [searchParams.brand] : undefined,
@@ -31,10 +33,17 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     rating: searchParams.rating ? Number(searchParams.rating) : undefined,
     sortBy: searchParams.sortBy as any,
     sortOrder: searchParams.sortOrder as any,
-  }
+  };
 
-  const products = await Database.getProducts(filters)
-  const categories = ["smartphone", "laptop", "tablet", "smartwatch", "headphones", "camera"]
+  const products = await Database.getProducts(filters);
+  const categories = [
+    "smartphone",
+    "laptop",
+    "tablet",
+    "smartwatch",
+    "headphones",
+    "camera",
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -44,7 +53,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">S</span>
+                <span className="text-primary-foreground font-bold text-sm">
+                  S
+                </span>
               </div>
               <div>
                 <h1 className="text-xl font-bold text-foreground">SpecSmart</h1>
@@ -52,16 +63,25 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             </Link>
 
             <nav className="hidden md:flex items-center gap-6">
-              <Link href="/products" className="text-sm font-medium text-primary">
+              <Link
+                href="/products"
+                className="text-sm font-medium text-primary"
+              >
                 Products
               </Link>
-              <Link href="/compare" className="text-sm font-medium hover:text-primary transition-colors">
+              {/* <Link href="/compare" className="text-sm font-medium hover:text-primary transition-colors">
                 Compare
-              </Link>
-              <Link href="/search" className="text-sm font-medium hover:text-primary transition-colors">
+              </Link> */}
+              <Link
+                href="/search"
+                className="text-sm font-medium hover:text-primary transition-colors"
+              >
                 Search
               </Link>
-              <Link href="/advisor" className="text-sm font-medium hover:text-primary transition-colors">
+              <Link
+                href="/advisor"
+                className="text-sm font-medium hover:text-primary transition-colors"
+              >
                 AI Advisor
               </Link>
             </nav>
@@ -80,21 +100,28 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">All Products</h1>
-          <p className="text-muted-foreground">Discover the latest tech with intelligent scoring and comparisons</p>
+          <p className="text-muted-foreground">
+            Discover the latest tech with intelligent scoring and comparisons
+          </p>
         </div>
 
         {/* Category Navigation */}
         <div className="mb-8">
           <div className="flex flex-wrap gap-2">
             <Link href="/products">
-              <Button variant={!searchParams.category ? "default" : "outline"} size="sm">
+              <Button
+                variant={!searchParams.category ? "default" : "outline"}
+                size="sm"
+              >
                 All Categories
               </Button>
             </Link>
             {categories.map((category) => (
               <Link key={category} href={`/products?category=${category}`}>
                 <Button
-                  variant={searchParams.category === category ? "default" : "outline"}
+                  variant={
+                    searchParams.category === category ? "default" : "outline"
+                  }
                   size="sm"
                   className="capitalize"
                 >
@@ -120,7 +147,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           {/* Products Grid */}
           <main className="flex-1">
             <div className="flex items-center justify-between mb-6">
-              <p className="text-sm text-muted-foreground">Showing {products.length} products</p>
+              <p className="text-sm text-muted-foreground">
+                Showing {products.length} products
+              </p>
 
               <div className="flex items-center gap-2">
                 <Link href="/search">
@@ -129,11 +158,11 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                     Advanced Search
                   </Button>
                 </Link>
-                <Link href="/compare">
+                {/* <Link href="/compare">
                   <Button variant="outline" size="sm">
                     Compare Products
                   </Button>
-                </Link>
+                </Link> */}
               </div>
             </div>
 
@@ -142,5 +171,5 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         </div>
       </div>
     </div>
-  )
+  );
 }
