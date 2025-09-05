@@ -1,29 +1,29 @@
-"use client"
+"use client";
 
-import { useAuth } from "@/lib/auth-context"
-import { useCart } from "@/lib/cart-context"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useAuth } from "@/lib/auth-context";
+import { useCart } from "@/lib/cart-context";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Zap, User, Settings, LogOut, ShoppingCart } from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
+} from "@/components/ui/dropdown-menu";
+import { Zap, User, Settings, LogOut, ShoppingCart } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export function AuthenticatedHeader() {
-  const { user, signOut } = useAuth()
-  const { totalItems } = useCart()
-  const router = useRouter()
+  const { user, signOut } = useAuth();
+  const { totalItems } = useCart();
+  const router = useRouter();
 
   const handleSignOut = async () => {
-    await signOut()
-    router.push("/")
-  }
+    await signOut();
+    router.push("/");
+  };
 
   return (
     <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
@@ -35,21 +35,32 @@ export function AuthenticatedHeader() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-foreground">SpecSmart</h1>
-              <p className="text-xs text-muted-foreground">Smarter Choices. Sharper Tech</p>
+              <p className="text-xs text-muted-foreground">
+                Smarter Choices. Sharper Tech
+              </p>
             </div>
           </Link>
 
           <nav className="hidden md:flex items-center gap-6">
-            <Link href="/products" className="text-sm font-medium hover:text-primary transition-colors">
+            <Link
+              href="/products"
+              className="text-sm font-medium hover:text-primary transition-colors"
+            >
               Products
             </Link>
-            <Link href="/compare" className="text-sm font-medium hover:text-primary transition-colors">
+            {/* <Link href="/compare" className="text-sm font-medium hover:text-primary transition-colors">
               Compare
-            </Link>
-            <Link href="/search" className="text-sm font-medium hover:text-primary transition-colors">
+            </Link> */}
+            <Link
+              href="/search"
+              className="text-sm font-medium hover:text-primary transition-colors"
+            >
               Search
             </Link>
-            <Link href="/advisor" className="text-sm font-medium hover:text-primary transition-colors">
+            <Link
+              href="/advisor"
+              className="text-sm font-medium hover:text-primary transition-colors"
+            >
               AI Advisor
             </Link>
           </nav>
@@ -58,7 +69,11 @@ export function AuthenticatedHeader() {
             {user ? (
               <>
                 <Link href="/cart">
-                  <Button variant="outline" size="sm" className="relative bg-transparent">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="relative bg-transparent"
+                  >
                     <ShoppingCart className="w-4 h-4 mr-2" />
                     Cart
                     {totalItems > 0 && (
@@ -71,9 +86,15 @@ export function AuthenticatedHeader() {
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Button
+                      variant="ghost"
+                      className="relative h-8 w-8 rounded-full"
+                    >
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
+                        <AvatarImage
+                          src={user.avatar || "/placeholder.svg"}
+                          alt={user.name}
+                        />
                         <AvatarFallback>
                           {user.name
                             .split(" ")
@@ -88,7 +109,9 @@ export function AuthenticatedHeader() {
                     <div className="flex items-center justify-start gap-2 p-2">
                       <div className="flex flex-col space-y-1 leading-none">
                         <p className="font-medium">{user.name}</p>
-                        <p className="w-[200px] truncate text-sm text-muted-foreground">{user.email}</p>
+                        <p className="w-[200px] truncate text-sm text-muted-foreground">
+                          {user.email}
+                        </p>
                       </div>
                     </div>
                     <DropdownMenuSeparator />
@@ -115,7 +138,11 @@ export function AuthenticatedHeader() {
             ) : (
               <>
                 <Link href="/cart">
-                  <Button variant="outline" size="sm" className="relative bg-transparent">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="relative bg-transparent"
+                  >
                     <ShoppingCart className="w-4 h-4 mr-2" />
                     Cart
                     {totalItems > 0 && (
@@ -139,5 +166,5 @@ export function AuthenticatedHeader() {
         </div>
       </div>
     </header>
-  )
+  );
 }
