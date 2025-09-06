@@ -1,99 +1,110 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { createContext, useContext, useEffect, useState } from "react"
-import type { Product, CartItem } from "./types"
-import { Database } from "./database"
+import type React from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import type { Product, CartItem } from "./types";
+import { Database } from "./database";
 
 interface CartContextType {
-  items: CartItem[]
-  totalItems: number
-  totalPrice: number
-  addItem: (productId: string, quantity?: number) => void
-  removeItem: (productId: string) => void
-  updateQuantity: (productId: string, quantity: number) => void
-  clearCart: () => void
-  getCartProducts: () => Promise<(Product & { quantity: number })[]>
+  items: CartItem[];
+  totalItems: number;
+  totalPrice: number;
+  addItem: (productId: string, quantity?: number) => void;
+  removeItem: (productId: string) => void;
+  updateQuantity: (productId: string, quantity: number) => void;
+  clearCart: () => void;
+  getCartProducts: () => Promise<(Product & { quantity: number })[]>;
 }
 
-const CartContext = createContext<CartContextType | undefined>(undefined)
+const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([])
+  const [items, setItems] = useState<CartItem[]>([]);
 
   // Load cart from localStorage on mount
   useEffect(() => {
-    const savedCart = localStorage.getItem("specsmart_cart")
+    const savedCart = localStorage.getItem("specsmart_cart");
     if (savedCart) {
       try {
-        setItems(JSON.parse(savedCart))
+        setItems(JSON.parse(savedCart));
       } catch (error) {
-        localStorage.removeItem("specsmart_cart")
+        localStorage.removeItem("specsmart_cart");
       }
     }
-  }, [])
+  }, []);
 
   // Save cart to localStorage whenever items change
   useEffect(() => {
-    localStorage.setItem("specsmart_cart", JSON.stringify(items))
-  }, [items])
+    localStorage.setItem("specsmart_cart", JSON.stringify(items));
+  }, [items]);
 
   const addItem = (productId: string, quantity = 1) => {
     setItems((prev) => {
-      const existingItem = prev.find((item) => item.productId === productId)
+      const existingItem = prev.find((item) => item.productId === productId);
 
       if (existingItem) {
         return prev.map((item) =>
-          item.productId === productId ? { ...item, quantity: item.quantity + quantity } : item,
-        )
+          item.productId === productId
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        );
       } else {
-        return [...prev, { productId, quantity, addedAt: new Date() }]
+        return [...prev, { productId, quantity, addedAt: new Date() }];
       }
-    })
-  }
+    });
+  };
 
   const removeItem = (productId: string) => {
-    setItems((prev) => prev.filter((item) => item.productId !== productId))
-  }
+    setItems((prev) => prev.filter((item) => item.productId !== productId));
+  };
 
   const updateQuantity = (productId: string, quantity: number) => {
     if (quantity <= 0) {
-      removeItem(productId)
-      return
+      removeItem(productId);
+      return;
     }
 
-    setItems((prev) => prev.map((item) => (item.productId === productId ? { ...item, quantity } : item)))
-  }
+    setItems((prev) =>
+      prev.map((item) =>
+        item.productId === productId ? { ...item, quantity } : item
+      )
+    );
+  };
 
   const clearCart = () => {
-    setItems([])
-  }
+    setItems([]);
+  };
 
-  const getCartProducts = async (): Promise<(Product & { quantity: number })[]> => {
-    const productIds = items.map((item) => item.productId)
-    const products = await Database.getProductsByIds(productIds)
+  const getCartProducts = async (): Promise<
+    (Product & { quantity: number })[]
+  > => {
+    const productIds = items.map((item) => item.productId);
+    const products = await Database.getProductsByIds(productIds);
 
     return products.map((product) => {
-      const cartItem = items.find((item) => item.productId === product.id)
+      const cartItem = items.find((item) => item.productId === product.id);
       return {
         ...product,
         quantity: cartItem?.quantity || 0,
-      }
-    })
-  }
+      };
+    });
+  };
 
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0)
+  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
   const calculateTotalPrice = async () => {
-    const cartProducts = await getCartProducts()
-    return cartProducts.reduce((sum, product) => sum + product.price * product.quantity, 0)
-  }
+    const cartProducts = await getCartProducts();
+    return cartProducts.reduce(
+      (sum, product) => sum + product.price * product.quantity,
+      0
+    );
+  };
 
   // For simplicity, we'll calculate total price synchronously using a mock
   const totalPrice = items.reduce((sum, item) => {
     // Mock price calculation - in real app, you'd fetch product prices
-    return sum + item.quantity * 500 // Assuming average price of $500
-  }, 0)
+    return sum + item.quantity * 500; // Assuming average price of $500
+  }, 0);
 
   const value = {
     items,
@@ -104,15 +115,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     updateQuantity,
     clearCart,
     getCartProducts,
-  }
+  };
 
-  return <CartContext.Provider value={value}>{children}</CartContext.Provider>
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 
 export function useCart() {
-  const context = useContext(CartContext)
+  const context = useContext(CartContext);
   if (context === undefined) {
-    throw new Error("useCart must be used within a CartProvider")
+    throw new Error("useCart must be used within a CartProvider");
   }
-  return context
+  return context;
 }

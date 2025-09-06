@@ -1,6 +1,6 @@
-import { CheckoutPageContent } from "@/components/checkout/checkout-page-content"
-import { AuthenticatedHeader } from "@/components/authenticated-header"
-import { ProtectedRoute } from "@/components/auth/protected-route"
+import { CheckoutPageContent } from "@/components/checkout/checkout-page-content";
+import { AuthenticatedHeader } from "@/components/authenticated-header";
+import { ProtectedRoute } from "@/components/auth/protected-route";
 
 export default function CheckoutPage() {
   return (
@@ -10,5 +10,5 @@ export default function CheckoutPage() {
         <CheckoutPageContent />
       </div>
     </ProtectedRoute>
-  )
+  );
 }

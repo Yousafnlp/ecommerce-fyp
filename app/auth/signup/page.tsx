@@ -1,7 +1,13 @@
-import { SignUpForm } from "@/components/auth/signup-form"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import { SignUpForm } from "@/components/auth/signup-form";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function SignUpPage() {
   return (
@@ -15,7 +21,9 @@ export default function SignUpPage() {
             </div>
             <div className="text-left">
               <h1 className="text-2xl font-bold text-foreground">SpecSmart</h1>
-              <p className="text-xs text-muted-foreground">Smarter Choices. Sharper Tech</p>
+              <p className="text-xs text-muted-foreground">
+                Smarter Choices. Sharper Tech
+              </p>
             </div>
           </Link>
         </div>
@@ -25,7 +33,8 @@ export default function SignUpPage() {
           <CardHeader className="text-center">
             <CardTitle>Create Your Account</CardTitle>
             <CardDescription>
-              Join SpecSmart to get AI-powered product recommendations and smart comparisons
+              Join SpecSmart to get AI-powered product recommendations and smart
+              comparisons
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -37,7 +46,10 @@ export default function SignUpPage() {
         <div className="text-center">
           <p className="text-sm text-muted-foreground">
             Already have an account?{" "}
-            <Link href="/auth/signin" className="text-primary hover:underline font-medium">
+            <Link
+              href="/auth/signin"
+              className="text-primary hover:underline font-medium"
+            >
               Sign in here
             </Link>
           </p>
@@ -53,5 +65,5 @@ export default function SignUpPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,31 +1,39 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { X, Plus } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import type { ComparisonProduct } from "@/lib/types"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { X, Plus } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import type { ComparisonProduct } from "@/lib/types";
 
 interface ComparisonTableProps {
-  products: ComparisonProduct[]
+  products: ComparisonProduct[];
 }
 
 export function ComparisonTable({ products }: ComparisonTableProps) {
-  const maxProducts = 4
-  const canAddMore = products.length < maxProducts
+  const maxProducts = 4;
+  const canAddMore = products.length < maxProducts;
 
   const removeProduct = (productId: string) => {
-    const remaining = products.filter((p) => p.id !== productId).map((p) => p.id)
-    const newUrl = remaining.length > 0 ? `/compare?products=${remaining.join(",")}` : "/compare"
-    window.location.href = newUrl
-  }
+    const remaining = products
+      .filter((p) => p.id !== productId)
+      .map((p) => p.id);
+    const newUrl =
+      remaining.length > 0
+        ? `/compare?products=${remaining.join(",")}`
+        : "/compare";
+    window.location.href = newUrl;
+  };
 
   return (
     <div className="space-y-6">
       {/* Product Headers */}
-      <div className="grid gap-4" style={{ gridTemplateColumns: `200px repeat(${products.length}, 1fr)` }}>
+      <div
+        className="grid gap-4"
+        style={{ gridTemplateColumns: `200px repeat(${products.length}, 1fr)` }}
+      >
         <div className="font-semibold text-lg">Products</div>
         {products.map((product) => (
           <Card key={product.id}>
@@ -40,10 +48,19 @@ export function ComparisonTable({ products }: ComparisonTableProps) {
                   <X className="w-3 h-3" />
                 </Button>
                 <div className="aspect-square relative mb-3 overflow-hidden rounded-lg bg-muted">
-                  <Image src={product.image || "/placeholder.svg"} alt={product.name} fill className="object-cover" />
+                  <Image
+                    src={product.image || "/placeholder.svg"}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
-                <CardTitle className="text-base line-clamp-2 mb-1">{product.name}</CardTitle>
-                <p className="text-sm text-muted-foreground mb-2">{product.brand}</p>
+                <CardTitle className="text-base line-clamp-2 mb-1">
+                  {product.name}
+                </CardTitle>
+                <p className="text-sm text-muted-foreground mb-2">
+                  {product.brand}
+                </p>
                 <div className="flex items-center justify-between">
                   <Badge className="bg-primary">Score: {product.score}</Badge>
                   <div className="text-lg font-bold">${product.price}</div>
@@ -116,39 +133,58 @@ export function ComparisonTable({ products }: ComparisonTableProps) {
                 </tr>
 
                 {/* Dynamic spec rows based on available specs */}
-                {Object.keys(products[0]?.specifications || {}).map((specKey) => {
-                  const specLabel = specKey.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())
+                {Object.keys(products[0]?.specifications || {}).map(
+                  (specKey) => {
+                    const specLabel = specKey
+                      .replace(/([A-Z])/g, " $1")
+                      .replace(/^./, (str) => str.toUpperCase());
 
-                  return (
-                    <tr key={specKey} className="border-b">
-                      <td className="p-4 text-muted-foreground">{specLabel}</td>
-                      {products.map((product) => {
-                        const value = product.specifications[specKey as keyof typeof product.specifications]
+                    return (
+                      <tr key={specKey} className="border-b">
+                        <td className="p-4 text-muted-foreground">
+                          {specLabel}
+                        </td>
+                        {products.map((product) => {
+                          const value =
+                            product.specifications[
+                              specKey as keyof typeof product.specifications
+                            ];
 
-                        if (typeof value === "object" && value !== null) {
+                          if (typeof value === "object" && value !== null) {
+                            return (
+                              <td key={product.id} className="p-4">
+                                <div className="space-y-1">
+                                  {Object.entries(value).map(
+                                    ([subKey, subValue]) => (
+                                      <div key={subKey} className="text-sm">
+                                        <span className="text-muted-foreground">
+                                          {subKey}:{" "}
+                                        </span>
+                                        <span>
+                                          {Array.isArray(subValue)
+                                            ? subValue.join(", ")
+                                            : String(subValue)}
+                                        </span>
+                                      </div>
+                                    )
+                                  )}
+                                </div>
+                              </td>
+                            );
+                          }
+
                           return (
                             <td key={product.id} className="p-4">
-                              <div className="space-y-1">
-                                {Object.entries(value).map(([subKey, subValue]) => (
-                                  <div key={subKey} className="text-sm">
-                                    <span className="text-muted-foreground">{subKey}: </span>
-                                    <span>{Array.isArray(subValue) ? subValue.join(", ") : String(subValue)}</span>
-                                  </div>
-                                ))}
-                              </div>
+                              {Array.isArray(value)
+                                ? value.join(", ")
+                                : String(value || "N/A")}
                             </td>
-                          )
-                        }
-
-                        return (
-                          <td key={product.id} className="p-4">
-                            {Array.isArray(value) ? value.join(", ") : String(value || "N/A")}
-                          </td>
-                        )
-                      })}
-                    </tr>
-                  )
-                })}
+                          );
+                        })}
+                      </tr>
+                    );
+                  }
+                )}
 
                 {/* Actions */}
                 <tr className="border-b bg-muted/50">
@@ -156,12 +192,20 @@ export function ComparisonTable({ products }: ComparisonTableProps) {
                   {products.map((product) => (
                     <td key={product.id} className="p-4">
                       <div className="space-y-2">
-                        <Link href={`/products/${product.specifications.brand?.toLowerCase()}/${product.id}`}>
+                        <Link
+                          href={`/products/${product.specifications.brand?.toLowerCase()}/${
+                            product.id
+                          }`}
+                        >
                           <Button size="sm" className="w-full">
                             View Details
                           </Button>
                         </Link>
-                        <Button variant="outline" size="sm" className="w-full bg-transparent">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full bg-transparent"
+                        >
                           Add to Cart
                         </Button>
                       </div>
@@ -174,5 +218,5 @@ export function ComparisonTable({ products }: ComparisonTableProps) {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

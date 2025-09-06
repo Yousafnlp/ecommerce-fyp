@@ -1,42 +1,61 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useCart } from "@/lib/cart-context"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Input } from "@/components/ui/input"
-import { ShoppingCart, Plus, Minus, Trash2, ArrowLeft, Star } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import type { Product } from "@/lib/types"
+import { useEffect, useState } from "react";
+import { useCart } from "@/lib/cart-context";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import {
+  ShoppingCart,
+  Plus,
+  Minus,
+  Trash2,
+  ArrowLeft,
+  Star,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import type { Product } from "@/lib/types";
 
 export function CartPageContent() {
-  const { items, totalItems, updateQuantity, removeItem, clearCart, getCartProducts } = useCart()
-  const [cartProducts, setCartProducts] = useState<(Product & { quantity: number })[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const {
+    items,
+    totalItems,
+    updateQuantity,
+    removeItem,
+    clearCart,
+    getCartProducts,
+  } = useCart();
+  const [cartProducts, setCartProducts] = useState<
+    (Product & { quantity: number })[]
+  >([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadCartProducts = async () => {
-      setIsLoading(true)
+      setIsLoading(true);
       try {
-        const products = await getCartProducts()
-        setCartProducts(products)
+        const products = await getCartProducts();
+        setCartProducts(products);
       } catch (error) {
-        console.error("Failed to load cart products:", error)
+        console.error("Failed to load cart products:", error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    loadCartProducts()
-  }, [items, getCartProducts])
+    loadCartProducts();
+  }, [items, getCartProducts]);
 
-  const subtotal = cartProducts.reduce((sum, product) => sum + product.price * product.quantity, 0)
-  const shipping = subtotal > 100 ? 0 : 15
-  const tax = subtotal * 0.08
-  const total = subtotal + shipping + tax
+  const subtotal = cartProducts.reduce(
+    (sum, product) => sum + product.price * product.quantity,
+    0
+  );
+  const shipping = subtotal > 100 ? 0 : 15;
+  const tax = subtotal * 0.08;
+  const total = subtotal + shipping + tax;
 
   if (isLoading) {
     return (
@@ -46,7 +65,7 @@ export function CartPageContent() {
           <p className="text-muted-foreground">Loading your cart...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (totalItems === 0) {
@@ -57,13 +76,15 @@ export function CartPageContent() {
             <ShoppingCart className="w-8 h-8 text-muted-foreground" />
           </div>
           <h2 className="text-2xl font-bold mb-2">Your cart is empty</h2>
-          <p className="text-muted-foreground mb-6">Looks like you haven't added any products to your cart yet.</p>
+          <p className="text-muted-foreground mb-6">
+            Looks like you haven't added any products to your cart yet.
+          </p>
           <Link href="/products">
             <Button size="lg">Start Shopping</Button>
           </Link>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -94,27 +115,39 @@ export function CartPageContent() {
               <CardContent className="p-6">
                 <div className="flex gap-4">
                   <div className="w-24 h-24 relative overflow-hidden rounded-lg bg-muted flex-shrink-0">
-                    <Image src={product.image || "/placeholder.svg"} alt={product.name} fill className="object-cover" />
+                    <Image
+                      src={product.image || "/placeholder.svg"}
+                      alt={product.name}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between mb-2">
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                          <Badge variant="secondary" className="text-xs capitalize">
+                          <Badge
+                            variant="secondary"
+                            className="text-xs capitalize"
+                          >
                             {product.category}
                           </Badge>
                           <Badge variant="outline" className="text-xs">
                             {product.brand}
                           </Badge>
                         </div>
-                        <h3 className="font-semibold text-lg line-clamp-2">{product.name}</h3>
+                        <h3 className="font-semibold text-lg line-clamp-2">
+                          {product.name}
+                        </h3>
                         <div className="flex items-center gap-2 mt-1">
                           <div className="flex items-center gap-1">
                             <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                             <span className="text-sm">{product.rating}</span>
                           </div>
-                          <Badge className="bg-primary text-xs">Score: {product.score}</Badge>
+                          <Badge className="bg-primary text-xs">
+                            Score: {product.score}
+                          </Badge>
                         </div>
                       </div>
 
@@ -134,7 +167,9 @@ export function CartPageContent() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => updateQuantity(product.id, product.quantity - 1)}
+                            onClick={() =>
+                              updateQuantity(product.id, product.quantity - 1)
+                            }
                             disabled={product.quantity <= 1}
                             className="h-8 w-8 p-0"
                           >
@@ -143,24 +178,35 @@ export function CartPageContent() {
                           <Input
                             type="number"
                             value={product.quantity}
-                            onChange={(e) => updateQuantity(product.id, Number.parseInt(e.target.value) || 1)}
+                            onChange={(e) =>
+                              updateQuantity(
+                                product.id,
+                                Number.parseInt(e.target.value) || 1
+                              )
+                            }
                             className="w-16 h-8 text-center border-0 focus-visible:ring-0"
                             min="1"
                           />
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => updateQuantity(product.id, product.quantity + 1)}
+                            onClick={() =>
+                              updateQuantity(product.id, product.quantity + 1)
+                            }
                             className="h-8 w-8 p-0"
                           >
                             <Plus className="w-3 h-3" />
                           </Button>
                         </div>
-                        <span className="text-sm text-muted-foreground">${product.price} each</span>
+                        <span className="text-sm text-muted-foreground">
+                          ${product.price} each
+                        </span>
                       </div>
 
                       <div className="text-right">
-                        <div className="text-lg font-bold">${(product.price * product.quantity).toFixed(2)}</div>
+                        <div className="text-lg font-bold">
+                          ${(product.price * product.quantity).toFixed(2)}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -171,7 +217,11 @@ export function CartPageContent() {
 
           {/* Clear Cart */}
           <div className="flex justify-end">
-            <Button variant="outline" onClick={clearCart} className="text-destructive bg-transparent">
+            <Button
+              variant="outline"
+              onClick={clearCart}
+              className="text-destructive bg-transparent"
+            >
               <Trash2 className="w-4 h-4 mr-2" />
               Clear Cart
             </Button>
@@ -192,7 +242,9 @@ export function CartPageContent() {
 
               <div className="flex justify-between">
                 <span>Shipping</span>
-                <span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
+                <span>
+                  {shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}
+                </span>
               </div>
 
               <div className="flex justify-between">
@@ -231,5 +283,5 @@ export function CartPageContent() {
         </div>
       </div>
     </div>
-  )
+  );
 }
