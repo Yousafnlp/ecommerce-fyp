@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Star, Zap, Shield, Headphones } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { AuthenticatedHeader } from "@/components/authenticated-header";
+import { AuthenticatedHeader } from "@/components/layout/authenticated-header";
 
 export default async function HomePage() {
   const featuredProducts = await Database.getFeaturedProducts();
