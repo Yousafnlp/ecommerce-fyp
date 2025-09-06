@@ -1,12 +1,12 @@
 import { Database } from "@/lib/database";
 import { notFound } from "next/navigation";
 import { AuthenticatedHeader } from "@/components/layout/authenticated-header";
-import { ProductBreadcrumb } from "@/components/product/product-breadcrum";
-import { ProductImages } from "@/components/product/product-images";
-import { ProductInfo } from "@/components/product/product-info";
-import { ProductSpecifications } from "@/components/product/product-specifications";
-import { RelatedProducts } from "@/components/product/relateed-products";
-import { ProductActions } from "@/components/product/product-action";
+import { ProductBreadcrumb } from "@/components/products/category/product/product-breadcrum";
+import { ProductImages } from "@/components/products/category/product/product-images";
+import { ProductInfo } from "@/components/products/category/product/product-info";
+import { ProductSpecifications } from "@/components/products/category/product/product-specifications";
+import { RelatedProducts } from "@/components/products/category/product/relateed-products";
+import { ProductActions } from "@/components/products/category/product/product-action";
 
 export default async function ProductPage({
   params,
