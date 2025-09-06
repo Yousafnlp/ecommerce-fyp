@@ -1,30 +1,50 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useCart } from "@/lib/cart-context"
-import { useAuth } from "@/lib/auth-context"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Separator } from "@/components/ui/separator"
-import { ArrowLeft, CreditCard, Truck, Shield, CheckCircle } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import type { Product, Address } from "@/lib/types"
+import { useState, useEffect } from "react";
+import { useCart } from "@/lib/cart-context";
+import { useAuth } from "@/lib/auth-context";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
+import {
+  ArrowLeft,
+  CreditCard,
+  Truck,
+  Shield,
+  CheckCircle,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import type { Product, Address } from "@/lib/types";
 
 export function CheckoutPageContent() {
-  const { items, totalItems, getCartProducts, clearCart } = useCart()
-  const { user } = useAuth()
-  const router = useRouter()
+  const { items, totalItems, getCartProducts, clearCart } = useCart();
+  const { user } = useAuth();
+  const router = useRouter();
 
-  const [cartProducts, setCartProducts] = useState<(Product & { quantity: number })[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [currentStep, setCurrentStep] = useState(1)
+  const [cartProducts, setCartProducts] = useState<
+    (Product & { quantity: number })[]
+  >([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
 
   const [shippingAddress, setShippingAddress] = useState<Address>({
     street: "",
@@ -32,7 +52,7 @@ export function CheckoutPageContent() {
     state: "",
     zipCode: "",
     country: "United States",
-  })
+  });
 
   const [billingAddress, setBillingAddress] = useState<Address>({
     street: "",
@@ -40,55 +60,58 @@ export function CheckoutPageContent() {
     state: "",
     zipCode: "",
     country: "United States",
-  })
+  });
 
-  const [sameAsShipping, setSameAsShipping] = useState(true)
-  const [paymentMethod, setPaymentMethod] = useState("card")
+  const [sameAsShipping, setSameAsShipping] = useState(true);
+  const [paymentMethod, setPaymentMethod] = useState("card");
   const [cardDetails, setCardDetails] = useState({
     number: "",
     expiry: "",
     cvv: "",
     name: "",
-  })
+  });
 
   useEffect(() => {
     const loadCartProducts = async () => {
-      setIsLoading(true)
+      setIsLoading(true);
       try {
-        const products = await getCartProducts()
-        setCartProducts(products)
+        const products = await getCartProducts();
+        setCartProducts(products);
       } catch (error) {
-        console.error("Failed to load cart products:", error)
+        console.error("Failed to load cart products:", error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    loadCartProducts()
-  }, [items, getCartProducts])
+    loadCartProducts();
+  }, [items, getCartProducts]);
 
   // Redirect if cart is empty
   useEffect(() => {
     if (!isLoading && totalItems === 0) {
-      router.push("/cart")
+      router.push("/cart");
     }
-  }, [totalItems, isLoading, router])
+  }, [totalItems, isLoading, router]);
 
-  const subtotal = cartProducts.reduce((sum, product) => sum + product.price * product.quantity, 0)
-  const shipping = subtotal > 100 ? 0 : 15
-  const tax = subtotal * 0.08
-  const total = subtotal + shipping + tax
+  const subtotal = cartProducts.reduce(
+    (sum, product) => sum + product.price * product.quantity,
+    0
+  );
+  const shipping = subtotal > 100 ? 0 : 15;
+  const tax = subtotal * 0.08;
+  const total = subtotal + shipping + tax;
 
   const handlePlaceOrder = async () => {
-    setIsProcessing(true)
+    setIsProcessing(true);
 
     // Mock order processing
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     // Clear cart and redirect to success page
-    clearCart()
-    router.push("/checkout/success")
-  }
+    clearCart();
+    router.push("/checkout/success");
+  };
 
   if (isLoading) {
     return (
@@ -98,7 +121,7 @@ export function CheckoutPageContent() {
           <p className="text-muted-foreground">Loading checkout...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -141,7 +164,9 @@ export function CheckoutPageContent() {
               </div>
               <span
                 className={`ml-2 text-sm font-medium ${
-                  currentStep >= step ? "text-foreground" : "text-muted-foreground"
+                  currentStep >= step
+                    ? "text-foreground"
+                    : "text-muted-foreground"
                 }`}
               >
                 {title}
@@ -163,7 +188,9 @@ export function CheckoutPageContent() {
                   <Truck className="w-5 h-5" />
                   Shipping Information
                 </CardTitle>
-                <CardDescription>Where should we deliver your order?</CardDescription>
+                <CardDescription>
+                  Where should we deliver your order?
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -183,7 +210,12 @@ export function CheckoutPageContent() {
                     id="street"
                     placeholder="123 Main Street"
                     value={shippingAddress.street}
-                    onChange={(e) => setShippingAddress((prev) => ({ ...prev, street: e.target.value }))}
+                    onChange={(e) =>
+                      setShippingAddress((prev) => ({
+                        ...prev,
+                        street: e.target.value,
+                      }))
+                    }
                   />
                 </div>
 
@@ -194,14 +226,24 @@ export function CheckoutPageContent() {
                       id="city"
                       placeholder="New York"
                       value={shippingAddress.city}
-                      onChange={(e) => setShippingAddress((prev) => ({ ...prev, city: e.target.value }))}
+                      onChange={(e) =>
+                        setShippingAddress((prev) => ({
+                          ...prev,
+                          city: e.target.value,
+                        }))
+                      }
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="state">State</Label>
                     <Select
                       value={shippingAddress.state}
-                      onValueChange={(value) => setShippingAddress((prev) => ({ ...prev, state: value }))}
+                      onValueChange={(value) =>
+                        setShippingAddress((prev) => ({
+                          ...prev,
+                          state: value,
+                        }))
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select state" />
@@ -220,7 +262,12 @@ export function CheckoutPageContent() {
                       id="zipCode"
                       placeholder="10001"
                       value={shippingAddress.zipCode}
-                      onChange={(e) => setShippingAddress((prev) => ({ ...prev, zipCode: e.target.value }))}
+                      onChange={(e) =>
+                        setShippingAddress((prev) => ({
+                          ...prev,
+                          zipCode: e.target.value,
+                        }))
+                      }
                     />
                   </div>
                 </div>
@@ -255,14 +302,18 @@ export function CheckoutPageContent() {
                       Card
                     </Button>
                     <Button
-                      variant={paymentMethod === "paypal" ? "default" : "outline"}
+                      variant={
+                        paymentMethod === "paypal" ? "default" : "outline"
+                      }
                       onClick={() => setPaymentMethod("paypal")}
                       className="h-12"
                     >
                       PayPal
                     </Button>
                     <Button
-                      variant={paymentMethod === "apple" ? "default" : "outline"}
+                      variant={
+                        paymentMethod === "apple" ? "default" : "outline"
+                      }
                       onClick={() => setPaymentMethod("apple")}
                       className="h-12"
                     >
@@ -279,7 +330,12 @@ export function CheckoutPageContent() {
                         id="cardName"
                         placeholder="John Doe"
                         value={cardDetails.name}
-                        onChange={(e) => setCardDetails((prev) => ({ ...prev, name: e.target.value }))}
+                        onChange={(e) =>
+                          setCardDetails((prev) => ({
+                            ...prev,
+                            name: e.target.value,
+                          }))
+                        }
                       />
                     </div>
 
@@ -289,7 +345,12 @@ export function CheckoutPageContent() {
                         id="cardNumber"
                         placeholder="1234 5678 9012 3456"
                         value={cardDetails.number}
-                        onChange={(e) => setCardDetails((prev) => ({ ...prev, number: e.target.value }))}
+                        onChange={(e) =>
+                          setCardDetails((prev) => ({
+                            ...prev,
+                            number: e.target.value,
+                          }))
+                        }
                       />
                     </div>
 
@@ -300,7 +361,12 @@ export function CheckoutPageContent() {
                           id="expiry"
                           placeholder="MM/YY"
                           value={cardDetails.expiry}
-                          onChange={(e) => setCardDetails((prev) => ({ ...prev, expiry: e.target.value }))}
+                          onChange={(e) =>
+                            setCardDetails((prev) => ({
+                              ...prev,
+                              expiry: e.target.value,
+                            }))
+                          }
                         />
                       </div>
                       <div className="space-y-2">
@@ -309,7 +375,12 @@ export function CheckoutPageContent() {
                           id="cvv"
                           placeholder="123"
                           value={cardDetails.cvv}
-                          onChange={(e) => setCardDetails((prev) => ({ ...prev, cvv: e.target.value }))}
+                          onChange={(e) =>
+                            setCardDetails((prev) => ({
+                              ...prev,
+                              cvv: e.target.value,
+                            }))
+                          }
                         />
                       </div>
                     </div>
@@ -317,14 +388,22 @@ export function CheckoutPageContent() {
                 )}
 
                 <div className="flex items-center space-x-2">
-                  <Checkbox id="sameAddress" checked={sameAsShipping} onCheckedChange={setSameAsShipping} />
+                  <Checkbox
+                    id="sameAddress"
+                    checked={sameAsShipping}
+                    onCheckedChange={setSameAsShipping}
+                  />
                   <Label htmlFor="sameAddress" className="text-sm">
                     Billing address same as shipping
                   </Label>
                 </div>
 
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => setCurrentStep(1)} className="flex-1">
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentStep(1)}
+                    className="flex-1"
+                  >
                     Back
                   </Button>
                   <Button onClick={() => setCurrentStep(3)} className="flex-1">
@@ -343,14 +422,19 @@ export function CheckoutPageContent() {
                   <CheckCircle className="w-5 h-5" />
                   Review Your Order
                 </CardTitle>
-                <CardDescription>Please review your order before placing it</CardDescription>
+                <CardDescription>
+                  Please review your order before placing it
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Order Items */}
                 <div className="space-y-4">
                   <h3 className="font-semibold">Order Items</h3>
                   {cartProducts.map((product) => (
-                    <div key={product.id} className="flex items-center gap-4 p-4 border rounded-lg">
+                    <div
+                      key={product.id}
+                      className="flex items-center gap-4 p-4 border rounded-lg"
+                    >
                       <div className="w-16 h-16 relative overflow-hidden rounded-lg bg-muted">
                         <Image
                           src={product.image || "/placeholder.svg"}
@@ -361,10 +445,14 @@ export function CheckoutPageContent() {
                       </div>
                       <div className="flex-1">
                         <h4 className="font-medium">{product.name}</h4>
-                        <p className="text-sm text-muted-foreground">Qty: {product.quantity}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Qty: {product.quantity}
+                        </p>
                       </div>
                       <div className="text-right">
-                        <div className="font-semibold">${(product.price * product.quantity).toFixed(2)}</div>
+                        <div className="font-semibold">
+                          ${(product.price * product.quantity).toFixed(2)}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -378,7 +466,8 @@ export function CheckoutPageContent() {
                   <div className="text-sm text-muted-foreground">
                     <p>{shippingAddress.street}</p>
                     <p>
-                      {shippingAddress.city}, {shippingAddress.state} {shippingAddress.zipCode}
+                      {shippingAddress.city}, {shippingAddress.state}{" "}
+                      {shippingAddress.zipCode}
                     </p>
                     <p>{shippingAddress.country}</p>
                   </div>
@@ -391,15 +480,25 @@ export function CheckoutPageContent() {
                   <h3 className="font-semibold mb-2">Payment Method</h3>
                   <div className="text-sm text-muted-foreground capitalize">
                     {paymentMethod}{" "}
-                    {paymentMethod === "card" && cardDetails.number && `ending in ${cardDetails.number.slice(-4)}`}
+                    {paymentMethod === "card" &&
+                      cardDetails.number &&
+                      `ending in ${cardDetails.number.slice(-4)}`}
                   </div>
                 </div>
 
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => setCurrentStep(2)} className="flex-1">
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentStep(2)}
+                    className="flex-1"
+                  >
                     Back
                   </Button>
-                  <Button onClick={handlePlaceOrder} className="flex-1" disabled={isProcessing}>
+                  <Button
+                    onClick={handlePlaceOrder}
+                    className="flex-1"
+                    disabled={isProcessing}
+                  >
                     {isProcessing ? (
                       <>
                         <div className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2" />
@@ -424,11 +523,16 @@ export function CheckoutPageContent() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 {cartProducts.map((product) => (
-                  <div key={product.id} className="flex justify-between text-sm">
+                  <div
+                    key={product.id}
+                    className="flex justify-between text-sm"
+                  >
                     <span className="truncate mr-2">
                       {product.name} × {product.quantity}
                     </span>
-                    <span>${(product.price * product.quantity).toFixed(2)}</span>
+                    <span>
+                      ${(product.price * product.quantity).toFixed(2)}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -442,7 +546,9 @@ export function CheckoutPageContent() {
 
               <div className="flex justify-between">
                 <span>Shipping</span>
-                <span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
+                <span>
+                  {shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}
+                </span>
               </div>
 
               <div className="flex justify-between">
@@ -466,5 +572,5 @@ export function CheckoutPageContent() {
         </div>
       </div>
     </div>
-  )
+  );
 }

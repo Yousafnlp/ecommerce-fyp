@@ -1,24 +1,48 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Star, Grid, List, ShoppingCart, Heart, Zap, TrendingUp } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import type { Product } from "@/lib/types"
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Star,
+  Grid,
+  List,
+  ShoppingCart,
+  Heart,
+  Zap,
+  TrendingUp,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import type { Product } from "@/lib/types";
 
 interface SearchResultsProps {
-  products: Product[]
-  query: string
-  totalResults: number
+  products: Product[];
+  query: string;
+  totalResults: number;
 }
 
-export function SearchResults({ products, query, totalResults }: SearchResultsProps) {
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
-  const [sortBy, setSortBy] = useState("relevance")
+export function SearchResults({
+  products,
+  query,
+  totalResults,
+}: SearchResultsProps) {
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [sortBy, setSortBy] = useState("relevance");
 
   if (totalResults === 0 && query) {
     return (
@@ -29,7 +53,8 @@ export function SearchResults({ products, query, totalResults }: SearchResultsPr
           </div>
           <h3 className="text-xl font-semibold mb-2">No results found</h3>
           <p className="text-muted-foreground mb-6">
-            We couldn't find any products matching "{query}". Try adjusting your search or filters.
+            We couldn't find any products matching "{query}". Try adjusting your
+            search or filters.
           </p>
           <div className="space-y-4">
             <div>
@@ -46,7 +71,7 @@ export function SearchResults({ products, query, totalResults }: SearchResultsPr
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (totalResults === 0) {
@@ -56,7 +81,8 @@ export function SearchResults({ products, query, totalResults }: SearchResultsPr
           <CardHeader>
             <CardTitle>Start Your Search</CardTitle>
             <CardDescription>
-              Use the search interface on the left to find products with our advanced AI-powered search
+              Use the search interface on the left to find products with our
+              advanced AI-powered search
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -67,7 +93,9 @@ export function SearchResults({ products, query, totalResults }: SearchResultsPr
                 </div>
                 <div>
                   <h3 className="font-medium">Smart Scoring</h3>
-                  <p className="text-sm text-muted-foreground">AI-powered product scores</p>
+                  <p className="text-sm text-muted-foreground">
+                    AI-powered product scores
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-4 border rounded-lg">
@@ -76,14 +104,16 @@ export function SearchResults({ products, query, totalResults }: SearchResultsPr
                 </div>
                 <div>
                   <h3 className="font-medium">Voice Search</h3>
-                  <p className="text-sm text-muted-foreground">Search by speaking naturally</p>
+                  <p className="text-sm text-muted-foreground">
+                    Search by speaking naturally
+                  </p>
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -91,7 +121,9 @@ export function SearchResults({ products, query, totalResults }: SearchResultsPr
       {/* Results Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold">{query ? `Search results for "${query}"` : "Search Results"}</h2>
+          <h2 className="text-xl font-semibold">
+            {query ? `Search results for "${query}"` : "Search Results"}
+          </h2>
           <p className="text-sm text-muted-foreground">
             {totalResults} product{totalResults !== 1 ? "s" : ""} found
           </p>
@@ -139,7 +171,10 @@ export function SearchResults({ products, query, totalResults }: SearchResultsPr
       {viewMode === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map((product) => (
-            <Card key={product.id} className="group hover:shadow-lg transition-all duration-300">
+            <Card
+              key={product.id}
+              className="group hover:shadow-lg transition-all duration-300"
+            >
               <CardHeader className="p-4">
                 <div className="aspect-square relative mb-4 overflow-hidden rounded-lg bg-muted">
                   <Image
@@ -148,9 +183,14 @@ export function SearchResults({ products, query, totalResults }: SearchResultsPr
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                  <Badge className="absolute top-2 right-2 bg-primary">Score: {product.score}</Badge>
+                  <Badge className="absolute top-2 right-2 bg-primary">
+                    Score: {product.score}
+                  </Badge>
                   {product.originalPrice && (
-                    <Badge variant="destructive" className="absolute top-2 left-2">
+                    <Badge
+                      variant="destructive"
+                      className="absolute top-2 left-2"
+                    >
                       Sale
                     </Badge>
                   )}
@@ -164,20 +204,30 @@ export function SearchResults({ products, query, totalResults }: SearchResultsPr
                       {product.brand}
                     </Badge>
                   </div>
-                  <CardTitle className="text-lg line-clamp-2">{product.name}</CardTitle>
-                  <CardDescription className="text-sm line-clamp-2">{product.description}</CardDescription>
+                  <CardTitle className="text-lg line-clamp-2">
+                    {product.name}
+                  </CardTitle>
+                  <CardDescription className="text-sm line-clamp-2">
+                    {product.description}
+                  </CardDescription>
                 </div>
               </CardHeader>
               <CardContent className="p-4 pt-0">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-1">
                     <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm font-medium">{product.rating}</span>
-                    <span className="text-xs text-muted-foreground">({product.reviewCount})</span>
+                    <span className="text-sm font-medium">
+                      {product.rating}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      ({product.reviewCount})
+                    </span>
                   </div>
                   <div
                     className={`text-xs px-2 py-1 rounded-full ${
-                      product.inStock ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                      product.inStock
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
                     }`}
                   >
                     {product.inStock ? "In Stock" : "Out of Stock"}
@@ -188,7 +238,9 @@ export function SearchResults({ products, query, totalResults }: SearchResultsPr
                   <div>
                     <div className="text-lg font-bold">${product.price}</div>
                     {product.originalPrice && (
-                      <div className="text-sm text-muted-foreground line-through">${product.originalPrice}</div>
+                      <div className="text-sm text-muted-foreground line-through">
+                        ${product.originalPrice}
+                      </div>
                     )}
                   </div>
                   <Button variant="ghost" size="sm">
@@ -197,12 +249,20 @@ export function SearchResults({ products, query, totalResults }: SearchResultsPr
                 </div>
 
                 <div className="flex gap-2">
-                  <Link href={`/products/${product.category}/${product.id}`} className="flex-1">
+                  <Link
+                    href={`/products/${product.category}/${product.id}`}
+                    className="flex-1"
+                  >
                     <Button className="w-full" size="sm">
                       View Details
                     </Button>
                   </Link>
-                  <Button variant="outline" size="sm" disabled={!product.inStock} className="px-3 bg-transparent">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={!product.inStock}
+                    className="px-3 bg-transparent"
+                  >
                     <ShoppingCart className="w-4 h-4" />
                   </Button>
                 </div>
@@ -213,33 +273,54 @@ export function SearchResults({ products, query, totalResults }: SearchResultsPr
       ) : (
         <div className="space-y-4">
           {products.map((product) => (
-            <Card key={product.id} className="hover:shadow-md transition-shadow">
+            <Card
+              key={product.id}
+              className="hover:shadow-md transition-shadow"
+            >
               <CardContent className="p-6">
                 <div className="flex gap-6">
                   <div className="w-32 h-32 relative overflow-hidden rounded-lg bg-muted flex-shrink-0">
-                    <Image src={product.image || "/placeholder.svg"} alt={product.name} fill className="object-cover" />
+                    <Image
+                      src={product.image || "/placeholder.svg"}
+                      alt={product.name}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between mb-2">
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                          <Badge variant="secondary" className="text-xs capitalize">
+                          <Badge
+                            variant="secondary"
+                            className="text-xs capitalize"
+                          >
                             {product.category}
                           </Badge>
                           <Badge variant="outline" className="text-xs">
                             {product.brand}
                           </Badge>
-                          <Badge className="bg-primary text-xs">Score: {product.score}</Badge>
+                          <Badge className="bg-primary text-xs">
+                            Score: {product.score}
+                          </Badge>
                         </div>
-                        <h3 className="text-xl font-semibold mb-1">{product.name}</h3>
-                        <p className="text-muted-foreground text-sm line-clamp-2 mb-2">{product.description}</p>
+                        <h3 className="text-xl font-semibold mb-1">
+                          {product.name}
+                        </h3>
+                        <p className="text-muted-foreground text-sm line-clamp-2 mb-2">
+                          {product.description}
+                        </p>
                       </div>
 
                       <div className="text-right">
-                        <div className="text-2xl font-bold">${product.price}</div>
+                        <div className="text-2xl font-bold">
+                          ${product.price}
+                        </div>
                         {product.originalPrice && (
-                          <div className="text-sm text-muted-foreground line-through">${product.originalPrice}</div>
+                          <div className="text-sm text-muted-foreground line-through">
+                            ${product.originalPrice}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -247,12 +328,18 @@ export function SearchResults({ products, query, totalResults }: SearchResultsPr
                     <div className="flex items-center gap-4 mb-4">
                       <div className="flex items-center gap-1">
                         <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-sm font-medium">{product.rating}</span>
-                        <span className="text-xs text-muted-foreground">({product.reviewCount} reviews)</span>
+                        <span className="text-sm font-medium">
+                          {product.rating}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          ({product.reviewCount} reviews)
+                        </span>
                       </div>
                       <div
                         className={`text-xs px-2 py-1 rounded-full ${
-                          product.inStock ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                          product.inStock
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
                         }`}
                       >
                         {product.inStock ? "In Stock" : "Out of Stock"}
@@ -260,10 +347,16 @@ export function SearchResults({ products, query, totalResults }: SearchResultsPr
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <Link href={`/products/${product.category}/${product.id}`}>
+                      <Link
+                        href={`/products/${product.category}/${product.id}`}
+                      >
                         <Button size="sm">View Details</Button>
                       </Link>
-                      <Button variant="outline" size="sm" disabled={!product.inStock}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={!product.inStock}
+                      >
                         <ShoppingCart className="w-4 h-4 mr-2" />
                         Add to Cart
                       </Button>
@@ -293,5 +386,5 @@ export function SearchResults({ products, query, totalResults }: SearchResultsPr
         </div>
       )}
     </div>
-  )
+  );
 }

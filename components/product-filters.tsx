@@ -1,46 +1,68 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
-import { Slider } from "@/components/ui/slider"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useRouter, useSearchParams } from "next/navigation"
-import { useState } from "react"
-import type { SearchFilters } from "@/lib/types"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import type { SearchFilters } from "@/lib/types";
 
 interface ProductFiltersProps {
-  currentFilters: SearchFilters
+  currentFilters: SearchFilters;
 }
 
 export function ProductFilters({ currentFilters }: ProductFiltersProps) {
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [priceRange, setPriceRange] = useState([
     currentFilters.priceRange?.min || 0,
     currentFilters.priceRange?.max || 5000,
-  ])
+  ]);
 
-  const brands = ["Apple", "Samsung", "Sony", "Dell", "HP", "Lenovo", "Google", "OnePlus"]
-  const categories = ["smartphone", "laptop", "tablet", "smartwatch", "headphones", "camera"]
+  const brands = [
+    "Apple",
+    "Samsung",
+    "Sony",
+    "Dell",
+    "HP",
+    "Lenovo",
+    "Google",
+    "OnePlus",
+  ];
+  const categories = [
+    "smartphone",
+    "laptop",
+    "tablet",
+    "smartwatch",
+    "headphones",
+    "camera",
+  ];
 
   const updateFilters = (key: string, value: any) => {
-    const params = new URLSearchParams(searchParams.toString())
+    const params = new URLSearchParams(searchParams.toString());
 
     if (value === null || value === undefined || value === "") {
-      params.delete(key)
+      params.delete(key);
     } else {
-      params.set(key, value.toString())
+      params.set(key, value.toString());
     }
 
-    router.push(`/products?${params.toString()}`)
-  }
+    router.push(`/products?${params.toString()}`);
+  };
 
   const clearFilters = () => {
-    router.push("/products")
-  }
+    router.push("/products");
+  };
 
   return (
     <div className="space-y-6">
@@ -50,7 +72,10 @@ export function ProductFilters({ currentFilters }: ProductFiltersProps) {
           <CardTitle className="text-sm">Sort By</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <Select value={currentFilters.sortBy || ""} onValueChange={(value) => updateFilters("sortBy", value)}>
+          <Select
+            value={currentFilters.sortBy || ""}
+            onValueChange={(value) => updateFilters("sortBy", value)}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Sort by..." />
             </SelectTrigger>
@@ -85,7 +110,14 @@ export function ProductFilters({ currentFilters }: ProductFiltersProps) {
           <CardTitle className="text-sm">Price Range</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Slider value={priceRange} onValueChange={setPriceRange} max={5000} min={0} step={50} className="w-full" />
+          <Slider
+            value={priceRange}
+            onValueChange={setPriceRange}
+            max={5000}
+            min={0}
+            step={50}
+            className="w-full"
+          />
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>${priceRange[0]}</span>
             <span>${priceRange[1]}</span>
@@ -95,8 +127,8 @@ export function ProductFilters({ currentFilters }: ProductFiltersProps) {
             variant="outline"
             className="w-full bg-transparent"
             onClick={() => {
-              updateFilters("minPrice", priceRange[0])
-              updateFilters("maxPrice", priceRange[1])
+              updateFilters("minPrice", priceRange[0]);
+              updateFilters("maxPrice", priceRange[1]);
             }}
           >
             Apply Price Filter
@@ -115,9 +147,14 @@ export function ProductFilters({ currentFilters }: ProductFiltersProps) {
               <Checkbox
                 id={category}
                 checked={currentFilters.category === category}
-                onCheckedChange={(checked) => updateFilters("category", checked ? category : null)}
+                onCheckedChange={(checked) =>
+                  updateFilters("category", checked ? category : null)
+                }
               />
-              <Label htmlFor={category} className="text-sm capitalize cursor-pointer">
+              <Label
+                htmlFor={category}
+                className="text-sm capitalize cursor-pointer"
+              >
                 {category}s
               </Label>
             </div>
@@ -136,7 +173,9 @@ export function ProductFilters({ currentFilters }: ProductFiltersProps) {
               <Checkbox
                 id={brand}
                 checked={currentFilters.brand?.includes(brand) || false}
-                onCheckedChange={(checked) => updateFilters("brand", checked ? brand : null)}
+                onCheckedChange={(checked) =>
+                  updateFilters("brand", checked ? brand : null)
+                }
               />
               <Label htmlFor={brand} className="text-sm cursor-pointer">
                 {brand}
@@ -157,9 +196,14 @@ export function ProductFilters({ currentFilters }: ProductFiltersProps) {
               <Checkbox
                 id={`rating-${rating}`}
                 checked={currentFilters.rating === rating}
-                onCheckedChange={(checked) => updateFilters("rating", checked ? rating : null)}
+                onCheckedChange={(checked) =>
+                  updateFilters("rating", checked ? rating : null)
+                }
               />
-              <Label htmlFor={`rating-${rating}`} className="text-sm cursor-pointer">
+              <Label
+                htmlFor={`rating-${rating}`}
+                className="text-sm cursor-pointer"
+              >
                 {rating}+ Stars
               </Label>
             </div>
@@ -168,9 +212,13 @@ export function ProductFilters({ currentFilters }: ProductFiltersProps) {
       </Card>
 
       {/* Clear Filters */}
-      <Button variant="outline" className="w-full bg-transparent" onClick={clearFilters}>
+      <Button
+        variant="outline"
+        className="w-full bg-transparent"
+        onClick={clearFilters}
+      >
         Clear All Filters
       </Button>
     </div>
-  )
+  );
 }
