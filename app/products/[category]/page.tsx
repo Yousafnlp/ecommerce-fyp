@@ -1,9 +1,9 @@
 import { Database } from "@/lib/database";
 import { notFound } from "next/navigation";
 import { AuthenticatedHeader } from "@/components/layout/authenticated-header";
-import { CategoryHeader } from "@/components/category.tsx/category-header";
-import { CategoryBreadcrumb } from "@/components/category.tsx/category-breadcrums";
-import { CategoryProducts } from "@/components/category.tsx/category-products";
+import { CategoryHeader } from "@/components/products/category/category-header";
+import { CategoryBreadcrumb } from "@/components/products/category/category-breadcrums";
+import { CategoryProducts } from "@/components/products/category/category-products";
 interface CategoryPageProps {
   params: { category: string };
 }
