@@ -1,25 +1,38 @@
-"use client"
+"use client";
 
-import { useAuth } from "@/lib/auth-context"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Heart, Star, Settings, LogOut, Package, TrendingUp } from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useAuth } from "@/lib/auth-context";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Heart,
+  Star,
+  Settings,
+  LogOut,
+  Package,
+  TrendingUp,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export function UserDashboard() {
-  const { user, signOut } = useAuth()
-  const router = useRouter()
+  const { user, signOut } = useAuth();
+  const router = useRouter();
 
   const handleSignOut = async () => {
-    await signOut()
-    router.push("/")
-  }
+    await signOut();
+    router.push("/");
+  };
 
-  if (!user) return null
+  if (!user) return null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -29,7 +42,9 @@ export function UserDashboard() {
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">S</span>
+                <span className="text-primary-foreground font-bold text-sm">
+                  S
+                </span>
               </div>
               <div>
                 <h1 className="text-xl font-bold text-foreground">SpecSmart</h1>
@@ -37,16 +52,28 @@ export function UserDashboard() {
             </Link>
 
             <nav className="hidden md:flex items-center gap-6">
-              <Link href="/products" className="text-sm font-medium hover:text-primary transition-colors">
+              <Link
+                href="/products"
+                className="text-sm font-medium hover:text-primary transition-colors"
+              >
                 Products
               </Link>
-              <Link href="/compare" className="text-sm font-medium hover:text-primary transition-colors">
+              <Link
+                href="/compare"
+                className="text-sm font-medium hover:text-primary transition-colors"
+              >
                 Compare
               </Link>
-              <Link href="/search" className="text-sm font-medium hover:text-primary transition-colors">
+              <Link
+                href="/search"
+                className="text-sm font-medium hover:text-primary transition-colors"
+              >
                 Search
               </Link>
-              <Link href="/advisor" className="text-sm font-medium hover:text-primary transition-colors">
+              <Link
+                href="/advisor"
+                className="text-sm font-medium hover:text-primary transition-colors"
+              >
                 AI Advisor
               </Link>
             </nav>
@@ -77,7 +104,9 @@ export function UserDashboard() {
             </Avatar>
             <div>
               <h1 className="text-3xl font-bold">Welcome back, {user.name}!</h1>
-              <p className="text-muted-foreground">Manage your account and discover new tech</p>
+              <p className="text-muted-foreground">
+                Manage your account and discover new tech
+              </p>
             </div>
           </div>
         </div>
@@ -92,7 +121,9 @@ export function UserDashboard() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">12</p>
-                  <p className="text-sm text-muted-foreground">Wishlist Items</p>
+                  <p className="text-sm text-muted-foreground">
+                    Wishlist Items
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -163,20 +194,27 @@ export function UserDashboard() {
                     <div className="flex items-center justify-between p-3 border rounded-lg">
                       <div>
                         <p className="font-medium">iPhone 15 Pro</p>
-                        <p className="text-sm text-muted-foreground">Order #12345</p>
+                        <p className="text-sm text-muted-foreground">
+                          Order #12345
+                        </p>
                       </div>
                       <Badge>Delivered</Badge>
                     </div>
                     <div className="flex items-center justify-between p-3 border rounded-lg">
                       <div>
                         <p className="font-medium">MacBook Pro 14"</p>
-                        <p className="text-sm text-muted-foreground">Order #12344</p>
+                        <p className="text-sm text-muted-foreground">
+                          Order #12344
+                        </p>
                       </div>
                       <Badge variant="secondary">Shipped</Badge>
                     </div>
                   </div>
                   <Link href="/dashboard/orders">
-                    <Button variant="outline" className="w-full mt-4 bg-transparent">
+                    <Button
+                      variant="outline"
+                      className="w-full mt-4 bg-transparent"
+                    >
                       View All Orders
                     </Button>
                   </Link>
@@ -209,7 +247,10 @@ export function UserDashboard() {
                     </div>
                   </div>
                   <Link href="/products">
-                    <Button variant="outline" className="w-full mt-4 bg-transparent">
+                    <Button
+                      variant="outline"
+                      className="w-full mt-4 bg-transparent"
+                    >
                       Browse Products
                     </Button>
                   </Link>
@@ -225,7 +266,9 @@ export function UserDashboard() {
                 <CardDescription>Track and manage your orders</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">Order history will be displayed here.</p>
+                <p className="text-muted-foreground">
+                  Order history will be displayed here.
+                </p>
               </CardContent>
             </Card>
           </TabsContent>
@@ -234,10 +277,14 @@ export function UserDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle>Your Wishlist</CardTitle>
-                <CardDescription>Products you want to buy later</CardDescription>
+                <CardDescription>
+                  Products you want to buy later
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">Your wishlist items will be displayed here.</p>
+                <p className="text-muted-foreground">
+                  Your wishlist items will be displayed here.
+                </p>
               </CardContent>
             </Card>
           </TabsContent>
@@ -246,7 +293,9 @@ export function UserDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle>Account Settings</CardTitle>
-                <CardDescription>Manage your account preferences</CardDescription>
+                <CardDescription>
+                  Manage your account preferences
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -254,11 +303,15 @@ export function UserDashboard() {
                     <h3 className="font-medium mb-2">Personal Information</h3>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="text-sm text-muted-foreground">Name</label>
+                        <label className="text-sm text-muted-foreground">
+                          Name
+                        </label>
                         <p className="font-medium">{user.name}</p>
                       </div>
                       <div>
-                        <label className="text-sm text-muted-foreground">Email</label>
+                        <label className="text-sm text-muted-foreground">
+                          Email
+                        </label>
                         <p className="font-medium">{user.email}</p>
                       </div>
                     </div>
@@ -274,5 +327,5 @@ export function UserDashboard() {
         </Tabs>
       </div>
     </div>
-  )
+  );
 }

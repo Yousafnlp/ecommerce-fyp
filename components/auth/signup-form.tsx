@@ -1,97 +1,99 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Eye, EyeOff, Mail, Lock, User, Loader2 } from "lucide-react"
-import { useAuth } from "@/lib/auth-context"
-import { useRouter } from "next/navigation"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Eye, EyeOff, Mail, Lock, User, Loader2 } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
+import { useRouter } from "next/navigation";
 
 export function SignUpForm() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
     agreeToTerms: false,
-  })
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { signUp } = useAuth()
-  const router = useRouter()
+  const { signUp } = useAuth();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setErrors({})
+    e.preventDefault();
+    setIsLoading(true);
+    setErrors({});
 
     try {
       // Basic validation
-      const newErrors: Record<string, string> = {}
+      const newErrors: Record<string, string> = {};
 
       if (!formData.name.trim()) {
-        newErrors.name = "Name is required"
+        newErrors.name = "Name is required";
       }
 
       if (!formData.email) {
-        newErrors.email = "Email is required"
+        newErrors.email = "Email is required";
       } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-        newErrors.email = "Please enter a valid email"
+        newErrors.email = "Please enter a valid email";
       }
 
       if (!formData.password) {
-        newErrors.password = "Password is required"
+        newErrors.password = "Password is required";
       } else if (formData.password.length < 6) {
-        newErrors.password = "Password must be at least 6 characters"
+        newErrors.password = "Password must be at least 6 characters";
       }
 
       if (formData.password !== formData.confirmPassword) {
-        newErrors.confirmPassword = "Passwords do not match"
+        newErrors.confirmPassword = "Passwords do not match";
       }
 
       if (!formData.agreeToTerms) {
-        newErrors.agreeToTerms = "You must agree to the terms and conditions"
+        newErrors.agreeToTerms = "You must agree to the terms and conditions";
       }
 
       if (Object.keys(newErrors).length > 0) {
-        setErrors(newErrors)
-        return
+        setErrors(newErrors);
+        return;
       }
 
       // Mock sign up - replace with real authentication
-      await signUp(formData.name, formData.email, formData.password)
-      router.push("/dashboard")
+      await signUp(formData.name, formData.email, formData.password);
+      router.push("/dashboard");
     } catch (error) {
-      setErrors({ general: "Failed to create account. Please try again." })
+      setErrors({ general: "Failed to create account. Please try again." });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target
+    const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
-    }))
+    }));
     // Clear error when user starts typing
     if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }))
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {errors.general && (
-        <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">{errors.general}</div>
+        <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">
+          {errors.general}
+        </div>
       )}
 
       <div className="space-y-2">
@@ -109,7 +111,9 @@ export function SignUpForm() {
             disabled={isLoading}
           />
         </div>
-        {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
+        {errors.name && (
+          <p className="text-sm text-destructive">{errors.name}</p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -127,7 +131,9 @@ export function SignUpForm() {
             disabled={isLoading}
           />
         </div>
-        {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+        {errors.email && (
+          <p className="text-sm text-destructive">{errors.email}</p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -141,7 +147,9 @@ export function SignUpForm() {
             placeholder="Create a password"
             value={formData.password}
             onChange={handleChange}
-            className={`pl-10 pr-10 ${errors.password ? "border-destructive" : ""}`}
+            className={`pl-10 pr-10 ${
+              errors.password ? "border-destructive" : ""
+            }`}
             disabled={isLoading}
           />
           <Button
@@ -159,7 +167,9 @@ export function SignUpForm() {
             )}
           </Button>
         </div>
-        {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
+        {errors.password && (
+          <p className="text-sm text-destructive">{errors.password}</p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -173,7 +183,9 @@ export function SignUpForm() {
             placeholder="Confirm your password"
             value={formData.confirmPassword}
             onChange={handleChange}
-            className={`pl-10 pr-10 ${errors.confirmPassword ? "border-destructive" : ""}`}
+            className={`pl-10 pr-10 ${
+              errors.confirmPassword ? "border-destructive" : ""
+            }`}
             disabled={isLoading}
           />
           <Button
@@ -191,7 +203,9 @@ export function SignUpForm() {
             )}
           </Button>
         </div>
-        {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword}</p>}
+        {errors.confirmPassword && (
+          <p className="text-sm text-destructive">{errors.confirmPassword}</p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -200,7 +214,12 @@ export function SignUpForm() {
             id="agreeToTerms"
             name="agreeToTerms"
             checked={formData.agreeToTerms}
-            onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, agreeToTerms: checked as boolean }))}
+            onCheckedChange={(checked) =>
+              setFormData((prev) => ({
+                ...prev,
+                agreeToTerms: checked as boolean,
+              }))
+            }
             disabled={isLoading}
           />
           <Label
@@ -217,7 +236,9 @@ export function SignUpForm() {
             </a>
           </Label>
         </div>
-        {errors.agreeToTerms && <p className="text-sm text-destructive">{errors.agreeToTerms}</p>}
+        {errors.agreeToTerms && (
+          <p className="text-sm text-destructive">{errors.agreeToTerms}</p>
+        )}
       </div>
 
       <Button type="submit" className="w-full" disabled={isLoading}>
@@ -236,7 +257,9 @@ export function SignUpForm() {
           <Separator className="w-full" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+          <span className="bg-background px-2 text-muted-foreground">
+            Or continue with
+          </span>
         </div>
       </div>
 
@@ -270,5 +293,5 @@ export function SignUpForm() {
         </Button>
       </div>
     </form>
-  )
+  );
 }

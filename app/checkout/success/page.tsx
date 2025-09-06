@@ -1,5 +1,5 @@
-import { CheckoutSuccessContent } from "@/components/checkout/checkout-success-content"
-import { AuthenticatedHeader } from "@/components/authenticated-header"
+import { CheckoutSuccessContent } from "@/components/checkout/checkout-success-content";
+import { AuthenticatedHeader } from "@/components/authenticated-header";
 
 export default function CheckoutSuccessPage() {
   return (
@@ -7,5 +7,5 @@ export default function CheckoutSuccessPage() {
       <AuthenticatedHeader />
       <CheckoutSuccessContent />
     </div>
-  )
+  );
 }

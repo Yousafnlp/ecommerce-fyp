@@ -1,77 +1,79 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
-import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react"
-import { useAuth } from "@/lib/auth-context"
-import { useRouter } from "next/navigation"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
+import { useRouter } from "next/navigation";
 
 export function SignInForm() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-  })
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { signIn } = useAuth()
-  const router = useRouter()
+  const { signIn } = useAuth();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setErrors({})
+    e.preventDefault();
+    setIsLoading(true);
+    setErrors({});
 
     try {
       // Basic validation
-      const newErrors: Record<string, string> = {}
+      const newErrors: Record<string, string> = {};
 
       if (!formData.email) {
-        newErrors.email = "Email is required"
+        newErrors.email = "Email is required";
       } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-        newErrors.email = "Please enter a valid email"
+        newErrors.email = "Please enter a valid email";
       }
 
       if (!formData.password) {
-        newErrors.password = "Password is required"
+        newErrors.password = "Password is required";
       } else if (formData.password.length < 6) {
-        newErrors.password = "Password must be at least 6 characters"
+        newErrors.password = "Password must be at least 6 characters";
       }
 
       if (Object.keys(newErrors).length > 0) {
-        setErrors(newErrors)
-        return
+        setErrors(newErrors);
+        return;
       }
 
       // Mock sign in - replace with real authentication
-      await signIn(formData.email, formData.password)
-      router.push("/dashboard")
+      await signIn(formData.email, formData.password);
+      router.push("/dashboard");
     } catch (error) {
-      setErrors({ general: "Invalid email or password" })
+      setErrors({ general: "Invalid email or password" });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
     // Clear error when user starts typing
     if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }))
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {errors.general && (
-        <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">{errors.general}</div>
+        <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">
+          {errors.general}
+        </div>
       )}
 
       <div className="space-y-2">
@@ -89,7 +91,9 @@ export function SignInForm() {
             disabled={isLoading}
           />
         </div>
-        {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+        {errors.email && (
+          <p className="text-sm text-destructive">{errors.email}</p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -103,7 +107,9 @@ export function SignInForm() {
             placeholder="Enter your password"
             value={formData.password}
             onChange={handleChange}
-            className={`pl-10 pr-10 ${errors.password ? "border-destructive" : ""}`}
+            className={`pl-10 pr-10 ${
+              errors.password ? "border-destructive" : ""
+            }`}
             disabled={isLoading}
           />
           <Button
@@ -121,7 +127,9 @@ export function SignInForm() {
             )}
           </Button>
         </div>
-        {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
+        {errors.password && (
+          <p className="text-sm text-destructive">{errors.password}</p>
+        )}
       </div>
 
       <Button type="submit" className="w-full" disabled={isLoading}>
@@ -140,7 +148,9 @@ export function SignInForm() {
           <Separator className="w-full" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+          <span className="bg-background px-2 text-muted-foreground">
+            Or continue with
+          </span>
         </div>
       </div>
 
@@ -174,5 +184,5 @@ export function SignInForm() {
         </Button>
       </div>
     </form>
-  )
+  );
 }

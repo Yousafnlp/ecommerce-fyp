@@ -1,7 +1,13 @@
-import { SignInForm } from "@/components/auth/signin-form"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import { SignInForm } from "@/components/auth/signin-form";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function SignInPage() {
   return (
@@ -15,7 +21,9 @@ export default function SignInPage() {
             </div>
             <div className="text-left">
               <h1 className="text-2xl font-bold text-foreground">SpecSmart</h1>
-              <p className="text-xs text-muted-foreground">Smarter Choices. Sharper Tech</p>
+              <p className="text-xs text-muted-foreground">
+                Smarter Choices. Sharper Tech
+              </p>
             </div>
           </Link>
         </div>
@@ -25,7 +33,8 @@ export default function SignInPage() {
           <CardHeader className="text-center">
             <CardTitle>Welcome Back</CardTitle>
             <CardDescription>
-              Sign in to your account to continue shopping and get personalized recommendations
+              Sign in to your account to continue shopping and get personalized
+              recommendations
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -37,7 +46,10 @@ export default function SignInPage() {
         <div className="text-center">
           <p className="text-sm text-muted-foreground">
             Don't have an account?{" "}
-            <Link href="/auth/signup" className="text-primary hover:underline font-medium">
+            <Link
+              href="/auth/signup"
+              className="text-primary hover:underline font-medium"
+            >
               Sign up for free
             </Link>
           </p>
@@ -53,5 +65,5 @@ export default function SignInPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
