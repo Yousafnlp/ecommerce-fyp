@@ -45,7 +45,7 @@ export default function SignInPage() {
         {/* Sign Up Link */}
         <div className="text-center">
           <p className="text-sm text-muted-foreground">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link
               href="/auth/signup"
               className="text-primary hover:underline font-medium"
