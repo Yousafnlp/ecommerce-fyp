@@ -50,14 +50,23 @@ export function AdvancedSearchInterface({
 
   // Initialize speech recognition
   useEffect(() => {
-    if (typeof window !== "undefined" && SpeechRecognition) {
-      const recognition = new SpeechRecognition();
+    if (typeof window !== "undefined") {
+      const SpeechRecognitionClass =
+        (window as any).SpeechRecognition ||
+        (window as any).webkitSpeechRecognition;
+
+      if (!SpeechRecognitionClass) {
+        console.warn("Speech recognition not supported in this browser.");
+        return;
+      }
+
+      const recognition = new SpeechRecognitionClass();
 
       recognition.continuous = false;
       recognition.interimResults = false;
       recognition.lang = "en-US";
 
-      recognition.onresult = (event) => {
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
         const transcript = event.results[0][0].transcript;
         setQuery(transcript);
         setIsListening(false);
