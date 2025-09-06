@@ -12,81 +12,18 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Heart,
-  Star,
-  Settings,
-  LogOut,
-  Package,
-  TrendingUp,
-} from "lucide-react";
+import { Heart, Star, Settings, Package, TrendingUp } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { AuthenticatedHeader } from "../layout/authenticated-header";
 
 export function UserDashboard() {
-  const { user, signOut } = useAuth();
-  const router = useRouter();
-
-  const handleSignOut = async () => {
-    await signOut();
-    router.push("/");
-  };
+  const { user } = useAuth();
 
   if (!user) return null;
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">
-                  S
-                </span>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-foreground">SpecSmart</h1>
-              </div>
-            </Link>
-
-            <nav className="hidden md:flex items-center gap-6">
-              <Link
-                href="/products"
-                className="text-sm font-medium hover:text-primary transition-colors"
-              >
-                Products
-              </Link>
-              <Link
-                href="/compare"
-                className="text-sm font-medium hover:text-primary transition-colors"
-              >
-                Compare
-              </Link>
-              <Link
-                href="/search"
-                className="text-sm font-medium hover:text-primary transition-colors"
-              >
-                Search
-              </Link>
-              <Link
-                href="/advisor"
-                className="text-sm font-medium hover:text-primary transition-colors"
-              >
-                AI Advisor
-              </Link>
-            </nav>
-
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={handleSignOut}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <AuthenticatedHeader />
 
       <div className="container mx-auto px-4 py-8">
         {/* Welcome Section */}
@@ -202,7 +139,7 @@ export function UserDashboard() {
                     </div>
                     <div className="flex items-center justify-between p-3 border rounded-lg">
                       <div>
-                        <p className="font-medium">MacBook Pro 14"</p>
+                        <p className="font-medium">MacBook Pro 14&quot;</p>
                         <p className="text-sm text-muted-foreground">
                           Order #12344
                         </p>
