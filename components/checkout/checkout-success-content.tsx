@@ -1,10 +1,19 @@
-"use client"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle, Package } from "lucide-react"
+"use client";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { CheckCircle, Package } from "lucide-react";
 
 export function CheckoutSuccessContent() {
-  const orderNumber = "SS" + Math.random().toString(36).substr(2, 9).toUpperCase()
-  const estimatedDelivery = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toLocaleDateString()
+  const orderNumber =
+    "SS" + Math.random().toString(36).substr(2, 9).toUpperCase();
+  const estimatedDelivery = new Date(
+    Date.now() + 5 * 24 * 60 * 60 * 1000
+  ).toLocaleDateString();
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -13,13 +22,12 @@ export function CheckoutSuccessContent() {
         <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
           <CheckCircle className="w-12 h-12 text-green-600" />
         </div>
-
         {/* Success Message */}
         <h1 className="text-3xl font-bold mb-2">Order Placed Successfully!</h1>
         <p className="text-muted-foreground mb-8">
-          Thank you for your purchase. Your order has been confirmed and is being processed.
+          Thank you for your purchase. Your order has been confirmed and is
+          being processed.
         </p>
-
         {/* Order Details */}
         <Card className="mb-8">
           <CardHeader>
@@ -33,5 +41,14 @@ export function CheckoutSuccessContent() {
                   <Package className="w-6 h-6 text-primary" />
                 </div>
                 <h3 className="font-semibold">Processing</h3>
-                <p className="text-sm text-muted-foreground">Your order is being prepared</p>
-              </div>\
+                <p className="text-sm text-muted-foreground">
+                  Your order is being prepared
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
