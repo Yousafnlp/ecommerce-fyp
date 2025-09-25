@@ -1,5 +1,5 @@
 import { CheckoutPageContent } from "@/components/checkout/checkout-page-content";
-import { AuthenticatedHeader } from "@/components/authenticated-header";
+import { AuthenticatedHeader } from "@/components/layout/authenticated-header";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 
 export default function CheckoutPage() {

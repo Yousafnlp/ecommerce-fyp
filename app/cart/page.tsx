@@ -1,5 +1,5 @@
-import { CartPageContent } from "@/components/cart/cart-page-content";
-import { AuthenticatedHeader } from "@/components/authenticated-header";
+import { CartPageContent } from "@/components/cart/CartPageContent";
+import { AuthenticatedHeader } from "@/components/layout/authenticated-header";
 
 export default function CartPage() {
   return (
