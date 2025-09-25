@@ -1,7 +1,7 @@
 import { Database } from "@/lib/database";
 import { AdvancedSearchInterface } from "@/components/search/advanced-search-interface";
 import { SearchResults } from "@/components/search/search-results";
-import { AuthenticatedHeader } from "@/components/authenticated-header";
+import { AuthenticatedHeader } from "@/components/layout/authenticated-header";
 
 interface SearchPageProps {
   searchParams: {
