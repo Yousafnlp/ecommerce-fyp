@@ -18,6 +18,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
+
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import type { SearchFilters } from "@/lib/types";
@@ -191,20 +198,40 @@ export function AdvancedSearchInterface({
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               className="pr-12"
             />
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`absolute right-1 top-1 h-8 w-8 p-0 ${
-                isListening ? "text-red-500" : ""
-              }`}
-              onClick={handleVoiceSearch}
-            >
-              {isListening ? (
-                <MicOff className="w-4 h-4" />
-              ) : (
-                <Mic className="w-4 h-4" />
-              )}
-            </Button>
+            {!recognition ? (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      aria-disabled="true" // ✅ use aria-disabled, not disabled
+                      className="absolute right-1 top-1 h-8 w-8 p-0 cursor-not-allowed"
+                    >
+                      <Mic className="w-4 h-4 opacity-50" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Voice search works in Chrome-based browsers
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`absolute right-1 top-1 h-8 w-8 p-0 ${
+                  isListening ? "text-red-500" : ""
+                }`}
+                onClick={handleVoiceSearch}
+              >
+                {isListening ? (
+                  <MicOff className="w-4 h-4" />
+                ) : (
+                  <Mic className="w-4 h-4" />
+                )}
+              </Button>
+            )}
           </div>
 
           {/* Voice Status */}
