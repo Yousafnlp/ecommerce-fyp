@@ -14,6 +14,7 @@ import {
 import { Zap, User, Settings, LogOut, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ThemeMenuItem } from "../theme-toggle";
 
 export function AuthenticatedHeader() {
   const { user, signOut } = useAuth();
@@ -126,6 +127,9 @@ export function AuthenticatedHeader() {
                         <Settings className="mr-2 h-4 w-4" />
                         Settings
                       </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <ThemeMenuItem />
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut}>
