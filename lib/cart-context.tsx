@@ -27,7 +27,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (savedCart) {
       try {
         setItems(JSON.parse(savedCart));
-      } catch (error) {
+      } catch  {
         localStorage.removeItem("specsmart_cart");
       }
     }
@@ -92,13 +92,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
-  const calculateTotalPrice = async () => {
-    const cartProducts = await getCartProducts();
-    return cartProducts.reduce(
-      (sum, product) => sum + product.price * product.quantity,
-      0
-    );
-  };
+  // const calculateTotalPrice = async () => {
+  //   const cartProducts = await getCartProducts();
+  //   return cartProducts.reduce(
+  //     (sum, product) => sum + product.price * product.quantity,
+  //     0
+  //   );
+  // };
 
   // For simplicity, we'll calculate total price synchronously using a mock
   const totalPrice = items.reduce((sum, item) => {

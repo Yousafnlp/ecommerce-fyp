@@ -5,8 +5,9 @@ import OverviewTab from "./tabs/overview-tab";
 import OrdersTab from "./tabs/orders-tab";
 import WishlistTab from "./tabs/wishlist-tab";
 import SettingsTab from "./tabs/settings-tab";
+import type { User } from "@/lib/types";
 
-export function DashboardTabs({ user }: { user: any }) {
+export function DashboardTabs({ user }: { user: User }) {
   return (
     <Tabs defaultValue="overview" className="space-y-6">
       <TabsList className="grid w-full grid-cols-4">

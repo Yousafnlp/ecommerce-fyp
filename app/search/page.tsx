@@ -1,10 +1,11 @@
 import { Database } from "@/lib/database";
+import type { Product, SearchFilters } from "@/lib/types";
 import { AdvancedSearchInterface } from "@/components/search/advanced-search-interface";
 import { SearchResults } from "@/components/search/search-results";
 import { AuthenticatedHeader } from "@/components/layout/authenticated-header";
 
 interface SearchPageProps {
-  searchParams: {
+  searchParams: Promise<{
     q?: string;
     category?: string;
     brand?: string;
@@ -14,30 +15,31 @@ interface SearchPageProps {
     features?: string;
     sortBy?: string;
     sortOrder?: string;
-  };
+  }>;
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const query = searchParams.q || "";
+  const params = await searchParams;
+  const query = params.q || "";
 
   // Build search filters from URL params
-  const filters = {
-    category: searchParams.category,
-    brand: searchParams.brand ? [searchParams.brand] : undefined,
+  const filters: SearchFilters = {
+    category: params.category,
+    brand: params.brand ? [params.brand] : undefined,
     priceRange:
-      searchParams.minPrice || searchParams.maxPrice
+      params.minPrice || params.maxPrice
         ? {
-            min: Number(searchParams.minPrice) || 0,
-            max: Number(searchParams.maxPrice) || 10000,
+            min: Number(params.minPrice) || 0,
+            max: Number(params.maxPrice) || 10000,
           }
         : undefined,
-    rating: searchParams.rating ? Number(searchParams.rating) : undefined,
-    sortBy: searchParams.sortBy as any,
-    sortOrder: searchParams.sortOrder as any,
+    rating: params.rating ? Number(params.rating) : undefined,
+    sortBy: params.sortBy as SearchFilters["sortBy"],
+    sortOrder: params.sortOrder as SearchFilters["sortOrder"],
   };
 
   // Get search results
-  let products = [];
+  let products: Product[] = [];
   if (query) {
     products = await Database.searchProducts(query);
     // Apply additional filters

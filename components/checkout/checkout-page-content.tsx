@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useCart } from "@/lib/cart-context";
-import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -36,7 +35,6 @@ import type { Product, Address } from "@/lib/types";
 
 export function CheckoutPageContent() {
   const { items, totalItems, getCartProducts, clearCart } = useCart();
-  const { user } = useAuth();
   const router = useRouter();
 
   const [cartProducts, setCartProducts] = useState<
@@ -54,13 +52,13 @@ export function CheckoutPageContent() {
     country: "United States",
   });
 
-  const [billingAddress, setBillingAddress] = useState<Address>({
-    street: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    country: "United States",
-  });
+  // const [billingAddress, setBillingAddress] = useState<Address>({
+  //   street: "",
+  //   city: "",
+  //   state: "",
+  //   zipCode: "",
+  //   country: "United States",
+  // });
 
   const [sameAsShipping, setSameAsShipping] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState("card");
@@ -391,7 +389,7 @@ export function CheckoutPageContent() {
                   <Checkbox
                     id="sameAddress"
                     checked={sameAsShipping}
-                    onCheckedChange={setSameAsShipping}
+                    onCheckedChange={(checked) => setSameAsShipping(checked === "indeterminate" ? true : checked)}
                   />
                   <Label htmlFor="sameAddress" className="text-sm">
                     Billing address same as shipping

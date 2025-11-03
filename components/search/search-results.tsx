@@ -53,7 +53,7 @@ export function SearchResults({
           </div>
           <h3 className="text-xl font-semibold mb-2">No results found</h3>
           <p className="text-muted-foreground mb-6">
-            We couldn't find any products matching "{query}". Try adjusting your
+            We couldn&apos;t find any products matching &quot;{query}&quot;. Try adjusting your
             search or filters.
           </p>
           <div className="space-y-4">
