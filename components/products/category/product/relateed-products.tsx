@@ -9,9 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import type { Product } from "@/lib/types";
 
 interface RelatedProductsProps {
-  products: any[];
+  products: Product[];
 }
 
 export function RelatedProducts({ products }: RelatedProductsProps) {

@@ -52,8 +52,7 @@ export function AdvancedSearchInterface({
   useEffect(() => {
     if (typeof window !== "undefined") {
       const SpeechRecognitionClass =
-        (window as any).SpeechRecognition ||
-        (window as any).webkitSpeechRecognition;
+        window.SpeechRecognition || window.webkitSpeechRecognition;
 
       if (!SpeechRecognitionClass) {
         console.warn("Speech recognition not supported in this browser.");
@@ -143,7 +142,10 @@ export function AdvancedSearchInterface({
     router.push("/search");
   };
 
-  const updateFilter = (key: keyof SearchFilters, value: any) => {
+  const updateFilter = <K extends keyof SearchFilters>(
+    key: K,
+    value: SearchFilters[K]
+  ) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -347,7 +349,12 @@ export function AdvancedSearchInterface({
               <Select
                 value={filters.sortBy || "relevance"}
                 onValueChange={(value) =>
-                  updateFilter("sortBy", value || undefined)
+                  updateFilter(
+                    "sortBy",
+                    value === "relevance"
+                      ? undefined
+                      : (value as SearchFilters["sortBy"]) 
+                  )
                 }
               >
                 <SelectTrigger>
@@ -365,7 +372,12 @@ export function AdvancedSearchInterface({
               {filters.sortBy && (
                 <Select
                   value={filters.sortOrder || "desc"}
-                  onValueChange={(value) => updateFilter("sortOrder", value)}
+                  onValueChange={(value) =>
+                    updateFilter(
+                      "sortOrder",
+                      value as SearchFilters["sortOrder"]
+                    )
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />

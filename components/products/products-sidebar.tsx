@@ -1,7 +1,8 @@
-import { ProductFilters } from "@/components/product-filters";
+  import { ProductFilters } from "@/components/product-filters";
 import { Filter } from "lucide-react";
+import type { SearchFilters } from "@/lib/types";
 
-export function ProductsSidebar({ filters }) {
+export function ProductsSidebar({ filters }: { filters: SearchFilters }) {
   return (
     <aside className="lg:w-64 flex-shrink-0">
       <div className="sticky top-24">

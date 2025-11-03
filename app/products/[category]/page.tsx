@@ -5,7 +5,7 @@ import { CategoryHeader } from "@/components/products/category/category-header";
 import { CategoryBreadcrumb } from "@/components/products/category/category-breadcrums";
 import { CategoryProducts } from "@/components/products/category/category-products";
 interface CategoryPageProps {
-  params: { category: string };
+  params: Promise<{ category: string }>;
 }
 
 const categoryInfo = {
@@ -37,13 +37,13 @@ const categoryInfo = {
 };
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
-  const { category } = params;
+  const { category } = await params;
 
   if (!categoryInfo[category as keyof typeof categoryInfo]) {
     notFound();
   }
 
-  const products = await Database.getProducts({ category: category as any });
+  const products = await Database.getProducts({ category });
   const info = categoryInfo[category as keyof typeof categoryInfo];
 
   return (

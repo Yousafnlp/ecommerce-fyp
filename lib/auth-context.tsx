@@ -26,14 +26,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (storedUser) {
       try {
         setUser(JSON.parse(storedUser));
-      } catch (error) {
+      } catch  {
         localStorage.removeItem("specsmart_user");
       }
     }
     setIsLoading(false);
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string) => {
     setIsLoading(true);
 
     // Mock authentication - replace with real API call
@@ -59,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(false);
   };
 
-  const signUp = async (name: string, email: string, password: string) => {
+  const signUp = async (name: string, email: string) => {
     setIsLoading(true);
 
     // Mock registration - replace with real API call
