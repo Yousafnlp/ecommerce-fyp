@@ -3,8 +3,9 @@ import { ProductGrid } from "@/components/product-grid";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import type { Product } from "@/lib/types";
 
-export function ProductsContent({ products }) {
+export function ProductsContent({ products }: { products: Product[] }) {
   return (
     <main className="flex-1">
       <div className="flex items-center justify-between mb-6">
