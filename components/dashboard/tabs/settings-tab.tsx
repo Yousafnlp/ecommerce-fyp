@@ -7,8 +7,9 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Settings } from "lucide-react";
+import type { User } from "@/lib/types";
 
-export default function SettingsTab({ user }: { user: any }) {
+export default function SettingsTab({ user }: { user: User }) {
   return (
     <Card>
       <CardHeader>
