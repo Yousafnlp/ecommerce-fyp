@@ -30,7 +30,7 @@ import { Slider } from "@/components/ui/slider";
 import type { SearchFilters } from "@/lib/types";
 import { Filter, Mic, MicOff, Search, Sparkles, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useWebSpeechRecognition } from "./useWebSpeechRecognition";
 import { useWhisperFallback } from "./useWhisperFallback";
 
@@ -266,9 +266,9 @@ export function AdvancedSearchInterface({
           <div className="space-y-2">
             <Label>Category</Label>
             <Select
-              value={filters.category || "all"}
+              value={filters.category ?? "all"}
               onValueChange={(value) =>
-                updateFilter("category", value || undefined)
+                updateFilter("category", value === "all" ? undefined : value)
               }
             >
               <SelectTrigger>
@@ -293,9 +293,9 @@ export function AdvancedSearchInterface({
           <div className="space-y-2">
             <Label>Brand</Label>
             <Select
-              value={filters.brand?.[0] || "all"}
+              value={filters.brand?.[0] ?? "all"}
               onValueChange={(value) =>
-                updateFilter("brand", value ? [value] : undefined)
+                updateFilter("brand", value === "all" ? undefined : [value])
               }
             >
               <SelectTrigger>
@@ -335,7 +335,10 @@ export function AdvancedSearchInterface({
             <Select
               value={filters.rating?.toString() || "any"}
               onValueChange={(value) =>
-                updateFilter("rating", value ? Number(value) : undefined)
+                updateFilter(
+                  "rating",
+                  value === "any" ? undefined : Number(value)
+                )
               }
             >
               <SelectTrigger>
