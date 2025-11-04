@@ -3,6 +3,10 @@ import type { Product, SearchFilters } from "@/lib/types";
 import { AdvancedSearchInterface } from "@/components/search/advanced-search-interface";
 import { SearchResults } from "@/components/search/search-results";
 import { AuthenticatedHeader } from "@/components/layout/authenticated-header";
+import {
+  mapNaturalQueryToFilters,
+  parseNaturalLanguageQuery,
+} from "@/lib/search-utils";
 
 interface SearchPageProps {
   searchParams: Promise<{
@@ -41,18 +45,18 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   // Get search results
   let products: Product[] = [];
   if (query) {
-    products = await Database.searchProducts(query);
-    // Apply additional filters
+    const nlpFilters = parseNaturalLanguageQuery(query);
+    const mappedFilters = mapNaturalQueryToFilters(nlpFilters);
+    products = await Database.getProducts(mappedFilters);
+    // Apply additional filters from ui
     if (
       filters.category ||
       filters.brand ||
       filters.priceRange ||
-      filters.rating
+      filters.rating ||
+      filters.sortBy
     ) {
-      const filteredProducts = await Database.getProducts(filters);
-      products = products.filter((p) =>
-        filteredProducts.some((fp) => fp.id === p.id)
-      );
+      products = await Database.filterProducts(products, filters);
     }
   } else if (Object.values(filters).some((f) => f !== undefined)) {
     products = await Database.getProducts(filters);

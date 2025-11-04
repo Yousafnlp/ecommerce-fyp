@@ -1,10 +1,13 @@
+import { SearchFilters } from "./types";
+
 export interface NaturalLanguageQuery {
   intent: "find" | "compare" | "recommend";
   category?: string;
-  brand?: string;
+  brand?: string[];
   priceRange?: { min?: number; max?: number };
   features?: string[];
   sortBy?: string;
+  sortOrder?: "asc" | "desc";
 }
 
 export function parseNaturalLanguageQuery(query: string): NaturalLanguageQuery {
@@ -40,7 +43,7 @@ export function parseNaturalLanguageQuery(query: string): NaturalLanguageQuery {
   );
 
   // Extract brand
-  const brands = [
+  const definedBrands = [
     "apple",
     "samsung",
     "sony",
@@ -50,7 +53,7 @@ export function parseNaturalLanguageQuery(query: string): NaturalLanguageQuery {
     "google",
     "oneplus",
   ];
-  const brand = brands.find((b) => lowerQuery.includes(b));
+  const brand = definedBrands.filter((b) => lowerQuery.includes(b));
 
   // Extract price range
   let priceRange: { min?: number; max?: number } | undefined;
@@ -123,22 +126,28 @@ export function parseNaturalLanguageQuery(query: string): NaturalLanguageQuery {
 
   // Extract sort preference
   let sortBy: string | undefined;
+  let sortOrder: "asc" | "desc" | undefined;
   if (lowerQuery.includes("cheapest") || lowerQuery.includes("lowest price")) {
-    sortBy = "price-low";
+    sortBy = "price";
+    sortOrder = "asc";
   } else if (
     lowerQuery.includes("expensive") ||
     lowerQuery.includes("premium")
   ) {
-    sortBy = "price-high";
+    sortBy = "price";
+    sortOrder = "desc";
   } else if (
     lowerQuery.includes("best rated") ||
     lowerQuery.includes("highest rated")
   ) {
     sortBy = "rating";
+    sortOrder = "desc";
   } else if (lowerQuery.includes("newest") || lowerQuery.includes("latest")) {
     sortBy = "newest";
+    sortOrder = "desc";
   } else if (lowerQuery.includes("best") || lowerQuery.includes("top")) {
     sortBy = "score";
+    sortOrder = "desc";
   }
 
   return {
@@ -149,6 +158,32 @@ export function parseNaturalLanguageQuery(query: string): NaturalLanguageQuery {
       priceRange && (priceRange.min || priceRange.max) ? priceRange : undefined,
     features: features.length > 0 ? features : undefined,
     sortBy,
+    sortOrder,
+  };
+}
+
+export function mapNaturalQueryToFilters(
+  nq: NaturalLanguageQuery
+): SearchFilters {
+  return {
+    category: nq.category,
+    brand: nq.brand,
+    priceRange:
+      nq.priceRange?.min !== undefined || nq.priceRange?.max !== undefined
+        ? {
+            min: nq.priceRange.min ?? 0,
+            max: nq.priceRange.max ?? Number.MAX_VALUE,
+          }
+        : undefined,
+    features: nq.features,
+    sortBy:
+      nq.sortBy === "price" ||
+      nq.sortBy === "rating" ||
+      nq.sortBy === "score" ||
+      nq.sortBy === "newest"
+        ? (nq.sortBy as SearchFilters["sortBy"])
+        : undefined,
+    sortOrder: nq.sortOrder,
   };
 }
 
