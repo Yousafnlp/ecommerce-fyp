@@ -11,9 +11,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Zap, User, Settings, LogOut, ShoppingCart } from "lucide-react";
+import {
+  Zap,
+  User,
+  Settings,
+  LogOut,
+  ShoppingCart,
+  Menu as Hamburger,
+  LogIn,
+  Rocket,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ThemeMenuItem } from "../theme/theme-toggle-dropdown";
+import { ThemeToggleButton } from "../theme/theme-toggle-button";
 
 export function AuthenticatedHeader() {
   const { user, signOut } = useAuth();
@@ -127,6 +138,9 @@ export function AuthenticatedHeader() {
                         Settings
                       </Link>
                     </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <ThemeMenuItem />
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut}>
                       <LogOut className="mr-2 h-4 w-4" />
@@ -152,14 +166,54 @@ export function AuthenticatedHeader() {
                     )}
                   </Button>
                 </Link>
-                <Link href="/auth/signin">
-                  <Button variant="outline" size="sm">
-                    Sign In
-                  </Button>
-                </Link>
-                <Link href="/auth/signup">
-                  <Button size="sm">Get Started</Button>
-                </Link>
+
+                <div className="hidden lg:flex items-center gap-2">
+                  <ThemeToggleButton />
+                  <Link href="/auth/signin">
+                    <Button variant="outline" size="sm">
+                      Sign In
+                    </Button>
+                  </Link>
+                  <Link href="/auth/signup">
+                    <Button size="sm">Get Started</Button>
+                  </Link>
+                </div>
+
+                <div className="flex lg:hidden items-center">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-full"
+                        aria-label="Menu"
+                      >
+                        <Hamburger className="w-5 h-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+
+                    <DropdownMenuContent
+                      className="w-56"
+                      align="end"
+                      forceMount
+                    >
+                      <DropdownMenuItem asChild>
+                        <Link href="/auth/signin">
+                          <LogIn className="mr-2 h-4 w-4" />
+                          Sign In
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/auth/signup">
+                          <Rocket className="mr-2 h-4 w-4" /> Get Started
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <ThemeMenuItem />
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </>
             )}
           </div>
