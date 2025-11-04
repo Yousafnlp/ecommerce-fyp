@@ -8,68 +8,8 @@ export class Database {
     let products = [...mockProducts];
 
     if (filters) {
-      if (filters.category) {
-        products = products.filter(
-          (p) => p.category.toLowerCase() === filters.category?.toLowerCase()
-        );
-      }
-
-      if (filters.brand && filters.brand.length > 0) {
-        const lowerBrands = filters.brand.map((b) => b.toLowerCase());
-        products = products.filter((p) =>
-          lowerBrands.includes(p.brand.toLowerCase())
-        );
-      }
-
-      if (filters.priceRange) {
-        products = products.filter(
-          (p) =>
-            p.price >= filters.priceRange!.min &&
-            p.price <= filters.priceRange!.max
-        );
-      }
-
-      if (filters.rating) {
-        products = products.filter((p) => p.rating >= filters.rating!);
-      }
-
-      if (filters.inStock !== undefined) {
-        products = products.filter((p) => p.inStock === filters.inStock);
-      }
-
-      // Sort products
-      if (filters.sortBy) {
-        products.sort((a, b) => {
-          let aValue: number, bValue: number;
-
-          switch (filters.sortBy.toLowerCase()) {
-            case "price":
-              aValue = a.price;
-              bValue = b.price;
-              break;
-            case "rating":
-              aValue = a.rating;
-              bValue = b.rating;
-              break;
-            case "score":
-              aValue = a.score;
-              bValue = b.score;
-              break;
-            case "newest":
-              aValue = a.createdAt.getTime();
-              bValue = b.createdAt.getTime();
-              break;
-            default:
-              return 0;
-          }
-
-          return filters.sortOrder === "desc"
-            ? bValue - aValue
-            : aValue - bValue;
-        });
-      }
+      products = await this.filterProducts(products, filters);
     }
-
     return products;
   }
 
@@ -109,37 +49,43 @@ export class Database {
 
       // Sort products
       if (filters.sortBy) {
-        products.sort((a, b) => {
-          let aValue: number, bValue: number;
-
-          switch (filters.sortBy.toLowerCase()) {
-            case "price":
-              aValue = a.price;
-              bValue = b.price;
-              break;
-            case "rating":
-              aValue = a.rating;
-              bValue = b.rating;
-              break;
-            case "score":
-              aValue = a.score;
-              bValue = b.score;
-              break;
-            case "newest":
-              aValue = a.createdAt.getTime();
-              bValue = b.createdAt.getTime();
-              break;
-            default:
-              return 0;
-          }
-
-          return filters.sortOrder === "desc"
-            ? bValue - aValue
-            : aValue - bValue;
-        });
+        this.sortProducts(products, filters.sortBy, filters?.sortOrder);
       }
     }
 
+    return products;
+  }
+  static async sortProducts(
+    products: Product[],
+    sortBy: string,
+    sortOrder: "asc" | "desc" | undefined
+  ): Promise<Product[]> {
+    products.sort((a, b) => {
+      let aValue: number, bValue: number;
+
+      switch (sortBy.toLowerCase()) {
+        case "price":
+          aValue = a.price;
+          bValue = b.price;
+          break;
+        case "rating":
+          aValue = a.rating;
+          bValue = b.rating;
+          break;
+        case "score":
+          aValue = a.score;
+          bValue = b.score;
+          break;
+        case "newest":
+          aValue = a.createdAt.getTime();
+          bValue = b.createdAt.getTime();
+          break;
+        default:
+          return 0;
+      }
+
+      return sortOrder === "desc" ? bValue - aValue : aValue - bValue;
+    });
     return products;
   }
   static async getProductById(id: string): Promise<Product | null> {
