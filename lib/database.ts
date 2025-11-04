@@ -9,11 +9,16 @@ export class Database {
 
     if (filters) {
       if (filters.category) {
-        products = products.filter((p) => p.category === filters.category);
+        products = products.filter(
+          (p) => p.category.toLowerCase() === filters.category?.toLowerCase()
+        );
       }
 
       if (filters.brand && filters.brand.length > 0) {
-        products = products.filter((p) => filters.brand!.includes(p.brand));
+        const lowerBrands = filters.brand.map((b) => b.toLowerCase());
+        products = products.filter((p) =>
+          lowerBrands.includes(p.brand.toLowerCase())
+        );
       }
 
       if (filters.priceRange) {
@@ -37,7 +42,7 @@ export class Database {
         products.sort((a, b) => {
           let aValue: number, bValue: number;
 
-          switch (filters.sortBy) {
+          switch (filters.sortBy.toLowerCase()) {
             case "price":
               aValue = a.price;
               bValue = b.price;
