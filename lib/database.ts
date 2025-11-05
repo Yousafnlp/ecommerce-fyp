@@ -80,6 +80,10 @@ export class Database {
           aValue = a.createdAt.getTime();
           bValue = b.createdAt.getTime();
           break;
+        case "popularity":
+          aValue = a.reviewCount;
+          bValue = b.reviewCount;
+          break;
         default:
           return 0;
       }
@@ -105,6 +109,73 @@ export class Database {
         p.description.toLowerCase().includes(searchTerm) ||
         p.features.some((f) => f.toLowerCase().includes(searchTerm))
     );
+  }
+
+  static async rankByNames(
+    products: Product[],
+    matchedNames: string[]
+  ): Promise<Product[]> {
+    const results = products.map((p) => {
+      const name = p.name.toLowerCase();
+      const desc = p.description.toLowerCase();
+
+      let totalScore = 0;
+
+      for (const q of matchedNames) {
+        const query = q.toLowerCase();
+        let score = 0;
+
+        // Exact or partial match
+        if (name === query) score = 1;
+        else if (name.includes(query)) score = 0.9;
+        else if (desc.includes(query)) score = 0.6;
+
+        // Loose fuzzy overlap
+        const terms = query.split(/\s+/);
+        const overlap = terms.filter((t) => name.includes(t)).length;
+        score = Math.max(score, overlap / terms.length);
+
+        totalScore += score / matchedNames.length;
+      }
+
+      return { ...p, _nameMatchScore: totalScore };
+    });
+
+    // Filter and sort
+    const filtered = results
+      .filter((p) => p._nameMatchScore > 0.2)
+      .sort((a, b) => b._nameMatchScore - a._nameMatchScore);
+    return filtered;
+  }
+
+  static async sortByRelevance(
+    products: Product[],
+    query: string
+  ): Promise<Product[]> {
+    const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+
+    const scored = products.map((p: any) => {
+      const text =
+        `${p.name} ${p.description} ${p.brand} ${p.category}`.toLowerCase();
+      let score = 0;
+
+      // Keyword overlap
+      for (const term of terms) {
+        if (text.includes(term)) score += 1;
+      }
+
+      // Slight boost for exact/partial name match
+      if (p.name.toLowerCase().includes(query.toLowerCase())) score += 3;
+
+      // Bonus if prior name match existed
+      if (p._nameMatchScore) score += p._nameMatchScore * 2;
+
+      return { ...p, _relevanceScore: score };
+    });
+
+    const sorted = scored.sort((a, b) => b._relevanceScore - a._relevanceScore);
+
+    return sorted;
   }
 
   static async getComparisonProducts(

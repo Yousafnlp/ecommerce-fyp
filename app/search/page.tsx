@@ -46,8 +46,21 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   let products: Product[] = [];
   if (query) {
     const nlpFilters = parseNaturalLanguageQuery(query);
-    const mappedFilters = mapNaturalQueryToFilters(nlpFilters);
+    const { sortBy, sortOrder, matchedNames, ...otherNlpFilters } = nlpFilters;
+    const mappedFilters = mapNaturalQueryToFilters(otherNlpFilters);
     products = await Database.getProducts(mappedFilters);
+    if (matchedNames?.length) {
+      products = await Database.rankByNames(
+        products,
+        matchedNames.map((n) => n.toLowerCase())
+      );
+    }
+    if (sortBy) {
+      products = await Database.sortProducts(products, sortBy, sortOrder);
+    } else {
+      products = await Database.sortByRelevance(products, query);
+    }
+
     // Apply additional filters from ui
     if (
       filters.category ||
