@@ -6,6 +6,7 @@ export interface NaturalLanguageQuery {
   brand?: string[];
   priceRange?: { min?: number; max?: number };
   features?: string[];
+  matchedNames?: string[];
   sortBy?: string;
   sortOrder?: "asc" | "desc";
 }
@@ -42,13 +43,15 @@ export function parseNaturalLanguageQuery(query: string): NaturalLanguageQuery {
     "storage",
     "tablet",
   ];
-  const category = categories.find(
-    (cat) =>
-      lowerQuery.includes(cat) ||
-      lowerQuery.includes(cat + "s") ||
-      (cat === "smartphone" &&
-        (lowerQuery.includes("phone") || lowerQuery.includes("mobile")))
-  );
+  const category = categories.find((cat) => {
+    const regex = new RegExp(`\\b${cat}(es|s)?\\b`, "i");
+    if (regex.test(lowerQuery)) return true;
+
+    if (cat === "smartphone") {
+      return /\b(phone|mobile|smartphone)s?\b/i.test(lowerQuery);
+    }
+    return false;
+  });
 
   // Extract brand
   const definedBrands = [
@@ -200,15 +203,57 @@ export function parseNaturalLanguageQuery(query: string): NaturalLanguageQuery {
   ];
 
   featureKeywords.forEach((keyword) => {
-    if (lowerQuery.includes(keyword)) {
+    if (lowerQuery.includes(keyword.toLowerCase())) {
       features.push(keyword);
     }
   });
 
+  // Extract Product Names
+  const productNamePatterns = [
+    /\b(?:iphone|ipad|macbook|imac|apple watch)\s?\d{0,2}\s?(?:pro|plus|ultra|max)?\b/i,
+    /\b(?:galaxy|note|tab|z\s?flip|z\s?fold)\s?\w*\b/i,
+    /\b(?:pixel)\s?\d{1,2}\s?(?:pro|a)?\b/i,
+    /\b(?:playstation|xbox|switch)\s?\d*\b/i,
+    /\b(?:rtx|gtx|rx)\s?\d{3,4}\s?(?:ti|super|xt)?\b/i,
+    /\b(?:ryzen|intel\s?(?:i[3579]|core\s?i[3579]))\s?\w*\b/i,
+    /\b(?:dell|asus|hp|acer|lenovo)\s?\w*\s?\d{0,4}\b/i,
+    /\b(?:anker|tp-link|seagate)\s?\w*\b/i,
+    /\b(?:m[123]|a1[0-9]|snapdragon\s?\d{3,4})\s?(?:pro|max)?\b/i,
+  ];
+
+  const potentialNames: { name: string; score: number }[] = [];
+
+  // Check known brand+model patterns
+  for (const pattern of productNamePatterns) {
+    const match = query.match(pattern);
+    if (match) {
+      const name = match[0].trim();
+      // Confidence: higher if brand also detected
+      const brandHit = definedBrands.some((b) =>
+        name.toLowerCase().includes(b.toLowerCase())
+      );
+      const score = brandHit ? 0.9 : 0.8;
+      potentialNames.push({ name, score });
+    }
+  }
+
+  // Deduplicate and keep high-confidence ones
+  const uniqueNames = [
+    ...new Map(
+      potentialNames
+        .filter((n) => n.score >= 0.8)
+        .map((n) => [n.name.toLowerCase(), n])
+    ).values(),
+  ].map((n) => n.name);
+
   // Extract sort preference
   let sortBy: string | undefined;
   let sortOrder: "asc" | "desc" | undefined;
-  if (lowerQuery.includes("cheapest") || lowerQuery.includes("lowest price")) {
+  if (
+    lowerQuery.includes("cheap") ||
+    lowerQuery.includes("lowest price") ||
+    lowerQuery.includes("budget")
+  ) {
     sortBy = "price";
     sortOrder = "asc";
   } else if (
@@ -219,15 +264,33 @@ export function parseNaturalLanguageQuery(query: string): NaturalLanguageQuery {
     sortOrder = "desc";
   } else if (
     lowerQuery.includes("best rated") ||
-    lowerQuery.includes("highest rated")
+    lowerQuery.includes("highest rated") ||
+    lowerQuery.includes("top rated")
   ) {
     sortBy = "rating";
     sortOrder = "desc";
-  } else if (lowerQuery.includes("newest") || lowerQuery.includes("latest")) {
+  } else if (
+    lowerQuery.includes("newest") ||
+    lowerQuery.includes("latest") ||
+    lowerQuery.includes("recent")
+  ) {
     sortBy = "newest";
     sortOrder = "desc";
-  } else if (lowerQuery.includes("best") || lowerQuery.includes("top")) {
+  } else if (
+    lowerQuery.includes("popular") ||
+    lowerQuery.includes("most reviewed") ||
+    lowerQuery.includes("famous") ||
+    lowerQuery.includes("trending")
+  ) {
+    sortBy = "popularity";
+    sortOrder = "desc";
+  } else if (lowerQuery.includes("score")) {
     sortBy = "score";
+    sortOrder = "desc";
+  }
+  if (lowerQuery.includes("ascending")) {
+    sortOrder = "asc";
+  } else if (lowerQuery.includes("descending")) {
     sortOrder = "desc";
   }
 
@@ -238,6 +301,7 @@ export function parseNaturalLanguageQuery(query: string): NaturalLanguageQuery {
     priceRange:
       priceRange && (priceRange.min || priceRange.max) ? priceRange : undefined,
     features: features.length > 0 ? features : undefined,
+    matchedNames: uniqueNames.length ? uniqueNames : undefined,
     sortBy,
     sortOrder,
   };
