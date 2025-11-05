@@ -177,4 +177,24 @@ export class Database {
       .sort((a, b) => b.reviewCount - a.reviewCount)
       .slice(0, 6);
   }
+  // for dev purposes
+  static async getUniqueAttributeValues(attributePath: string): any[] {
+    const pathKeys = attributePath.split(".");
+
+    const values = mockProducts
+      .map((product) => {
+        let value: any = product;
+        for (const key of pathKeys) {
+          if (value && typeof value === "object") {
+            value = value[key];
+          } else {
+            return undefined;
+          }
+        }
+        return value;
+      })
+      .filter((v) => v !== undefined && v !== null);
+    const flattened = values.flatMap((v) => (Array.isArray(v) ? v : [v]));
+    return Array.from(new Set(flattened));
+  }
 }
