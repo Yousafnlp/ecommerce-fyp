@@ -54,11 +54,6 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold mb-3">Features</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              {/* <li>
-                  <Link href="/compare" className="hover:text-foreground">
-                    Product Compare
-                  </Link>
-                </li> */}
               <li>
                 <Link href="/search" className="hover:text-foreground">
                   Advanced Search
