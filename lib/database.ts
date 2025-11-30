@@ -1,108 +1,103 @@
 import type { Product, User, SearchFilters, ComparisonProduct } from "./types";
-import { mockProducts, mockUser } from "./mock-data";
+import { mockUser } from "./mock-data";
+import { apiClient } from "./api-client";
 
-// Mock database functions - replace with real database calls later
+/**
+ * Database class - now uses backend API instead of mock data
+ */
 export class Database {
   // Product operations
   static async getProducts(filters?: SearchFilters): Promise<Product[]> {
-    let products = [...mockProducts];
+    try {
+      const apiFilters: {
+        category?: string;
+        brand?: string | string[];
+        minPrice?: number;
+        maxPrice?: number;
+        rating?: number;
+        inStock?: boolean;
+        sortBy?: string;
+        sortOrder?: "asc" | "desc";
+      } = {};
 
-    if (filters) {
-      if (filters.category) {
-        products = products.filter((p) => p.category === filters.category);
+      if (filters?.category) apiFilters.category = filters.category;
+      if (filters?.brand && filters.brand.length > 0) {
+        apiFilters.brand = filters.brand;
       }
-
-      if (filters.brand && filters.brand.length > 0) {
-        products = products.filter((p) => filters.brand!.includes(p.brand));
+      if (filters?.priceRange) {
+        apiFilters.minPrice = filters.priceRange.min;
+        apiFilters.maxPrice = filters.priceRange.max;
       }
+      if (filters?.rating !== undefined) apiFilters.rating = filters.rating;
+      if (filters?.inStock !== undefined) apiFilters.inStock = filters.inStock;
+      if (filters?.sortBy) apiFilters.sortBy = filters.sortBy;
+      if (filters?.sortOrder) apiFilters.sortOrder = filters.sortOrder;
 
-      if (filters.priceRange) {
-        products = products.filter(
-          (p) =>
-            p.price >= filters.priceRange!.min &&
-            p.price <= filters.priceRange!.max
-        );
-      }
-
-      if (filters.rating) {
-        products = products.filter((p) => p.rating >= filters.rating!);
-      }
-
-      if (filters.inStock !== undefined) {
-        products = products.filter((p) => p.inStock === filters.inStock);
-      }
-
-      // Sort products
-      if (filters.sortBy) {
-        products.sort((a, b) => {
-          let aValue: number, bValue: number;
-
-          switch (filters.sortBy) {
-            case "price":
-              aValue = a.price;
-              bValue = b.price;
-              break;
-            case "rating":
-              aValue = a.rating;
-              bValue = b.rating;
-              break;
-            case "score":
-              aValue = a.score;
-              bValue = b.score;
-              break;
-            case "newest":
-              aValue = a.createdAt.getTime();
-              bValue = b.createdAt.getTime();
-              break;
-            default:
-              return 0;
-          }
-
-          return filters.sortOrder === "desc"
-            ? bValue - aValue
-            : aValue - bValue;
-        });
-      }
+      const products = await apiClient.getProducts(apiFilters);
+      return products || [];
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      // Return empty array on error (you might want to throw or handle differently)
+      return [];
     }
-
-    return products;
   }
 
   static async getProductById(id: string): Promise<Product | null> {
-    return mockProducts.find((p) => p.id === id) || null;
+    try {
+      const product = await apiClient.getProductById(id);
+      return product || null;
+    } catch (error) {
+      console.error(`Error fetching product ${id}:`, error);
+      return null;
+    }
   }
 
   static async getProductsByIds(ids: string[]): Promise<Product[]> {
-    return mockProducts.filter((p) => ids.includes(p.id));
+    try {
+      // Fetch products in parallel
+      const productPromises = ids.map((id) => apiClient.getProductById(id));
+      const products = await Promise.all(productPromises);
+      return products.filter((p) => p !== null) as Product[];
+    } catch (error) {
+      console.error("Error fetching products by IDs:", error);
+      return [];
+    }
   }
 
   static async searchProducts(query: string): Promise<Product[]> {
-    const searchTerm = query.toLowerCase();
-    return mockProducts.filter(
-      (p) =>
-        p.name.toLowerCase().includes(searchTerm) ||
-        p.brand.toLowerCase().includes(searchTerm) ||
-        p.description.toLowerCase().includes(searchTerm) ||
-        p.features.some((f) => f.toLowerCase().includes(searchTerm))
-    );
+    try {
+      if (!query || query.trim() === "") {
+        return [];
+      }
+      const products = await apiClient.searchProducts(query);
+      return products || [];
+    } catch (error) {
+      console.error("Error searching products:", error);
+      return [];
+    }
   }
 
   static async getComparisonProducts(
     ids: string[]
   ): Promise<ComparisonProduct[]> {
-    const products = await this.getProductsByIds(ids);
-    return products.map((p) => ({
-      id: p.id,
-      name: p.name,
-      brand: p.brand,
-      price: p.price,
-      score: p.score,
-      specifications: p.specifications,
-      image: p.image,
-    }));
+    try {
+      const products = await this.getProductsByIds(ids);
+      return products.map((p) => ({
+        id: p.id,
+        name: p.name,
+        brand: p.brand,
+        price: p.price,
+        score: p.score,
+        specifications: p.specifications,
+        image: p.image,
+      }));
+    } catch (error) {
+      console.error("Error getting comparison products:", error);
+      return [];
+    }
   }
 
-  // User operations
+  // User operations (still using mock - auth excluded as requested)
   static async getUserById(id: string): Promise<User | null> {
     return id === "1" ? mockUser : null;
   }
@@ -110,7 +105,7 @@ export class Database {
   static async createUser(
     userData: Omit<User, "id" | "createdAt" | "updatedAt">
   ): Promise<User> {
-    // Mock user creation
+    // Mock user creation - auth excluded as requested
     return {
       ...userData,
       id: Math.random().toString(36).substr(2, 9),
@@ -121,7 +116,7 @@ export class Database {
 
   // Utility functions
   static calculateProductScore(product: Product): number {
-    // Mock scoring algorithm - replace with actual scoring logic
+    // Scoring algorithm (client-side calculation if needed)
     let score = 0;
 
     // Base score from rating
@@ -140,7 +135,7 @@ export class Database {
     }
 
     // Price-to-value ratio
-    const avgPrice = 800; // Mock average price
+    const avgPrice = 800;
     if (product.price < avgPrice) {
       score += (avgPrice - product.price) / 100;
     }
@@ -149,12 +144,22 @@ export class Database {
   }
 
   static async getFeaturedProducts(): Promise<Product[]> {
-    return mockProducts.filter((p) => p.score >= 90).slice(0, 4);
+    try {
+      const products = await apiClient.getFeaturedProducts();
+      return products || [];
+    } catch (error) {
+      console.error("Error fetching featured products:", error);
+      return [];
+    }
   }
 
   static async getPopularProducts(): Promise<Product[]> {
-    return mockProducts
-      .sort((a, b) => b.reviewCount - a.reviewCount)
-      .slice(0, 6);
+    try {
+      const products = await apiClient.getPopularProducts();
+      return products || [];
+    } catch (error) {
+      console.error("Error fetching popular products:", error);
+      return [];
+    }
   }
 }
