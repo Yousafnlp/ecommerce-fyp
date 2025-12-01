@@ -28,6 +28,6 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "components/products/category"
-, "app/dashboard/page.bak"  ],
+, "app/dashboard/page.bak", "app/auth/signup/page.bak", "app/auth/signin/page.bak"  ],
   "exclude": ["node_modules"]
 }
