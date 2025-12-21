@@ -8,8 +8,9 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ProductSuggestionGrid } from "./ProductSuggestionGrid";
+import type { Product } from "@/lib/types";
 
-export function EmptyCompareCard({ products }: { products: any[] }) {
+export function EmptyCompareCard({ products }: { products: Product[] }) {
   return (
     <Card>
       <CardHeader>

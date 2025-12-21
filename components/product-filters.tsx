@@ -48,7 +48,10 @@ export function ProductFilters({ currentFilters }: ProductFiltersProps) {
     "camera",
   ];
 
-  const updateFilters = (key: string, value: any) => {
+  const updateFilters = (
+    key: string,
+    value: string | number | null | undefined
+  ) => {
     const params = new URLSearchParams(searchParams.toString());
 
     if (value === null || value === undefined || value === "") {
