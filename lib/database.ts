@@ -208,6 +208,69 @@ export class Database {
       return [];
     }
   }
+  static filterProductsLocal(
+    products: Product[],
+    filters: SearchFilters
+  ): Product[] {
+    let result = [...products];
+
+    // Category
+    if (filters.category) {
+      result = result.filter((p) => p.category === filters.category);
+    }
+
+    // Brand (multiple allowed)
+    if (filters.brand && filters.brand.length > 0) {
+      result = result.filter((p) => filters.brand!.includes(p.brand));
+    }
+
+    // Price range
+    if (filters.priceRange) {
+      const { min, max } = filters.priceRange;
+      result = result.filter((p) => p.price >= min && p.price <= max);
+    }
+
+    // Minimum rating
+    if (filters.rating !== undefined) {
+      result = result.filter((p) => p.rating >= filters.rating!);
+    }
+
+    // In stock
+    if (filters.inStock !== undefined) {
+      result = result.filter((p) => p.inStock === filters.inStock);
+    }
+
+    // Features (must include ALL requested features)
+    if (filters.features && filters.features.length > 0) {
+      result = result.filter((p) =>
+        filters.features!.every((feature) => p.features.includes(feature))
+      );
+    }
+
+    return result;
+  }
+
+  static sortProductsLocal(products: Product[], sortBy, sortOrder): Product[] {
+    // Sorting
+    if (!sortBy) return products;
+    const order = sortOrder === "desc" ? -1 : 1;
+
+    return [...products].sort((a, b) => {
+      switch (sortBy) {
+        case "price":
+          return (a.price - b.price) * order;
+        case "rating":
+          return (a.rating - b.rating) * order;
+        case "score":
+          return (a.score - b.score) * order;
+        case "newest":
+          return (a.createdAt.getTime() - b.createdAt.getTime()) * order;
+        default:
+          return 0;
+      }
+    });
+  }
+
   // for dev purposes
   static async getUniqueAttributeValues(attributePath: string): any[] {
     const pathKeys = attributePath.split(".");
