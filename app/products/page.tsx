@@ -1,11 +1,12 @@
 import { Database } from "@/lib/database";
+import type { SearchFilters } from "@/lib/types";
 import { AuthenticatedHeader } from "@/components/layout/authenticated-header";
 import { ProductsHeader } from "@/components/products/products-header";
 import { CategoryNav } from "@/components/products/category-nav";
 import { ProductsLayout } from "@/components/products/products-layout";
 
 interface ProductsPageProps {
-  searchParams: {
+  searchParams: Promise<{
     category?: string;
     brand?: string;
     minPrice?: string;
@@ -13,25 +14,26 @@ interface ProductsPageProps {
     rating?: string;
     sortBy?: string;
     sortOrder?: string;
-  };
+  }>;
 }
 
 export default async function ProductsPage({
   searchParams,
 }: ProductsPageProps) {
+  const params = await searchParams;
   const filters = {
-    category: searchParams.category,
-    brand: searchParams.brand ? [searchParams.brand] : undefined,
+    category: params.category,
+    brand: params.brand ? [params.brand] : undefined,
     priceRange:
-      searchParams.minPrice || searchParams.maxPrice
+      params.minPrice || params.maxPrice
         ? {
-            min: Number(searchParams.minPrice) || 0,
-            max: Number(searchParams.maxPrice) || 10000,
+            min: Number(params.minPrice) || 0,
+            max: Number(params.maxPrice) || 10000,
           }
         : undefined,
-    rating: searchParams.rating ? Number(searchParams.rating) : undefined,
-    sortBy: searchParams.sortBy as any,
-    sortOrder: searchParams.sortOrder as any,
+    rating: params.rating ? Number(params.rating) : undefined,
+    sortBy: params.sortBy as SearchFilters["sortBy"],
+    sortOrder: params.sortOrder as SearchFilters["sortOrder"],
   };
 
   const products = await Database.getProducts(filters);
@@ -51,7 +53,7 @@ export default async function ProductsPage({
         <ProductsHeader />
         <CategoryNav
           categories={categories}
-          activeCategory={searchParams.category}
+          activeCategory={params.category}
         />
         <ProductsLayout products={products} filters={filters} />
       </div>

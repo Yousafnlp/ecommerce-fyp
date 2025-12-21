@@ -7,6 +7,7 @@ import "./globals.css";
 import { Suspense } from "react";
 import { AuthProvider } from "@/lib/auth-context";
 import { CartProvider } from "@/lib/cart-context";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "SpecSmart - Smarter Choices. Sharper Tech",
@@ -29,6 +30,22 @@ export default function RootLayout({
           </CartProvider>
         </AuthProvider>
         <Analytics />
+
+        {/* This script runs before React hydration */}
+        <Script id="theme-loader" strategy="beforeInteractive">
+          {`
+          try {
+            const theme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const isDark = theme === 'dark' || (!theme && prefersDark);
+            if (isDark) {
+              document.documentElement.classList.add('dark');
+            } else {
+              document.documentElement.classList.remove('dark');
+            }
+          } catch (_) {}
+        `}
+        </Script>
       </body>
     </html>
   );

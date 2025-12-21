@@ -5,9 +5,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import type { ProductSpecs } from "@/lib/types";
 
 interface ProductSpecificationsProps {
-  specifications: Record<string, any>;
+  specifications: ProductSpecs;
 }
 
 export function ProductSpecifications({

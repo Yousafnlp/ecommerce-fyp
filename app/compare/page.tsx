@@ -5,14 +5,13 @@ import { EmptyCompareCard } from "@/components/compare/EmptyCompareCard";
 import { CompareBreadcrumb } from "@/components/compare/compare-breadcrum";
 import { ComparePageHeader } from "@/components/compare/compare-page-header";
 
-interface ComparePageProps {
-  searchParams: {
-    products?: string;
-  };
-}
-
-export default async function ComparePage({ searchParams }: ComparePageProps) {
-  const productIds = searchParams.products?.split(",") ?? [];
+export default async function ComparePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ products?: string }>;
+}) {
+  const params = await searchParams;
+  const productIds = params.products?.split(",") ?? [];
   const [products, allProducts] = await Promise.all([
     productIds.length > 0 ? Database.getComparisonProducts(productIds) : [],
     Database.getProducts(),

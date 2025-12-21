@@ -543,7 +543,7 @@ export const mockProducts: Product[] = [
     reviewCount: 315,
     inStock: true,
     description: "Affordable 4K LCD monitor with HDR10 support and IPS panel.",
-    features: ["4K UHD", "IPS Display", "HDR10", "Slim Bezel"],
+    features: ["4K UHD", "IPS panel", "HDR10", "Slim Bezel"],
     createdAt: new Date("2022-04-09"),
     updatedAt: new Date("2024-01-13"),
   },
