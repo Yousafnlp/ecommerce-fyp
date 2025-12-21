@@ -55,13 +55,17 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         matchedNames.map((n) => n.toLowerCase())
       );
     }
-    if (sortBy) {
-      products = await Database.sortProducts(products, sortBy, sortOrder);
+    if (filters.sortBy) {
+      products = Database.sortProductsLocal(
+        products,
+        filters.sortBy,
+        filters.sortOrder
+      );
     } else {
       products = await Database.sortByRelevance(products, query);
     }
 
-    // Apply additional filters from ui
+    // Apply additional f ilters from ui
     if (
       filters.category ||
       filters.brand ||
@@ -69,10 +73,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       filters.rating ||
       filters.sortBy
     ) {
-      products = await Database.filterProducts(products, filters);
+      products = Database.filterProductsLocal(products, filters);
     }
-  } else if (Object.values(filters).some((f) => f !== undefined)) {
-    products = await Database.getProducts(filters);
   }
 
   return (

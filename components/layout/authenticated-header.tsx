@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@/lib/auth-context"; 
+import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -28,9 +28,9 @@ import { ThemeToggleButton } from "../theme/theme-toggle-button";
 
 export function AuthenticatedHeader() {
   const { totalItems } = useCart();
-  const { user, signOut } = useAuth(); 
+  const { user, signOut } = useAuth();
   const router = useRouter();
-   const handleSignOut = async () => {
+  const handleSignOut = async () => {
     await signOut();
     router.push("/");
   };
@@ -72,22 +72,23 @@ export function AuthenticatedHeader() {
           </nav>
 
           <div className="flex items-center gap-2">
-            <>
-              <Link href="/cart">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="relative bg-transparent"
-                >
-                  <ShoppingCart className="w-4 h-4 mr-2" />
-                  Cart
-                  {totalItems > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                      {totalItems}
-                    </span>
-                  )}
-                </Button>
-              </Link>
+            {user ? (
+              <>
+                <Link href="/cart">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="relative bg-transparent"
+                  >
+                    <ShoppingCart className="w-4 h-4 mr-2" />
+
+                    {totalItems > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                        {totalItems}
+                      </span>
+                    )}
+                  </Button>
+                </Link>
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -152,7 +153,7 @@ export function AuthenticatedHeader() {
                     className="relative bg-transparent"
                   >
                     <ShoppingCart className="w-4 h-4 mr-2" />
-                    Cart
+
                     {totalItems > 0 && (
                       <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
                         {totalItems}
@@ -168,10 +169,10 @@ export function AuthenticatedHeader() {
                       Sign In
                     </Button>
                   </Link>
-                  <Link href="/auth/signup">
-                    <Button size="sm">Get Started</Button>
-                  </Link>
                 </div>
+                <Link href="/auth/signup">
+                  <Button size="sm">Get Started</Button>
+                </Link>
 
                 <div className="flex lg:hidden items-center">
                   <DropdownMenu>
