@@ -8,12 +8,12 @@ import { ProductSpecifications } from "@/components/products/category/product/pr
 import { RelatedProducts } from "@/components/products/category/product/relateed-products";
 import { ProductActions } from "@/components/products/category/product/product-action";
 
-export default async function ProductPage({
+  export default async function ProductPage({
   params,
 }: {
-  params: { category: string; id: string };
+  params: Promise<{ category: string; id: string }>;
 }) {
-  const { category, id } = params;
+  const { category, id } = await params;
   const product = await Database.getProductById(id);
 
   if (!product || product.category !== category) {

@@ -27,7 +27,10 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "components/products/category"
-, "app/dashboard/page.bak", "app/auth/signup/page.bak", "app/auth/signin/page.bak"  ],
+    "components/products/category",
+    "app/dashboard/page.tsx",
+    "app/auth/signup/page.tsx",
+    "app/auth/signin/page.tsx"
+  ],
   "exclude": ["node_modules"]
 }

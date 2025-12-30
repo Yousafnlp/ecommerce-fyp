@@ -11,9 +11,9 @@ import { CheckCircle, Package } from "lucide-react";
 export function CheckoutSuccessContent() {
   const orderNumber =
     "SS" + Math.random().toString(36).substr(2, 9).toUpperCase();
-  const estimatedDelivery = new Date(
-    Date.now() + 5 * 24 * 60 * 60 * 1000
-  ).toLocaleDateString();
+  // const estimatedDelivery = new Date(
+  //   Date.now() + 5 * 24 * 60 * 60 * 1000
+  // ).toLocaleDateString();
 
   return (
     <div className="container mx-auto px-4 py-8">
