@@ -1,10 +1,15 @@
 import { Database } from "@/lib/database";
+import type { Product, SearchFilters } from "@/lib/types";
 import { AdvancedSearchInterface } from "@/components/search/advanced-search-interface";
 import { SearchResults } from "@/components/search/search-results";
 import { AuthenticatedHeader } from "@/components/layout/authenticated-header";
+import {
+  mapNaturalQueryToFilters,
+  parseNaturalLanguageQuery,
+} from "@/lib/search-utils";
 
 interface SearchPageProps {
-  searchParams: {
+  searchParams: Promise<{
     q?: string;
     category?: string;
     brand?: string;
@@ -14,46 +19,62 @@ interface SearchPageProps {
     features?: string;
     sortBy?: string;
     sortOrder?: string;
-  };
+  }>;
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const query = searchParams.q || "";
+  const params = await searchParams;
+  const query = params.q || "";
 
   // Build search filters from URL params
-  const filters = {
-    category: searchParams.category,
-    brand: searchParams.brand ? [searchParams.brand] : undefined,
+  const filters: SearchFilters = {
+    category: params.category,
+    brand: params.brand ? [params.brand] : undefined,
     priceRange:
-      searchParams.minPrice || searchParams.maxPrice
+      params.minPrice || params.maxPrice
         ? {
-            min: Number(searchParams.minPrice) || 0,
-            max: Number(searchParams.maxPrice) || 10000,
+            min: Number(params.minPrice) || 0,
+            max: Number(params.maxPrice) || 10000,
           }
         : undefined,
-    rating: searchParams.rating ? Number(searchParams.rating) : undefined,
-    sortBy: searchParams.sortBy as any,
-    sortOrder: searchParams.sortOrder as any,
+    rating: params.rating ? Number(params.rating) : undefined,
+    sortBy: params.sortBy as SearchFilters["sortBy"],
+    sortOrder: params.sortOrder as SearchFilters["sortOrder"],
   };
 
   // Get search results
-  let products = [];
+  let products: Product[] = [];
   if (query) {
-    products = await Database.searchProducts(query);
-    // Apply additional filters
+    const nlpFilters = parseNaturalLanguageQuery(query);
+    const { sortBy, sortOrder, matchedNames, ...otherNlpFilters } = nlpFilters;
+    const mappedFilters = mapNaturalQueryToFilters(otherNlpFilters);
+    products = await Database.getProducts(mappedFilters);
+    if (matchedNames?.length) {
+      products = await Database.rankByNames(
+        products,
+        matchedNames.map((n) => n.toLowerCase())
+      );
+    }
+    if (filters.sortBy) {
+      products = Database.sortProductsLocal(
+        products,
+        filters.sortBy,
+        filters.sortOrder
+      );
+    } else {
+      products = await Database.sortByRelevance(products, query);
+    }
+
+    // Apply additional f ilters from ui
     if (
       filters.category ||
       filters.brand ||
       filters.priceRange ||
-      filters.rating
+      filters.rating ||
+      filters.sortBy
     ) {
-      const filteredProducts = await Database.getProducts(filters);
-      products = products.filter((p) =>
-        filteredProducts.some((fp) => fp.id === p.id)
-      );
+      products = Database.filterProductsLocal(products, filters);
     }
-  } else if (Object.values(filters).some((f) => f !== undefined)) {
-    products = await Database.getProducts(filters);
   }
 
   return (

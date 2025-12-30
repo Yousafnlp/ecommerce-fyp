@@ -18,75 +18,55 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
+
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import type { SearchFilters } from "@/lib/types";
 import { Filter, Mic, MicOff, Search, Sparkles, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useWebSpeechRecognition } from "./useWebSpeechRecognition";
+import { useWhisperFallback } from "./useWhisperFallback";
 
 interface AdvancedSearchInterfaceProps {
   initialQuery: string;
   initialFilters: SearchFilters;
 }
-
 export function AdvancedSearchInterface({
   initialQuery,
   initialFilters,
 }: AdvancedSearchInterfaceProps) {
   const router = useRouter();
 
-  const [query, setQuery] = useState(initialQuery);
+  const [query, setQuery] = useState(initialQuery || "");
   const [isListening, setIsListening] = useState(false);
-  const [recognition, setRecognition] = useState<SpeechRecognition | null>(
-    null
-  );
+
   const [filters, setFilters] = useState<SearchFilters>(initialFilters);
   const [priceRange, setPriceRange] = useState([
     initialFilters.priceRange?.min || 0,
     initialFilters.priceRange?.max || 5000,
   ]);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Initialize speech recognition
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const SpeechRecognitionClass =
-        (window as any).SpeechRecognition ||
-        (window as any).webkitSpeechRecognition;
-
-      if (!SpeechRecognitionClass) {
-        console.warn("Speech recognition not supported in this browser.");
-        return;
-      }
-
-      const recognition = new SpeechRecognitionClass();
-
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = "en-US";
-
-      recognition.onresult = (event: SpeechRecognitionEvent) => {
-        const transcript = event.results[0][0].transcript;
-        setQuery(transcript);
-        setIsListening(false);
-      };
-
-      recognition.onerror = () => {
-        setIsListening(false);
-      };
-
-      recognition.onend = () => {
-        setIsListening(false);
-      };
-
-      setRecognition(recognition);
-    }
-  }, []);
+  const webSpeech = useWebSpeechRecognition(setQuery, setIsListening);
+  const whisper = useWhisperFallback(
+    setQuery,
+    isListening,
+    setIsListening,
+    isLoading,
+    setIsLoading
+  );
 
   // Generate search suggestions based on query
   useEffect(() => {
-    if (query.length > 2) {
+    if (query?.length > 2) {
       const mockSuggestions = [
         `${query} under $500`,
         `best ${query} 2024`,
@@ -100,18 +80,15 @@ export function AdvancedSearchInterface({
     }
   }, [query]);
 
-  const handleVoiceSearch = () => {
-    if (!recognition) {
-      alert("Voice search is not supported in your browser");
-      return;
-    }
-
-    if (isListening) {
-      recognition.stop();
-      setIsListening(false);
-    } else {
-      recognition.start();
-      setIsListening(true);
+  const handleWebspeechRecording = () => {
+    if (isListening) webSpeech.stopListening();
+    else webSpeech.startListening();
+  };
+  const handleWhisperRecording = () => {
+    if (isListening) whisper.cancelRecordingRef.current?.();
+    else {
+      if (!isLoading) whisper.startRecording();
+      else whisper.cancelRecordingRef.current?.();
     }
   };
 
@@ -143,7 +120,10 @@ export function AdvancedSearchInterface({
     router.push("/search");
   };
 
-  const updateFilter = (key: keyof SearchFilters, value: any) => {
+  const updateFilter = <K extends keyof SearchFilters>(
+    key: K,
+    value: SearchFilters[K]
+  ) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -152,18 +132,31 @@ export function AdvancedSearchInterface({
     "Samsung",
     "Sony",
     "Dell",
-    "HP",
-    "Lenovo",
+    "LG",
+    "Intel",
+    "ASUS",
+    "AMD",
+    "Anker",
+    "TP-Link",
+    "Seagate",
     "Google",
-    "OnePlus",
+    "Garmin",
   ];
   const categories = [
     "smartphone",
     "laptop",
-    "tablet",
+    "headphone",
+    "monitor",
+    "processor",
+    "charger",
+    "earbuds",
+    "power bank",
+    "lcd",
     "smartwatch",
-    "headphones",
-    "camera",
+    "router",
+    "console",
+    "storage",
+    "tablet",
   ];
 
   return (
@@ -184,25 +177,49 @@ export function AdvancedSearchInterface({
           <div className="relative">
             <Input
               placeholder="Try: 'Best smartphone under $800 with good camera'"
-              value={query}
+              value={query || ""}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               className="pr-12"
             />
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`absolute right-1 top-1 h-8 w-8 p-0 ${
-                isListening ? "text-red-500" : ""
-              }`}
-              onClick={handleVoiceSearch}
-            >
-              {isListening ? (
-                <MicOff className="w-4 h-4" />
-              ) : (
-                <Mic className="w-4 h-4" />
-              )}
-            </Button>
+            {!webSpeech.supported ? (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-1 top-1 h-8 w-8 p-0"
+                      onClick={handleWhisperRecording}
+                    >
+                      {isListening ? (
+                        <MicOff className="w-4 h-4" />
+                      ) : (
+                        <Mic className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Voice search might not work on non-Chrome browsers
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`absolute right-1 top-1 h-8 w-8 p-0 ${
+                  isListening ? "text-red-500" : ""
+                }`}
+                onClick={handleWebspeechRecording}
+              >
+                {isListening || isLoading ? (
+                  <MicOff className="w-4 h-4" />
+                ) : (
+                  <Mic className="w-4 h-4" />
+                )}
+              </Button>
+            )}
           </div>
 
           {/* Voice Status */}
@@ -210,6 +227,13 @@ export function AdvancedSearchInterface({
             <div className="flex items-center gap-2 text-sm text-red-500">
               <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
               Listening... Speak now
+            </div>
+          )}
+
+          {isLoading && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="animate-spin w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full" />
+              Processing audio...
             </div>
           )}
 
@@ -255,9 +279,9 @@ export function AdvancedSearchInterface({
           <div className="space-y-2">
             <Label>Category</Label>
             <Select
-              value={filters.category || "all"}
+              value={filters.category ?? "all"}
               onValueChange={(value) =>
-                updateFilter("category", value || undefined)
+                updateFilter("category", value === "all" ? undefined : value)
               }
             >
               <SelectTrigger>
@@ -282,9 +306,9 @@ export function AdvancedSearchInterface({
           <div className="space-y-2">
             <Label>Brand</Label>
             <Select
-              value={filters.brand?.[0] || "all"}
+              value={filters.brand?.[0] ?? "all"}
               onValueChange={(value) =>
-                updateFilter("brand", value ? [value] : undefined)
+                updateFilter("brand", value === "all" ? undefined : [value])
               }
             >
               <SelectTrigger>
@@ -324,7 +348,10 @@ export function AdvancedSearchInterface({
             <Select
               value={filters.rating?.toString() || "any"}
               onValueChange={(value) =>
-                updateFilter("rating", value ? Number(value) : undefined)
+                updateFilter(
+                  "rating",
+                  value === "any" ? undefined : Number(value)
+                )
               }
             >
               <SelectTrigger>
@@ -347,7 +374,12 @@ export function AdvancedSearchInterface({
               <Select
                 value={filters.sortBy || "relevance"}
                 onValueChange={(value) =>
-                  updateFilter("sortBy", value || undefined)
+                  updateFilter(
+                    "sortBy",
+                    value === "relevance"
+                      ? undefined
+                      : (value as SearchFilters["sortBy"])
+                  )
                 }
               >
                 <SelectTrigger>
@@ -365,7 +397,12 @@ export function AdvancedSearchInterface({
               {filters.sortBy && (
                 <Select
                   value={filters.sortOrder || "desc"}
-                  onValueChange={(value) => updateFilter("sortOrder", value)}
+                  onValueChange={(value) =>
+                    updateFilter(
+                      "sortOrder",
+                      value as SearchFilters["sortOrder"]
+                    )
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
