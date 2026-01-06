@@ -1,12 +1,12 @@
 "use client";
 
-import { useAuth } from "@/lib/auth-context";
+import { useAppSelector } from "@/lib/redux";
 import { AuthenticatedHeader } from "../layout/authenticated-header";
 import { WelcomeSection } from "./welcome-section";
 import { QuickStats } from "./quick-stats";
 import { DashboardTabs } from "./dashboard-tabs";
 export function UserDashboard() {
-  const { user } = useAuth();
+  const user = useAppSelector((s) => s.auth.user);
   if (!user) return null;
   return (
     <div className="min-h-screen bg-background">
