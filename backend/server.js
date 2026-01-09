@@ -1,8 +1,9 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import { connectDB } from './config/database.js';
-import productRoutes from './routes/products.js';
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import { connectDB } from "./config/database.js";
+import productRoutes from "./routes/products.js";
+import authRoutes from "./routes/auth.js";
 
 dotenv.config();
 
@@ -15,32 +16,33 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get("/health", (req, res) => {
   res.json({
     success: true,
-    message: 'Server is running',
-    timestamp: new Date().toISOString()
+    message: "Server is running",
+    timestamp: new Date().toISOString(),
   });
 });
 
 // API Routes
-app.use('/api/products', productRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/auth", authRoutes);
 
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,
-    message: 'Route not found'
+    message: "Route not found",
   });
 });
 
 // Error handler
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
+  console.error("Error:", err);
   res.status(err.status || 500).json({
     success: false,
-    message: err.message || 'Internal server error',
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    message: err.message || "Internal server error",
+    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
   });
 });
 
@@ -49,14 +51,16 @@ async function startServer() {
   try {
     // Connect to MongoDB
     await connectDB();
-    
+
     // Start Express server
     app.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
-      console.log(`📡 API endpoints available at http://localhost:${PORT}/api/products`);
+      console.log(
+        `📡 API endpoints available at http://localhost:${PORT}/api/products`
+      );
     });
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
+    console.error("❌ Failed to start server:", error);
     process.exit(1);
   }
 }
@@ -64,16 +68,16 @@ async function startServer() {
 startServer();
 
 // Graceful shutdown
-process.on('SIGTERM', async () => {
-  console.log('SIGTERM signal received: closing HTTP server');
-  const { closeDB } = await import('./config/database.js');
+process.on("SIGTERM", async () => {
+  console.log("SIGTERM signal received: closing HTTP server");
+  const { closeDB } = await import("./config/database.js");
   await closeDB();
   process.exit(0);
 });
 
-process.on('SIGINT', async () => {
-  console.log('SIGINT signal received: closing HTTP server');
-  const { closeDB } = await import('./config/database.js');
+process.on("SIGINT", async () => {
+  console.log("SIGINT signal received: closing HTTP server");
+  const { closeDB } = await import("./config/database.js");
   await closeDB();
   process.exit(0);
 });
