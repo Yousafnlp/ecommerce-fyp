@@ -59,7 +59,7 @@ export function SignUpForm() {
         return;
       }
       await dispatch(
-        signUp({ name: formData.name, email: formData.email })
+        signUp({ password: formData.password, email: formData.email })
       ).unwrap();
       router.push("/dashboard");
     } catch {
