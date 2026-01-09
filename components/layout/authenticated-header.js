@@ -1,29 +1,42 @@
 "use client";
 
-import { useAuth } from "@/lib/auth-context";
+import { useAppDispatch, useAppSelector } from "@/lib/redux";
+import { signOut } from "@/store/slices/authSlice";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Zap, User, Settings, LogOut, ShoppingCart, Menu as Hamburger, LogIn, Rocket } from "lucide-react";
-import { useCart } from "@/lib/cart-context";
+import {
+  Zap,
+  User,
+  Settings,
+  LogOut,
+  ShoppingCart,
+  Menu as Hamburger,
+  LogIn,
+  Rocket,
+} from "lucide-react";
+import { selectTotalItems } from "@/store/slices/cartSlice";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ThemeMenuItem } from "../theme/theme-toggle-dropdown";
 import { ThemeToggleButton } from "../theme/theme-toggle-button";
 export function AuthenticatedHeader() {
-  const {
-    totalItems
-  } = useCart();
-  const {
-    user,
-    signOut
-  } = useAuth();
+  const dispatch = useAppDispatch();
+  const totalItems = useAppSelector(selectTotalItems);
+  const user = useAppSelector((s) => s.auth.user);
   const router = useRouter();
   const handleSignOut = async () => {
-    await signOut();
+    await dispatch(signOut());
     router.push("/");
   };
-  return <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+  return (
+    <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
@@ -39,36 +52,62 @@ export function AuthenticatedHeader() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-6">
-            <Link href="/products" className="text-sm font-medium hover:text-primary transition-colors">
+            <Link
+              href="/products"
+              className="text-sm font-medium hover:text-primary transition-colors"
+            >
               Products
             </Link>
-            <Link href="/search" className="text-sm font-medium hover:text-primary transition-colors">
+            <Link
+              href="/search"
+              className="text-sm font-medium hover:text-primary transition-colors"
+            >
               Search
             </Link>
-            <Link href="/advisor" className="text-sm font-medium hover:text-primary transition-colors">
+            <Link
+              href="/advisor"
+              className="text-sm font-medium hover:text-primary transition-colors"
+            >
               AI Advisor
             </Link>
           </nav>
 
           <div className="flex items-center gap-2">
-            {user ? <>
+            {user ? (
+              <>
                 <Link href="/cart">
-                  <Button variant="outline" size="sm" className="relative bg-transparent">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="relative bg-transparent"
+                  >
                     <ShoppingCart className="w-4 h-4 mr-2" />
 
-                    {totalItems > 0 && <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {totalItems > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
                         {totalItems}
-                      </span>}
+                      </span>
+                    )}
                   </Button>
                 </Link>
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Button
+                      variant="ghost"
+                      className="relative h-8 w-8 rounded-full"
+                    >
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
+                        <AvatarImage
+                          src={user.avatar || "/placeholder.svg"}
+                          alt={user.name}
+                        />
                         <AvatarFallback>
-                          {user.name.split(" ").map(n => n[0]).join("").toUpperCase()}
+                          {user.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                            .toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                     </Button>
@@ -105,14 +144,22 @@ export function AuthenticatedHeader() {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-              </> : <>
+              </>
+            ) : (
+              <>
                 <Link href="/cart">
-                  <Button variant="outline" size="sm" className="relative bg-transparent">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="relative bg-transparent"
+                  >
                     <ShoppingCart className="w-4 h-4 mr-2" />
 
-                    {totalItems > 0 && <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {totalItems > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
                         {totalItems}
-                      </span>}
+                      </span>
+                    )}
                   </Button>
                 </Link>
 
@@ -131,12 +178,21 @@ export function AuthenticatedHeader() {
                 <div className="flex lg:hidden items-center">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" aria-label="Menu">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-full"
+                        aria-label="Menu"
+                      >
                         <Hamburger className="w-5 h-5" />
                       </Button>
                     </DropdownMenuTrigger>
 
-                    <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuContent
+                      className="w-56"
+                      align="end"
+                      forceMount
+                    >
                       <DropdownMenuItem asChild>
                         <Link href="/auth/signin">
                           <LogIn className="mr-2 h-4 w-4" />
@@ -154,9 +210,11 @@ export function AuthenticatedHeader() {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
-              </>}
+              </>
+            )}
           </div>
         </div>
       </div>
-    </header>;
+    </header>
+  );
 }

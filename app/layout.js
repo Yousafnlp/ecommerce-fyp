@@ -1,26 +1,26 @@
+"use client";
+
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { Suspense } from "react";
-import { AuthProvider } from "@/lib/auth-context";
-import { CartProvider } from "@/lib/cart-context";
+import { Provider } from "react-redux";
+import store from "@/store";
 import Script from "next/script";
-export const metadata = {
-  title: "SpecSmart - Smarter Choices. Sharper Tech",
-  description: "Intelligent e-commerce platform for digital electronics with AI-powered product recommendations and advanced search",
-  generator: "v0.app"
-};
-export default function RootLayout({
-  children
-}) {
-  return <html lang="en">
+// export const metadata = {
+//   title: "SpecSmart - Smarter Choices. Sharper Tech",
+//   description:
+//     "Intelligent e-commerce platform for digital electronics with AI-powered product recommendations and advanced search",
+//   generator: "v0.app",
+// };
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
-        <AuthProvider>
-          <CartProvider>
-            <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
-          </CartProvider>
-        </AuthProvider>
+        <Provider store={store}>
+          <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+        </Provider>
         <Analytics />
 
         {/* This script runs before React hydration */}
@@ -39,5 +39,6 @@ export default function RootLayout({
         `}
         </Script>
       </body>
-    </html>;
+    </html>
+  );
 }

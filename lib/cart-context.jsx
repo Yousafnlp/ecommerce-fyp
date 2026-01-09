@@ -1,99 +1,43 @@
 "use client";
-import { createContext, useContext, useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from "./redux";
+import {
+  selectCartItems,
+  selectTotalItems,
+  addItem,
+  removeItem,
+  updateQuantity,
+  clearCart,
+} from "@/store/slices/cartSlice";
 import { Database } from "./database";
 
-const CartContext = createContext(undefined);
-
 export function CartProvider({ children }) {
-  const [items, setItems] = useState([]);
+  // No-op provider kept for compatibility with previous imports
+  return children;
+}
 
-  // Load cart from localStorage on mount
-  useEffect(() => {
-    const savedCart = localStorage.getItem("specsmart_cart");
-    if (savedCart) {
-      try {
-        setItems(JSON.parse(savedCart));
-      } catch {
-        localStorage.removeItem("specsmart_cart");
-      }
-    }
-  }, []);
-
-  // Save cart to localStorage whenever items change
-  useEffect(() => {
-    localStorage.setItem("specsmart_cart", JSON.stringify(items));
-  }, [items]);
-
-  const addItem = (productId, quantity = 1) => {
-    setItems((prev) => {
-      const existingItem = prev.find((item) => item.productId === productId);
-      if (existingItem) {
-        return prev.map((item) =>
-          item.productId === productId
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
-      } else {
-        return [...prev, { productId, quantity, addedAt: new Date() }];
-      }
-    });
-  };
-
-  const removeItem = (productId) => {
-    setItems((prev) => prev.filter((item) => item.productId !== productId));
-  };
-
-  const updateQuantity = (productId, quantity) => {
-    if (quantity <= 0) {
-      removeItem(productId);
-      return;
-    }
-    setItems((prev) =>
-      prev.map((item) =>
-        item.productId === productId ? { ...item, quantity } : item
-      )
-    );
-  };
-
-  const clearCart = () => {
-    setItems([]);
-  };
+export function useCart() {
+  const dispatch = useAppDispatch();
+  const items = useAppSelector(selectCartItems);
+  const totalItems = useAppSelector(selectTotalItems);
 
   const getCartProducts = async () => {
-    const productIds = items.map((item) => item.productId);
+    const productIds = items.map((it) => it.productId);
     const products = await Database.getProductsByIds(productIds);
     return products.map((product) => {
-      const cartItem = items.find((item) => item.productId === product.id);
+      const cartItem = items.find((i) => i.productId === product.id);
       return { ...product, quantity: cartItem?.quantity || 0 };
     });
   };
 
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-
-  // For simplicity, we'll calculate total price synchronously using a mock
-  const totalPrice = items.reduce((sum, item) => {
-    // Mock price calculation - in real app, you'd fetch product prices
-    return sum + item.quantity * 500; // Assuming average price of $500
-  }, 0);
-
-  const value = {
+  return {
     items,
     totalItems,
-    totalPrice,
-    addItem,
-    removeItem,
-    updateQuantity,
-    clearCart,
+    addItem: (productId, quantity = 1) =>
+      dispatch(addItem({ productId, quantity })),
+    removeItem: (productId) => dispatch(removeItem(productId)),
+    updateQuantity: (productId, quantity) =>
+      dispatch(updateQuantity({ productId, quantity })),
+    clearCart: () => dispatch(clearCart()),
     getCartProducts,
   };
-
-  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
-}
-
-export function useCart() {
-  const context = useContext(CartContext);
-  if (context === undefined) {
-    throw new Error("useCart must be used within a CartProvider");
-  }
-  return context;
 }

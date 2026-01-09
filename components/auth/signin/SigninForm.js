@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAuth } from "@/lib/auth-context";
+import { useAppDispatch, useAppSelector } from "@/lib/redux";
+import { signIn } from "@/store/slices/authSlice";
 import { useRouter } from "next/navigation";
 import { ErrorMessage } from "../ErrorMessage";
 import { EmailField } from "../EmailField";
@@ -12,73 +13,85 @@ import { SocialLoginButtons } from "../SocialLoginButtons";
 export function SignInForm() {
   const [formData, setFormData] = useState({
     email: "",
-    password: ""
+    password: "",
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const {
-    signIn
-  } = useAuth();
+  const dispatch = useAppDispatch();
+  const authLoading = useAppSelector((s) => s.auth.isLoading);
   const router = useRouter();
 
   // <-- unified event-based handler
-  const handleChange = e => {
-    const {
-      name,
-      value,
-      type,
-      checked
-    } = e.target;
-    setFormData(prev => ({
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: ""
+        [name]: "",
       }));
     }
   };
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setErrors({});
 
     // Validation
     const newErrors = {};
-    if (!formData.email) newErrors.email = "Email is required";else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Please enter a valid email";
-    if (!formData.password) newErrors.password = "Password is required";else if (formData.password.length < 6) newErrors.password = "Password must be at least 6 characters";
+    if (!formData.email) newErrors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(formData.email))
+      newErrors.email = "Please enter a valid email";
+    if (!formData.password) newErrors.password = "Password is required";
+    else if (formData.password.length < 6)
+      newErrors.password = "Password must be at least 6 characters";
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       setIsLoading(false);
       return;
     }
     try {
-      await signIn(formData.email, formData.password);
+      setIsLoading(true);
+      await dispatch(signIn(formData.email)).unwrap();
       router.push("/dashboard");
     } catch {
-      setErrors({
-        general: "Invalid email or password"
-      });
+      setErrors({ general: "Invalid email or password" });
     } finally {
       setIsLoading(false);
     }
   };
-  return <form onSubmit={handleSubmit} className="space-y-4">
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
       <ErrorMessage message={errors.general} />
 
-      <EmailField value={formData.email} error={errors.email} onChange={handleChange} // pass event handler directly
-    disabled={isLoading} />
+      <EmailField
+        value={formData.email}
+        error={errors.email}
+        onChange={handleChange} // pass event handler directly
+        disabled={isLoading}
+      />
 
-      <PasswordInput id="password" name="password" // ensure name="password"
-    value={formData.password} onChange={handleChange} // pass event handler directly
-    error={errors.password} disabled={isLoading} />
+      <PasswordInput
+        id="password"
+        name="password" // ensure name="password"
+        value={formData.password}
+        onChange={handleChange} // pass event handler directly
+        error={errors.password}
+        disabled={isLoading}
+      />
 
-      <SubmitButton isLoading={isLoading} defaultText="Sign In" loadingText="Signing In..." />
+      <SubmitButton
+        isLoading={isLoading}
+        defaultText="Sign In"
+        loadingText="Signing In..."
+      />
 
       <Divider />
 
       <SocialLoginButtons isLoading={isLoading} />
-    </form>;
+    </form>
+  );
 }
