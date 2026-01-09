@@ -55,7 +55,9 @@ export function SignInForm() {
     }
     try {
       setIsLoading(true);
-      await dispatch(signIn(formData.email)).unwrap();
+      await dispatch(
+        signIn({ email: formData.email, password: formData.password })
+      ).unwrap();
       router.push("/dashboard");
     } catch {
       setErrors({ general: "Invalid email or password" });
