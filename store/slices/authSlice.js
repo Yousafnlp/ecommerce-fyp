@@ -18,9 +18,8 @@ export const signIn = createAsyncThunk(
   async ({ email, password }, { rejectWithValue }) => {
     try {
       const data = await apiClient.signin({ email, password });
-
-      localStorage.setItem("specsmart_user", data.id);
-      return data.id;
+      localStorage.setItem("specsmart_user", JSON.stringify(data.user));
+      return data.user;
     } catch (err) {
       return rejectWithValue("error: " + err);
     }
@@ -29,27 +28,11 @@ export const signIn = createAsyncThunk(
 
 export const signUp = createAsyncThunk(
   "auth/signup",
-  async ({ email, password }, { rejectWithValue }) => {
+  async ({ email, password, name }, { rejectWithValue }) => {
     try {
-      const data = await apiClient.signup({ email, password });
-      // would need to make a new route to return this user
-
-      // const mockUser = {
-      //     id: "1",
-      //     email,
-      //     name: email.split("@")[0],
-      //     avatar: "/placeholder.svg",
-      //     preferences: {
-      //       favoriteCategories: [],
-      //       priceRange: { min: 0, max: 5000 },
-      //       preferredBrands: [],
-      //       notifications: true,
-      //     },
-      //     createdAt: new Date(),
-      //     updatedAt: new Date(),
-      //   };
-      localStorage.setItem("specsmart_user", data.id);
-      return data.id;
+      const data = await apiClient.signup({ email, password, name });
+      localStorage.setItem("specsmart_user", JSON.stringify(data.user));
+      return data.user;
     } catch (err) {
       return rejectWithValue("error: " + err);
     }
@@ -65,6 +48,7 @@ export const signOut = createAsyncThunk("auth/signOut", async () => {
 
 const initialState = {
   ...loadUser(),
+  isAuthenticated: !!loadUser().user,
   isLoading: false,
 };
 
@@ -85,34 +69,34 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(signOut.fulfilled, (state) => {
-        state.user = null;
-        state.isLoading = false;
-      })
       .addCase(signIn.pending, (state) => {
-        state.status = "loading";
+        state.isLoading = true;
       })
       .addCase(signIn.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.token = action.payload;
+        state.user = action.payload;
         state.isAuthenticated = true;
+        state.isLoading = false;
       })
-      .addCase(signIn.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload;
+      .addCase(signIn.rejected, (state) => {
+        state.isLoading = false;
       })
 
       .addCase(signUp.pending, (state) => {
-        state.status = "loading";
+        state.isLoading = true;
       })
       .addCase(signUp.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.token = action.payload;
+        state.user = action.payload;
         state.isAuthenticated = true;
+        state.isLoading = false;
       })
-      .addCase(signUp.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload;
+      .addCase(signUp.rejected, (state) => {
+        state.isLoading = false;
+      })
+
+      .addCase(signOut.fulfilled, (state) => {
+        state.user = null;
+        state.isAuthenticated = false;
+        state.isLoading = false;
       });
   },
 });
