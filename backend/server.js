@@ -10,6 +10,13 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Logging middleware
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log("----");
+  next();
+});
+
 // Middleware
 app.use(cors());
 app.use(express.json());
