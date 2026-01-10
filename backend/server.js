@@ -4,24 +4,26 @@ import dotenv from "dotenv";
 import { connectDB } from "./config/database.js";
 import productRoutes from "./routes/products.js";
 import authRoutes from "./routes/auth.js";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Logging middleware
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  console.log("----");
-  next();
-});
-
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
+// Logging
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log(req.body);
+  console.log("----");
+  next();
+});
 // Health check endpoint
 app.get("/health", (req, res) => {
   res.json({
@@ -34,6 +36,7 @@ app.get("/health", (req, res) => {
 // API Routes
 app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
+// Logging middleware
 
 // 404 handler
 app.use((req, res) => {
