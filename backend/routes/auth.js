@@ -69,6 +69,7 @@ router.post("/signout", (req, res) => {
   res.clearCookie("refreshToken", {
     httpOnly: true,
     sameSite: "strict",
+    path: "/api/auth/refresh",
     secure: process.env.NODE_ENV === "production",
   });
 

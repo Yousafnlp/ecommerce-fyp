@@ -8,6 +8,7 @@ import { Suspense } from "react";
 import { Provider } from "react-redux";
 import store from "@/store";
 import Script from "next/script";
+import { AuthBootstrap } from "@/components/root/AuthInit";
 // export const metadata = {
 //   title: "SpecSmart - Smarter Choices. Sharper Tech",
 //   description:
@@ -19,6 +20,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
         <Provider store={store}>
+          <AuthBootstrap /> {/* ✅ NOW SAFE */}
           <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
         </Provider>
         <Analytics />
