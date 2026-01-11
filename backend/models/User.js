@@ -30,7 +30,7 @@ export class User {
       email: user.email,
       name: user.name,
       avatar: user.avatar,
-      password: user.passwordHash,
+      passwordHash: user.passwordHash,
       preferences: user.preferences,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
@@ -52,6 +52,12 @@ export class User {
     });
 
     return this._transform(user);
+  }
+
+  static removePassword(user) {
+    if (!user) return null;
+    const { passwordHash, ...rest } = user;
+    return rest;
   }
 
   /* Create */
