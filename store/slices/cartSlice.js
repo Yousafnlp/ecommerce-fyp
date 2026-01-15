@@ -16,7 +16,7 @@ const loadInitial = () => {
 };
 
 const initialState = loadInitial();
-
+console.log({initialState})
 const cartSlice = createSlice({
   name: "cart",
   initialState,

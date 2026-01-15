@@ -1,5 +1,4 @@
-import { Database } from "@/lib/database";
-import { notFound } from "next/navigation";
+"use client";
 import { AuthenticatedHeader } from "@/components/layout/authenticated-header";
 import { ProductBreadcrumb } from "@/components/products/category/product/product-breadcrum";
 import { ProductImages } from "@/components/products/category/product/product-images";
@@ -7,18 +6,25 @@ import { ProductInfo } from "@/components/products/category/product/product-info
 import { ProductSpecifications } from "@/components/products/category/product/product-specifications";
 import { RelatedProducts } from "@/components/products/category/product/relateed-products";
 import { ProductActions } from "@/components/products/category/product/product-action";
+import { useGetProductById, useGetProducts } from "@/lib/hooks/products";
+import { useSelector } from "react-redux";
 
-export default async function ProductPage({ params }) {
-  const { category, id } = await params;
-  const product = await Database.getProductById(id);
+export default function ProductPage({ params }) {
+  const { data: product, isLoading: loadingProduct } = useGetProductById(
+    params?.id
+  );
+  const { data: relatedProducts, isLoading: loadingRelated } = useGetProducts({
+    category: params?.category,
+  });
 
-  if (!product || product.category !== category) {
-    notFound();
+  if (loadingProduct || loadingRelated) {
+    return <p className="text-center mt-20">Loading...</p>;
   }
 
-  const relatedProducts = await Database.getProducts({
-    category: product.category,
-  });
+  if (!product) {
+    return <p className="text-center mt-20">Product not found</p>;
+  }
+
   const filteredRelated = relatedProducts
     .filter((p) => p.id !== product.id)
     .slice(0, 4);
@@ -27,7 +33,10 @@ export default async function ProductPage({ params }) {
     <div className="min-h-screen bg-background">
       <AuthenticatedHeader />
       <div className="container mx-auto px-4 py-8">
-        <ProductBreadcrumb category={category} productName={product.name} />
+        <ProductBreadcrumb
+          category={params?.category}
+          productName={product.name}
+        />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
           <ProductImages
             name={product.name}
@@ -36,7 +45,7 @@ export default async function ProductPage({ params }) {
           />
           <div className="space-y-6">
             <ProductInfo {...product} />
-            <ProductActions inStock={product.inStock} />
+            <ProductActions inStock={product.inStock} product={product} />
           </div>
         </div>
         <ProductSpecifications specifications={product.specifications} />
