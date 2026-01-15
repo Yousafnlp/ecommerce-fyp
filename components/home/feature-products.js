@@ -1,13 +1,20 @@
-import { Database } from "@/lib/database";
-import React from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
-import Image from "next/image";
+"use client";
+import { useGetFeaturedProducts } from "@/lib/hooks/products";
 import { Star } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../ui/button";
-const FeatureProducts = async () => {
-  const featuredProducts = await Database.getFeaturedProducts();
-  return <section className="py-16 px-4 bg-muted/30">
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
+const FeatureProducts = () => {
+  const { data: featuredProducts } = useGetFeaturedProducts();
+  return (
+    <section className="py-16 px-4 bg-muted/30">
       <div className="container mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-4">Featured Products</h2>
@@ -17,10 +24,19 @@ const FeatureProducts = async () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredProducts.map(product => <Card key={product.id} className="group hover:shadow-lg transition-all duration-300">
+          {featuredProducts?.map((product) => (
+            <Card
+              key={product.id}
+              className="group hover:shadow-lg transition-all duration-300"
+            >
               <CardHeader className="p-4">
                 <div className="aspect-square relative mb-4 overflow-hidden rounded-lg bg-muted">
-                  <Image src={product.image || "/placeholder.svg"} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                  <Image
+                    src={product.image || "/placeholder.svg"}
+                    alt={product.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
                   {/* <Badge className="absolute top-2 right-2 bg-primary">
                       Score: {product.score}
                     </Badge> */}
@@ -45,9 +61,11 @@ const FeatureProducts = async () => {
                   </div>
                   <div className="text-right">
                     <div className="text-lg font-bold">${product.price}</div>
-                    {product.originalPrice && <div className="text-xs text-muted-foreground line-through">
+                    {product.originalPrice && (
+                      <div className="text-xs text-muted-foreground line-through">
                         ${product.originalPrice}
-                      </div>}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <Link href={`/products/${product.category}/${product.id}`}>
@@ -56,9 +74,11 @@ const FeatureProducts = async () => {
                   </Button>
                 </Link>
               </CardContent>
-            </Card>)}
+            </Card>
+          ))}
         </div>
       </div>
-    </section>;
+    </section>
+  );
 };
 export default FeatureProducts;
