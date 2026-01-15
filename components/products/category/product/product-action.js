@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { addItem } from "@/store/slices/cartSlice";
-import { ShoppingCart, Heart, Share2 } from "lucide-react";
-import { useDispatch, useSelector } from "react-redux";
+import { Heart, ShoppingCart } from "lucide-react";
+import { useDispatch } from "react-redux";
 export function ProductActions({ inStock, product }) {
   const dispatch = useDispatch();
   const handleAddToCart = () => {

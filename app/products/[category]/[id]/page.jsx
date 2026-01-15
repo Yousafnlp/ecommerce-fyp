@@ -1,13 +1,12 @@
 "use client";
 import { AuthenticatedHeader } from "@/components/layout/authenticated-header";
+import { ProductActions } from "@/components/products/category/product/product-action";
 import { ProductBreadcrumb } from "@/components/products/category/product/product-breadcrum";
 import { ProductImages } from "@/components/products/category/product/product-images";
 import { ProductInfo } from "@/components/products/category/product/product-info";
 import { ProductSpecifications } from "@/components/products/category/product/product-specifications";
 import { RelatedProducts } from "@/components/products/category/product/relateed-products";
-import { ProductActions } from "@/components/products/category/product/product-action";
 import { useGetProductById, useGetProducts } from "@/lib/hooks/products";
-import { useSelector } from "react-redux";
 
 export default function ProductPage({ params }) {
   const { data: product, isLoading: loadingProduct } = useGetProductById(
