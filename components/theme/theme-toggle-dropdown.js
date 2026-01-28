@@ -1,3 +1,4 @@
+'use client';
 import { Sun, Moon } from "lucide-react";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
