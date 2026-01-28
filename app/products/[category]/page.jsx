@@ -5,7 +5,6 @@ import { CategoryHeader } from "@/components/products/category/category-header";
 import { CategoryBreadcrumb } from "@/components/products/category/category-breadcrums";
 import { CategoryProducts } from "@/components/products/category/category-products";
 
-
 const categoryInfo = {
   smartphone: {
     title: "Smartphones",
@@ -37,12 +36,12 @@ const categoryInfo = {
 export default async function CategoryPage({ params }) {
   const { category } = await params;
 
-  if (!categoryInfo[category as keyof typeof categoryInfo]) {
+  if (!categoryInfo[category]) {
     notFound();
   }
 
   const products = await Database.getProducts({ category });
-  const info = categoryInfo[category as keyof typeof categoryInfo];
+  const info = categoryInfo[category];
 
   return (
     <div className="min-h-screen bg-background">
