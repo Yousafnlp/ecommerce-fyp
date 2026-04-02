@@ -7,6 +7,7 @@ export function ProductInfo({
   description,
   rating,
   reviewCount,
+  score,
   price,
   originalPrice,
   inStock,
@@ -31,6 +32,7 @@ export function ProductInfo({
           <span className="font-semibold">{rating}</span>
           <span className="text-muted-foreground">({reviewCount} reviews)</span>
         </div>
+        <Badge>SpecSmart Score {score}</Badge>
       </div>
 
       {/* Price */}

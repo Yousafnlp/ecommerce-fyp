@@ -1,7 +1,18 @@
 import express from 'express';
 import { Product } from '../models/Product.js';
+import { authenticateToken } from "../middleware/authenticateToken.js";
 
 const router = express.Router();
+
+function requireAdmin(req, res, next) {
+  if (req.user?.role !== "admin") {
+    return res.status(403).json({
+      success: false,
+      message: "Admin access required",
+    });
+  }
+  next();
+}
 
 // GET /api/products/featured - Get featured products
 router.get('/featured', async (req, res) => {
@@ -53,7 +64,47 @@ router.get('/search', async (req, res) => {
       });
     }
 
-    const products = await Product.searchProducts(q);
+    let products = await Product.searchProducts(q);
+
+    if (req.query.category) {
+      products = products.filter((product) => product.category === req.query.category);
+    }
+
+    if (req.query.brand) {
+      const brands = Array.isArray(req.query.brand)
+        ? req.query.brand
+        : String(req.query.brand)
+            .split(',')
+            .map((brand) => brand.trim());
+      products = products.filter((product) => brands.includes(product.brand));
+    }
+
+    if (req.query.minPrice) {
+      products = products.filter((product) => product.price >= Number(req.query.minPrice));
+    }
+
+    if (req.query.maxPrice) {
+      products = products.filter((product) => product.price <= Number(req.query.maxPrice));
+    }
+
+    if (req.query.rating) {
+      products = products.filter((product) => product.rating >= Number(req.query.rating));
+    }
+
+    if (req.query.sortBy) {
+      const fieldMap = { newest: 'createdAt' };
+      const sortField = fieldMap[req.query.sortBy] || req.query.sortBy;
+      const direction = req.query.sortOrder === 'asc' ? 1 : -1;
+      products = [...products].sort((a, b) => {
+        const left = a[sortField];
+        const right = b[sortField];
+        if (left instanceof Date && right instanceof Date) {
+          return (left.getTime() - right.getTime()) * direction;
+        }
+        return ((left || 0) - (right || 0)) * direction;
+      });
+    }
+
     res.json({
       success: true,
       data: products,
@@ -176,6 +227,23 @@ router.get('/', async (req, res) => {
       success: false,
       message: 'Failed to fetch products',
       error: error.message
+    });
+  }
+});
+
+router.post("/", authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const product = await Product.create(req.body);
+    res.status(201).json({
+      success: true,
+      data: product,
+    });
+  } catch (error) {
+    console.error("Error creating product:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to create product",
+      error: error.message,
     });
   }
 });
