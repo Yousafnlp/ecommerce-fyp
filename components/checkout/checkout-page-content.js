@@ -6,6 +6,7 @@ import {
   selectCartItems,
   selectTotalItems,
   clearCart,
+  clearCartAsync,
 } from "@/store/slices/cartSlice";
 import { Database } from "@/lib/database";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,7 @@ export function CheckoutPageContent() {
   const dispatch = useAppDispatch();
   const items = useAppSelector(selectCartItems);
   const totalItems = useAppSelector(selectTotalItems);
+  const user = useAppSelector((state) => state.auth.user);
   const router = useRouter();
   const [cartProducts, setCartProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -105,13 +107,34 @@ export function CheckoutPageContent() {
   const total = subtotal + shipping + tax;
   const handlePlaceOrder = async () => {
     setIsProcessing(true);
+    try {
+      const orderItems = cartProducts.map((product) => ({
+        productId: product.id,
+        quantity: product.quantity,
+        price: product.price,
+        name: product.name,
+        image: product.image,
+        category: product.category,
+        brand: product.brand,
+      }));
 
-    // Mock order processing
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    // Clear cart and redirect to success page
-    dispatch(clearCart());
-    router.push("/checkout/success");
+      if (user) {
+        await Database.createOrder({
+          items: orderItems,
+          shippingAddress,
+          paymentMethod,
+          totals: { subtotal, shipping, tax, total },
+        });
+        await dispatch(clearCartAsync());
+      } else {
+        dispatch(clearCart());
+      }
+      router.push("/checkout/success");
+    } catch (error) {
+      console.error("Failed to place order:", error);
+    } finally {
+      setIsProcessing(false);
+    }
   };
   if (isLoading) {
     return (

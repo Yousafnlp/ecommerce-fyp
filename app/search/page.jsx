@@ -2,10 +2,6 @@ import { Database } from "@/lib/database";
 import { AdvancedSearchInterface } from "@/components/search/advanced-search-interface";
 import { SearchResults } from "@/components/search/search-results";
 import { AuthenticatedHeader } from "@/components/layout/authenticated-header";
-import {
-  mapNaturalQueryToFilters,
-  parseNaturalLanguageQuery,
-} from "@/lib/search-utils";
 
 export default async function SearchPage({ searchParams }) {
   const params = await searchParams;
@@ -30,39 +26,7 @@ export default async function SearchPage({ searchParams }) {
   // Get search results
   let products = [];
   if (query) {
-    const nlpFilters = parseNaturalLanguageQuery(query);
-    const { sortBy, sortOrder, matchedNames, ...otherNlpFilters } = nlpFilters;
-    const mappedFilters = mapNaturalQueryToFilters(otherNlpFilters);
-
-    products = await Database.getProducts(mappedFilters);
-
-    if (matchedNames?.length) {
-      products = await Database.rankByNames(
-        products,
-        matchedNames.map((n) => n.toLowerCase())
-      );
-    }
-
-    if (filters.sortBy) {
-      products = Database.sortProductsLocal(
-        products,
-        filters.sortBy,
-        filters.sortOrder
-      );
-    } else {
-      products = await Database.sortByRelevance(products, query);
-    }
-
-    // Apply additional filters from UI
-    if (
-      filters.category ||
-      filters.brand ||
-      filters.priceRange ||
-      filters.rating ||
-      filters.sortBy
-    ) {
-      products = Database.filterProductsLocal(products, filters);
-    }
+    products = await Database.searchProductsAdvanced(query, filters);
   }
 
   return (

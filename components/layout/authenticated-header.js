@@ -17,6 +17,7 @@ import {
   Settings,
   LogOut,
   ShoppingCart,
+  Shield,
   Menu as Hamburger,
   LogIn,
   Rocket,
@@ -128,6 +129,14 @@ export function AuthenticatedHeader() {
                         Dashboard
                       </Link>
                     </DropdownMenuItem>
+                    {user.role === "admin" ? (
+                      <DropdownMenuItem asChild>
+                        <Link href="/admin">
+                          <Shield className="mr-2 h-4 w-4" />
+                          Admin Panel
+                        </Link>
+                      </DropdownMenuItem>
+                    ) : null}
                     <DropdownMenuItem asChild>
                       <Link href="/dashboard?tab=settings">
                         <Settings className="mr-2 h-4 w-4" />

@@ -6,9 +6,13 @@ import OrdersTab from "./tabs/orders-tab";
 import WishlistTab from "./tabs/wishlist-tab";
 import SettingsTab from "./tabs/settings-tab";
 export function DashboardTabs({
-  user
+  user,
+  commerce,
+  adminOrders,
+  adminSummary,
+  initialTab = "overview"
 }) {
-  return <Tabs defaultValue="overview" className="space-y-6">
+  return <Tabs defaultValue={initialTab} className="space-y-6">
       <TabsList className="grid w-full grid-cols-4">
         <TabsTrigger value="overview">Overview</TabsTrigger>
         <TabsTrigger value="orders">Orders</TabsTrigger>
@@ -17,15 +21,15 @@ export function DashboardTabs({
       </TabsList>
 
       <TabsContent value="overview">
-        <OverviewTab />
+        <OverviewTab orders={commerce.orders} wishlistProducts={commerce.wishlistProducts} user={user} adminOrders={adminOrders} adminSummary={adminSummary} />
       </TabsContent>
 
       <TabsContent value="orders">
-        <OrdersTab />
+        <OrdersTab orders={commerce.orders} adminOrders={adminOrders} user={user} adminSummary={adminSummary} />
       </TabsContent>
 
       <TabsContent value="wishlist">
-        <WishlistTab />
+        <WishlistTab products={commerce.wishlistProducts} />
       </TabsContent>
 
       <TabsContent value="settings">

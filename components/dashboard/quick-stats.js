@@ -1,22 +1,28 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Package, Star, TrendingUp } from "lucide-react";
-export function QuickStats() {
+export function QuickStats({
+  wishlistCount = 0,
+  orderCount = 0,
+  totalSpent = 0,
+  totalItems = 0,
+  isAdmin = false
+}) {
   const stats = [{
     icon: Heart,
-    label: "Wishlist Items",
-    value: 12
+    label: isAdmin ? "Customers" : "Wishlist Items",
+    value: wishlistCount
   }, {
     icon: Package,
-    label: "Orders",
-    value: 5
+    label: "Total Orders",
+    value: orderCount
   }, {
     icon: Star,
-    label: "Reviews",
-    value: 8
+    label: isAdmin ? "Items Ordered" : "Items Bought",
+    value: totalItems
   }, {
     icon: TrendingUp,
-    label: "Total Spent",
-    value: "$2,450"
+    label: isAdmin ? "Order Revenue" : "Total Spent",
+    value: `$${Number(totalSpent).toFixed(2)}`
   }];
   return <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
       {stats.map(({

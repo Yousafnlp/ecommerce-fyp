@@ -5,9 +5,10 @@ import { useAppDispatch, useAppSelector } from "@/lib/redux";
 import {
   selectCartItems,
   selectTotalItems,
-  updateQuantity,
-  removeItem,
-  clearCart,
+  setCart,
+  updateCartQuantityAsync,
+  removeCartItemAsync,
+  clearCartAsync,
 } from "@/store/slices/cartSlice";
 import { Database } from "@/lib/database";
 import { CartBreadcrumb } from "@/components/cart/CartBreadcrumb";
@@ -27,17 +28,22 @@ export function CartPageContent() {
     const loadCartProducts = async () => {
       setIsLoading(true);
       try {
-        const productIds = items.map((it) => it.productId).filter(Boolean);
-        if (productIds.length === 0) {
+        if (items.length === 0) {
+          const commerce = await Database.getCommerceData();
+          if (commerce.cart?.length) {
+            dispatch(setCart(commerce.cart));
+            return;
+          }
           setCartProducts([]);
-          return;
+        } else {
+          const productIds = items.map((it) => it.productId).filter(Boolean);
+          const products = await Database.getProductsByIds(productIds);
+          const enriched = products.map((product) => {
+            const cartItem = items.find((i) => i.productId === product.id);
+            return { ...product, quantity: cartItem?.quantity || 0 };
+          });
+          setCartProducts(enriched);
         }
-        const products = await Database.getProductsByIds(productIds);
-        const enriched = products.map((product) => {
-          const cartItem = items.find((i) => i.productId === product.id);
-          return { ...product, quantity: cartItem?.quantity || 0 };
-        });
-        setCartProducts(enriched);
       } catch (err) {
         console.error("Failed to load cart products:", err);
         setCartProducts([]);
@@ -47,7 +53,7 @@ export function CartPageContent() {
     };
 
     loadCartProducts();
-  }, [items]);
+  }, [dispatch, items]);
   const subtotal = cartProducts.reduce(
     (sum, p) => sum + p.price * p.quantity,
     0
@@ -66,10 +72,10 @@ export function CartPageContent() {
           <CartItemList
             products={cartProducts}
             updateQuantity={(productId, q) =>
-              dispatch(updateQuantity({ productId, quantity: q }))
+              dispatch(updateCartQuantityAsync({ productId, quantity: q }))
             }
-            removeItem={(id) => dispatch(removeItem(id))}
-            clearCart={() => dispatch(clearCart())}
+            removeItem={(id) => dispatch(removeCartItemAsync(id))}
+            clearCart={() => dispatch(clearCartAsync())}
           />
         </div>
         <div className="lg:col-span-1">

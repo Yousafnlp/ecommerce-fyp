@@ -36,7 +36,7 @@ export default async function ProductPage({ params }) {
           />
           <div className="space-y-6">
             <ProductInfo {...product} />
-            <ProductActions inStock={product.inStock} />
+            <ProductActions product={product} />
           </div>
         </div>
         <ProductSpecifications specifications={product.specifications} />

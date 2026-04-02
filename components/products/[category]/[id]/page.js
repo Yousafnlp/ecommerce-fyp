@@ -31,7 +31,7 @@ export default async function ProductPage({
           <ProductImages name={product.name} mainImage={product.image} images={product.images} />
           <div className="space-y-6">
             <ProductInfo {...product} />
-            <ProductActions inStock={product.inStock} />
+            <ProductActions product={product} />
           </div>
         </div>
 
