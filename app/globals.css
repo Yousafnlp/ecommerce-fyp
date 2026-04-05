@@ -95,65 +95,50 @@
 }
 
 .dark {
-  /* Base surface */
-  --background: oklch(20% 0.03 180); /* slightly darker charcoal */
-  --foreground: oklch(96% 0.015 180); /* soft neutral white */
+  /* Base surface - Deepened for better contrast with cards */
+  --background: oklch(10% 0.02 180);
+  --foreground: oklch(92% 0.01 180); /* Slightly dimmed white to reduce eye strain */
 
-  /* Cards & surfaces */
-  --card: oklch(26% 0.035 180);
+  /* Cards & surfaces - Increased lightness step for depth */
+  --card: oklch(19% 0.02 180);
   --card-foreground: var(--foreground);
-  --popover: oklch(28% 0.04 180);
+  --popover: oklch(22% 0.025 180);
   --popover-foreground: var(--foreground);
 
-  /* Brand colors (teal + magenta accents) */
-  --primary: oklch(68% 0.17 150); /* fresh teal */
-  --primary-hover: oklch(75% 0.19 150); /* brighter teal for hover */
-  --primary-foreground: oklch(10% 0.02 180);
+  /* Brand colors - Teal + Magenta */
+  /* Boosted Chroma (middle value) for better visibility on dark backgrounds */
+  --primary: oklch(75% 0.16 160); 
+  --primary-hover: oklch(82% 0.18 160);
+  --primary-foreground: oklch(12% 0.02 180);
 
-  --secondary: oklch(80.203% 0.22325 132.293); /* magenta */
-  --secondary-hover: oklch(84.056% 0.1533 127.365); /* brighter hover magenta */
-  --secondary-foreground: oklch(12% 0.02 270);
+  --secondary: oklch(70% 0.22 330); /* Adjusted hue for a truer magenta */
+  --secondary-hover: oklch(78% 0.20 330);
+  --secondary-foreground: oklch(12% 0.02 330);
 
-  /* Highlights & accents */
-  --accent: oklch(32% 0.07 150); /* richer mint-teal for hover surfaces */
-  --accent-hover: oklch(40% 0.09 150); /* stronger hover pop */
-  --accent-foreground: oklch(98% 0.02 95);
+  /* Muted & UI - Contrast-adjusted for text readability */
+  --muted: oklch(24% 0.02 180); 
+  --muted-foreground: oklch(75% 0.02 180); /* Raised lightness for better legibility */
+  
+  /* Highlights & Accents */
+  --accent: oklch(28% 0.04 160);
+  --accent-hover: oklch(35% 0.06 160);
+  --accent-foreground: oklch(98% 0.01 160);
 
-  /* Muted & text */
-  --muted: oklch(30% 0.015 180); /* soft background areas */
-  --muted-hover: oklch(38% 0.025 180);
-  --muted-foreground: oklch(80% 0.02 180);
+  /* Destructive */
+  --destructive: oklch(62% 0.18 28);
+  --destructive-foreground: oklch(12% 0.02 28);
 
-  /* Destructive & warning */
-  --destructive: oklch(58% 0.25 25);
-  --destructive-hover: oklch(66% 0.26 25);
-  --destructive-foreground: oklch(10% 0.02 20);
+  /* Borders / Inputs / Rings */
+  --border: oklch(75.358% 0.15204 168.339);
+  --input: oklch(16% 0.02 180);
+  --input-hover: oklch(20% 0.03 180);
+  --ring: oklch(68% 0.17 150);
 
-  /* Borders / inputs / rings */
-  --border: oklch(35% 0.015 180);
-  --input: oklch(27% 0.02 180);
-  --input-hover: oklch(33% 0.03 180);
-  --ring: oklch(68% 0.12 150);
-
-  /* Chart tones */
-  --chart-1: oklch(68% 0.2 150);
-  --chart-2: oklch(65% 0.22 320);
-  --chart-3: oklch(72% 0.18 90);
-  --chart-4: oklch(58% 0.15 230);
-  --chart-5: oklch(60% 0.16 20);
-
-  /* Sidebar / UI */
-  --sidebar: oklch(23% 0.025 180);
-  --sidebar-hover: oklch(28% 0.03 180);
-  --sidebar-foreground: var(--foreground);
-  --sidebar-primary: var(--primary);
-  --sidebar-primary-hover: var(--primary-hover);
-  --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent: oklch(30% 0.03 180);
-  --sidebar-accent-hover: oklch(36% 0.04 180);
-  --sidebar-accent-foreground: oklch(90% 0.02 180);
-  --sidebar-border: oklch(34% 0.015 180);
-  --sidebar-ring: var(--ring);
+  /* Sidebar - Distinct from main content */
+  --sidebar: oklch(16% 0.02 180);
+  --sidebar-foreground: oklch(85% 0.02 180);
+  --sidebar-border: oklch(24% 0.02 180);
+  --sidebar-accent: oklch(24% 0.03 180);
 }
 
 @layer base {
