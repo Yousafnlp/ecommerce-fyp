@@ -26,18 +26,18 @@ function SourceCard({ product }) {
       href={`/products/${encodeURIComponent(product.category)}/${encodeURIComponent(product.id)}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2 text-xs hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+      className="flex items-center gap-2 rounded-lg border border-border bg-card p-2 text-xs hover:bg-accent transition-colors"
     >
       {product.image && (
         <img
           src={product.image}
           alt={product.name}
-          className="h-8 w-8 rounded object-contain flex-shrink-0 bg-gray-100 dark:bg-gray-900"
+          className="h-8 w-8 rounded object-contain shrink-0 bg-muted"
         />
       )}
       <div className="min-w-0">
-        <p className="font-medium text-gray-900 dark:text-gray-100 truncate">{product.name}</p>
-        <p className="text-gray-500 dark:text-gray-400">${product.price}</p>
+        <p className="font-medium text-foreground truncate">{product.name}</p>
+        <p className="text-muted-foreground">${product.price}</p>
       </div>
     </a>
   );
@@ -51,20 +51,20 @@ function Message({ msg }) {
       <div className={`max-w-[85%] ${isUser ? "order-2" : "order-1"}`}>
         {!isUser && (
           <div className="flex items-center gap-1.5 mb-1">
-            <div className="h-5 w-5 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+            <div className="h-5 w-5 rounded-full bg-primary flex items-center justify-center shrink-0">
               <svg className="h-3 w-3 text-white" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
               </svg>
             </div>
-            <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">SpecSmart AI</span>
+            <span className="text-xs text-muted-foreground font-medium">SpecSmart AI</span>
           </div>
         )}
 
         <div
           className={`rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
             isUser
-              ? "bg-blue-600 text-white rounded-tr-sm"
-              : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-tl-sm"
+              ? "bg-primary text-primary-foreground rounded-tr-sm"
+              : "bg-muted text-foreground rounded-tl-sm"
           }`}
         >
           {msg.text}
@@ -75,7 +75,7 @@ function Message({ msg }) {
 
         {msg.sources && msg.sources.length > 0 && (
           <div className="mt-2 space-y-1.5">
-            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium px-1">
+            <p className="text-xs text-muted-foreground font-medium px-1">
               Referenced products:
             </p>
             {msg.sources.map((s) => (
@@ -91,12 +91,12 @@ function Message({ msg }) {
 function TypingIndicator() {
   return (
     <div className="flex justify-start mb-3">
-      <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl rounded-tl-sm px-4 py-3">
+      <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-3">
         <div className="flex gap-1">
           {[0, 1, 2].map((i) => (
             <span
               key={i}
-              className="h-2 w-2 rounded-full bg-gray-400 dark:bg-gray-500 animate-bounce"
+              className="h-2 w-2 rounded-full bg-muted-foreground animate-bounce"
               style={{ animationDelay: `${i * 150}ms` }}
             />
           ))}
@@ -271,7 +271,7 @@ export default function ChatBot() {
       <button
         onClick={() => setIsOpen((o) => !o)}
         aria-label={isOpen ? "Close chat" : "Open chat"}
-        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 active:scale-95 transition-all"
+        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 active:scale-95 transition-all"
       >
         {isOpen ? (
           <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -286,10 +286,10 @@ export default function ChatBot() {
 
       {/* Chat window */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-50 flex flex-col w-[360px] max-w-[calc(100vw-3rem)] h-[520px] max-h-[calc(100vh-8rem)] rounded-2xl bg-white dark:bg-gray-900 shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="fixed bottom-24 right-6 z-50 flex flex-col w-90 max-w-[calc(100vw-3rem)] h-130 max-h-[calc(100vh-8rem)] rounded-2xl bg-background shadow-2xl border border-border overflow-hidden">
 
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 bg-blue-600 text-white flex-shrink-0">
+          <div className="flex items-center justify-between px-4 py-3 bg-primary text-primary-foreground shrink-0">
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center">
                 <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
@@ -298,13 +298,13 @@ export default function ChatBot() {
               </div>
               <div>
                 <p className="text-sm font-semibold leading-none">SpecSmart AI</p>
-                <p className="text-xs text-blue-100 mt-0.5">Product assistant</p>
+                <p className="text-xs text-primary-foreground/70 mt-0.5">Product assistant</p>
               </div>
             </div>
             <button
               onClick={clearChat}
               title="Clear conversation"
-              className="rounded-lg p-1.5 hover:bg-white/20 transition-colors text-blue-100 hover:text-white"
+              className="rounded-lg p-1.5 hover:bg-primary-foreground/20 transition-colors text-primary-foreground/70 hover:text-primary-foreground"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -324,7 +324,7 @@ export default function ChatBot() {
           </div>
 
           {/* Input area */}
-          <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-700 p-3">
+          <div className="shrink-0 border-t border-border p-3">
             <div className="flex items-end gap-2">
               <textarea
                 ref={inputRef}
@@ -335,14 +335,14 @@ export default function ChatBot() {
                 rows={1}
                 maxLength={1000}
                 disabled={isStreaming}
-                className="flex-1 resize-none rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 max-h-24 overflow-y-auto"
+                className="flex-1 resize-none rounded-xl border border-border bg-input px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 max-h-24 overflow-y-auto"
                 style={{ lineHeight: "1.4" }}
               />
               {isStreaming ? (
                 <button
                   onClick={stopStream}
                   title="Stop"
-                  className="flex-shrink-0 h-9 w-9 flex items-center justify-center rounded-xl bg-red-500 hover:bg-red-600 text-white transition-colors"
+                  className="shrink-0 h-9 w-9 flex items-center justify-center rounded-xl bg-destructive hover:bg-destructive/90 text-white transition-colors"
                 >
                   <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                     <rect x="6" y="6" width="12" height="12" />
@@ -353,7 +353,7 @@ export default function ChatBot() {
                   onClick={sendMessage}
                   disabled={!input.trim()}
                   title="Send"
-                  className="flex-shrink-0 h-9 w-9 flex items-center justify-center rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="shrink-0 h-9 w-9 flex items-center justify-center rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
@@ -361,7 +361,7 @@ export default function ChatBot() {
                 </button>
               )}
             </div>
-            <p className="mt-1.5 text-center text-[10px] text-gray-400 dark:text-gray-600">
+            <p className="mt-1.5 text-center text-[10px] text-muted-foreground">
               Answers are based on the SpecSmart product database only.
             </p>
           </div>
