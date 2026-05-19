@@ -281,6 +281,7 @@ export class Product {
     const withDates = this._transformDates(product);
     return {
       ...withDates,
+      score: this.calculateProductScore(withDates),
     };
   }
 
@@ -296,4 +297,31 @@ export class Product {
     return match ? Number(match[1]) : null;
   }
 
+   static calculateProductScore(product) {
+    const baseScore =
+      Math.min(50, (Number(product.rating) || 0) * 10) +
+      Math.min(20, (Number(product.reviewCount) || 0) / 150) +
+      (product.inStock ? 5 : 0);
+
+    const rules = CATEGORY_SCORE_RULES[product.category] || [];
+    const specScore = rules.reduce((total, rule) => {
+      const numericValue = this._extractNumber(this._getNestedValue(product, rule.path));
+      if (numericValue === null) return total;
+
+      const cappedValue = Math.min(numericValue, rule.max);
+      if (rule.invert) {
+        return total + Math.max(0, (rule.max - cappedValue)) * Math.abs(rule.weight);
+      }
+      return total + cappedValue * rule.weight;
+    }, 0);
+
+    const featureBoost = Math.min(10, (product.features?.length || 0) * 2);
+    const pricePenalty = product.price > 0 ? Math.min(15, product.price / 400) : 0;
+
+    return Math.max(
+      35,
+      Math.min(100, Math.round(baseScore + specScore + featureBoost - pricePenalty))
+    );
+  }
 }
+

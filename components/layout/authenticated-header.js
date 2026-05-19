@@ -65,12 +65,7 @@ export function AuthenticatedHeader() {
             >
               Search
             </Link>
-            <Link
-              href="/advisor"
-              className="text-sm font-medium hover:text-primary transition-colors"
-            >
-              AI Advisor
-            </Link>
+            
           </nav>
 
           <div className="flex items-center gap-2">

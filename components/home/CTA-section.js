@@ -16,11 +16,6 @@ const CTASection = () => {
               Browse Products
             </Button>
           </Link>
-          <Link href="/advisor">
-            <Button size="lg" variant="outline" className="text-lg px-8 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary bg-transparent">
-              Try AI Advisor
-            </Button>
-          </Link>
         </div>
       </div>
     </section>;
