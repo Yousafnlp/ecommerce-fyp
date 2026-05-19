@@ -5,6 +5,7 @@ import { connectDB } from "./config/database.js";
 import productRoutes from "./routes/products.js";
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
+import chatbotRoutes from "./routes/chatbot.js";
 import cookieParser from "cookie-parser";
 
 dotenv.config();
@@ -60,6 +61,7 @@ app.get("/health", (req, res) => {
 app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/chatbot", chatbotRoutes);
 // Logging middleware
 
 // 404 handler
