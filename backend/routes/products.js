@@ -1,6 +1,7 @@
 import express from 'express';
 import { Product } from '../models/Product.js';
 import { authenticateToken } from "../middleware/authenticateToken.js";
+import { normalizeList } from "../utils/search/filters.js";
 
 const router = express.Router();
 
@@ -12,6 +13,38 @@ function requireAdmin(req, res, next) {
     });
   }
   next();
+}
+
+function parseNumericParam(value) {
+  if (value === undefined || value === null || value === "") return undefined;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : undefined;
+}
+
+function buildUiFilters(query) {
+  const filters = {};
+
+  if (query.category) filters.category = String(query.category);
+
+  const brand = normalizeList(query.brand);
+  if (brand.length > 0) filters.brand = brand;
+
+  const minPrice = parseNumericParam(query.minPrice);
+  const maxPrice = parseNumericParam(query.maxPrice);
+  if (minPrice !== undefined || maxPrice !== undefined) {
+    filters.priceRange = {};
+    if (minPrice !== undefined) filters.priceRange.min = minPrice;
+    if (maxPrice !== undefined) filters.priceRange.max = maxPrice;
+  }
+
+  const rating = parseNumericParam(query.rating);
+  if (rating !== undefined) filters.rating = rating;
+
+  if (query.inStock !== undefined) filters.inStock = query.inStock === "true";
+  if (query.sortBy) filters.sortBy = String(query.sortBy);
+  if (query.sortOrder) filters.sortOrder = String(query.sortOrder);
+
+  return filters;
 }
 
 // GET /api/products/featured - Get featured products
@@ -64,58 +97,55 @@ router.get('/search', async (req, res) => {
       });
     }
 
-    let products = await Product.searchProducts(q);
-
-    if (req.query.category) {
-      products = products.filter((product) => product.category === req.query.category);
-    }
-
-    if (req.query.brand) {
-      const brands = Array.isArray(req.query.brand)
-        ? req.query.brand
-        : String(req.query.brand)
-            .split(',')
-            .map((brand) => brand.trim());
-      products = products.filter((product) => brands.includes(product.brand));
-    }
-
-    if (req.query.minPrice) {
-      products = products.filter((product) => product.price >= Number(req.query.minPrice));
-    }
-
-    if (req.query.maxPrice) {
-      products = products.filter((product) => product.price <= Number(req.query.maxPrice));
-    }
-
-    if (req.query.rating) {
-      products = products.filter((product) => product.rating >= Number(req.query.rating));
-    }
-
-    if (req.query.sortBy) {
-      const fieldMap = { newest: 'createdAt' };
-      const sortField = fieldMap[req.query.sortBy] || req.query.sortBy;
-      const direction = req.query.sortOrder === 'asc' ? 1 : -1;
-      products = [...products].sort((a, b) => {
-        const left = a[sortField];
-        const right = b[sortField];
-        if (left instanceof Date && right instanceof Date) {
-          return (left.getTime() - right.getTime()) * direction;
-        }
-        return ((left || 0) - (right || 0)) * direction;
-      });
-    }
+    const uiFilters = buildUiFilters(req.query);
+    const { products, filters, parsedQuery } = await Product.searchProductsWithMeta(q, uiFilters);
 
     res.json({
       success: true,
       data: products,
       count: products.length,
-      query: q
+      query: q,
+      filters,
+      parsedQuery,
     });
   } catch (error) {
     console.error('Error in /search:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to search products',
+      error: error.message
+    });
+  }
+});
+
+// GET /api/products/suggestions?q=query - Lightweight autocomplete suggestions
+router.get('/suggestions', async (req, res) => {
+  try {
+    const { q } = req.query;
+    const query = String(q || "").trim();
+
+    if (query.length < 2) {
+      return res.json({
+        success: true,
+        data: [],
+        count: 0,
+        query,
+      });
+    }
+
+    const suggestions = await Product.getProductSuggestions(query, 5);
+
+    res.json({
+      success: true,
+      data: suggestions,
+      count: suggestions.length,
+      query,
+    });
+  } catch (error) {
+    console.error('Error in /suggestions:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch product suggestions',
       error: error.message
     });
   }
@@ -173,45 +203,7 @@ router.get('/:id', async (req, res) => {
 // GET /api/products - Get products with filters
 router.get('/', async (req, res) => {
   try {
-    const filters = {};
-
-    // Parse query parameters
-    if (req.query.category) {
-      filters.category = req.query.category;
-    }
-
-    if (req.query.brand) {
-      // Support multiple brands (comma-separated or array)
-      filters.brand = Array.isArray(req.query.brand) 
-        ? req.query.brand 
-        : req.query.brand.split(',').map(b => b.trim());
-    }
-
-    if (req.query.minPrice || req.query.maxPrice) {
-      filters.priceRange = {};
-      if (req.query.minPrice) {
-        filters.priceRange.min = parseFloat(req.query.minPrice);
-      }
-      if (req.query.maxPrice) {
-        filters.priceRange.max = parseFloat(req.query.maxPrice);
-      }
-    }
-
-    if (req.query.rating) {
-      filters.rating = parseFloat(req.query.rating);
-    }
-
-    if (req.query.inStock !== undefined) {
-      filters.inStock = req.query.inStock === 'true';
-    }
-
-    if (req.query.sortBy) {
-      filters.sortBy = req.query.sortBy;
-    }
-
-    if (req.query.sortOrder) {
-      filters.sortOrder = req.query.sortOrder;
-    }
+    const filters = buildUiFilters(req.query);
 
     const products = await Product.getProducts(filters);
     

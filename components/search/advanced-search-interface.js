@@ -3,15 +3,15 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
-import { Filter, Mic, MicOff, Search, Sparkles, X } from "lucide-react";
+import { Filter, Mic, MicOff, Search, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { ProductSearchAutocomplete } from "./product-search-autocomplete";
 import { useWebSpeechRecognition } from "./useWebSpeechRecognition";
 import { useWhisperFallback } from "./useWhisperFallback";
 export function AdvancedSearchInterface({
@@ -22,21 +22,11 @@ export function AdvancedSearchInterface({
   const [query, setQuery] = useState(initialQuery || "");
   const [isListening, setIsListening] = useState(false);
   const [filters, setFilters] = useState(initialFilters);
-  const [priceRange, setPriceRange] = useState([initialFilters.priceRange?.min || 0, initialFilters.priceRange?.max || 5000]);
-  const [suggestions, setSuggestions] = useState([]);
+  const [priceRange, setPriceRange] = useState([initialFilters.priceRange?.min ?? 0, initialFilters.priceRange?.max ?? 5000]);
   const [isLoading, setIsLoading] = useState(false);
   const webSpeech = useWebSpeechRecognition(setQuery, setIsListening);
   const whisper = useWhisperFallback(setQuery, isListening, setIsListening, isLoading, setIsLoading);
 
-  // Generate search suggestions based on query
-  useEffect(() => {
-    if (query?.length > 2) {
-      const mockSuggestions = [`${query} under $500`, `best ${query} 2024`, `${query} with good battery`, `${query} for gaming`, `${query} comparison`];
-      setSuggestions(mockSuggestions.slice(0, 3));
-    } else {
-      setSuggestions([]);
-    }
-  }, [query]);
   const handleWebspeechRecording = () => {
     if (isListening) webSpeech.stopListening();else webSpeech.startListening();
   };
@@ -45,9 +35,10 @@ export function AdvancedSearchInterface({
       if (!isLoading) whisper.startRecording();else whisper.cancelRecordingRef.current?.();
     }
   };
-  const handleSearch = () => {
+  const handleSearch = (queryOverride) => {
+    const searchQuery = typeof queryOverride === "string" ? queryOverride : query;
     const params = new URLSearchParams();
-    if (query) params.set("q", query);
+    if (searchQuery) params.set("q", searchQuery);
     if (filters.category) params.set("category", filters.category);
     if (filters.brand && filters.brand.length > 0) params.set("brand", filters.brand[0]);
     if (priceRange[0] > 0) params.set("minPrice", priceRange[0].toString());
@@ -56,10 +47,6 @@ export function AdvancedSearchInterface({
     if (filters.sortBy) params.set("sortBy", filters.sortBy);
     if (filters.sortOrder) params.set("sortOrder", filters.sortOrder);
     router.push(`/search?${params.toString()}`);
-  };
-  const handleNaturalLanguageQuery = suggestion => {
-    setQuery(suggestion);
-    setSuggestions([]);
   };
   const clearFilters = () => {
     setQuery("");
@@ -89,8 +76,7 @@ export function AdvancedSearchInterface({
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Search Input */}
-          <div className="relative">
-            <Input placeholder="Try: 'Best smartphone under $800 with good camera'" value={query || ""} onChange={e => setQuery(e.target.value)} onKeyDown={e => e.key === "Enter" && handleSearch()} className="pr-12" />
+          <ProductSearchAutocomplete placeholder="Try: 'Best smartphone under $800 with good camera'" value={query || ""} onChange={setQuery} onSearch={handleSearch} className="pr-12">
             {!webSpeech.supported ? <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -102,10 +88,10 @@ export function AdvancedSearchInterface({
                     Voice search might not work on non-Chrome browsers
                   </TooltipContent>
                 </Tooltip>
-              </TooltipProvider> : <Button variant="ghost" size="sm" className={`absolute right-1 top-1 h-8 w-8 p-0 ${isListening ? "text-red-500" : ""}`} onClick={handleWebspeechRecording}>
+            </TooltipProvider> : <Button variant="ghost" size="sm" className={`absolute right-1 top-1 h-8 w-8 p-0 ${isListening ? "text-red-500" : ""}`} onClick={handleWebspeechRecording}>
                 {isListening || isLoading ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
               </Button>}
-          </div>
+          </ProductSearchAutocomplete>
 
           {/* Voice Status */}
           {isListening && <div className="flex items-center gap-2 text-sm text-red-500">
@@ -116,19 +102,6 @@ export function AdvancedSearchInterface({
           {isLoading && <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <div className="animate-spin w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full" />
               Processing audio...
-            </div>}
-
-          {/* Natural Language Suggestions */}
-          {suggestions.length > 0 && <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground flex items-center gap-1">
-                <Sparkles className="w-3 h-3" />
-                Try these natural language queries:
-              </Label>
-              <div className="flex flex-wrap gap-2">
-                {suggestions.map((suggestion, index) => <Badge key={index} variant="outline" className="cursor-pointer hover:bg-primary hover:text-primary-foreground" onClick={() => handleNaturalLanguageQuery(suggestion)}>
-                    {suggestion}
-                  </Badge>)}
-              </div>
             </div>}
 
           <Button onClick={handleSearch} className="w-full">
@@ -259,7 +232,7 @@ export function AdvancedSearchInterface({
           <div className="flex flex-wrap gap-2">
             {["Best smartphones 2024", "Gaming laptops under $1500", "Wireless headphones", "4K cameras", "Smartwatches with GPS", "Budget tablets"].map(search => <Badge key={search} variant="secondary" className="cursor-pointer hover:bg-primary hover:text-primary-foreground" onClick={() => {
             setQuery(search);
-            handleSearch();
+            handleSearch(search);
           }}>
                 {search}
               </Badge>)}

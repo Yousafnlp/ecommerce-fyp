@@ -8,14 +8,16 @@ export default async function SearchPage({ searchParams }) {
   const query = params.q || "";
 
   // Build search filters from URL params
+  const hasMinPrice = params.minPrice !== undefined;
+  const hasMaxPrice = params.maxPrice !== undefined;
   const filters = {
     category: params.category,
     brand: params.brand ? [params.brand] : undefined,
     priceRange:
-      params.minPrice || params.maxPrice
+      hasMinPrice || hasMaxPrice
         ? {
-            min: Number(params.minPrice) || 0,
-            max: Number(params.maxPrice) || 10000,
+            min: hasMinPrice ? Number(params.minPrice) : undefined,
+            max: hasMaxPrice ? Number(params.maxPrice) : undefined,
           }
         : undefined,
     rating: params.rating ? Number(params.rating) : undefined,
