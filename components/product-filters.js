@@ -49,6 +49,7 @@ export function ProductFilters({ currentFilters }) {
     router.push(`/products?${params.toString()}`);
   };
   const clearFilters = () => {
+    setPriceRange([0, 5000]);
     router.push("/products");
   };
   return (
@@ -76,7 +77,7 @@ export function ProductFilters({ currentFilters }) {
 
           {currentFilters.sortBy && (
             <Select
-              value={currentFilters.sortOrder || "desc"}
+              value={currentFilters.sortOrder || "asc"}
               onValueChange={(value) => updateFilters("sortOrder", value)}
             >
               <SelectTrigger>
@@ -114,8 +115,12 @@ export function ProductFilters({ currentFilters }) {
             variant="outline"
             className="w-full bg-transparent"
             onClick={() => {
-              updateFilters("minPrice", priceRange[0]);
-              updateFilters("maxPrice", priceRange[1]);
+              const params = new URLSearchParams(searchParams.toString());
+
+              params.set("minPrice", priceRange[0].toString());
+              params.set("maxPrice", priceRange[1].toString());
+
+              router.push(`/products?${params.toString()}`);
             }}
           >
             Apply Price Filter
