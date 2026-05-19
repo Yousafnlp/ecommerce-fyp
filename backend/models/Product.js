@@ -1,4 +1,7 @@
 import { getDB } from '../config/database.js';
+import { searchProductsPipeline } from "../services/ProductSearchService.js";
+import { applyProductFilters } from "../utils/search/filters.js";
+import { sortProducts } from "../utils/search/sort.js";
 
 const COLLECTION_NAME = 'products';
 
@@ -78,27 +81,86 @@ export class Product {
     }
   }
 
-  // Search products by query
-  static async searchProducts(query) {
+  // Search products by natural language query and optional UI filters.
+  static async searchProducts(query, uiFilters = {}) {
     try {
-      const searchTerm = query.toLowerCase().trim();
-      const tokens = searchTerm.split(/\s+/).filter(Boolean);
-      const intent = this._extractSearchIntent(searchTerm);
-
       const products = await this.getCollection().find({}).toArray();
-
-      return products
-        .map(product => this._decorateProduct(product))
-        .filter(product => this._matchesIntent(product, intent))
-        .map(product => ({
-          ...product,
-          _searchScore: this._calculateSearchScore(product, searchTerm, tokens, intent),
-        }))
-        .filter(product => product._searchScore > 0)
-        .sort((a, b) => b._searchScore - a._searchScore)
-        .map(({ _searchScore, ...product }) => product);
+      const decoratedProducts = products.map(product => this._decorateProduct(product));
+      return searchProductsPipeline(decoratedProducts, query, uiFilters).products;
     } catch (error) {
       console.error('Error searching products:', error);
+      throw error;
+    }
+  }
+
+  static async searchProductsWithMeta(query, uiFilters = {}) {
+    try {
+      const products = await this.getCollection().find({}).toArray();
+      const decoratedProducts = products.map(product => this._decorateProduct(product));
+      return searchProductsPipeline(decoratedProducts, query, uiFilters);
+    } catch (error) {
+      console.error("Error searching products with metadata:", error);
+      throw error;
+    }
+  }
+
+  static async getProductSuggestions(query, limit = 5) {
+    try {
+      const trimmedQuery = String(query || "").trim();
+      if (trimmedQuery.length < 2) return [];
+
+      const escapedQuery = trimmedQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const matcher = new RegExp(escapedQuery, "i");
+      const lowerQuery = trimmedQuery.toLowerCase();
+
+      const products = await this.getCollection()
+        .find({
+          $or: [
+            { name: matcher },
+            { brand: matcher },
+            { category: matcher },
+          ],
+        })
+        .project({
+          _id: 0,
+          id: 1,
+          name: 1,
+          brand: 1,
+          price: 1,
+          image: 1,
+          category: 1,
+        })
+        .limit(25)
+        .toArray();
+
+      return products
+        .sort((a, b) => {
+          const score = (product) => {
+            const name = String(product.name || "").toLowerCase();
+            const brand = String(product.brand || "").toLowerCase();
+            const category = String(product.category || "").toLowerCase();
+
+            if (name === lowerQuery) return 0;
+            if (name.startsWith(lowerQuery)) return 1;
+            if (brand.startsWith(lowerQuery)) return 2;
+            if (category.startsWith(lowerQuery)) return 3;
+            if (name.includes(lowerQuery)) return 4;
+            if (brand.includes(lowerQuery)) return 5;
+            return 6;
+          };
+
+          return score(a) - score(b);
+        })
+        .slice(0, limit)
+        .map(({ id, name, brand, price, image }) => ({
+          id,
+          name,
+          brand,
+          price,
+          image,
+        }));
+    } catch (error) {
+      console.error("Error getting product suggestions:", error);
       throw error;
     }
   }
@@ -106,72 +168,13 @@ export class Product {
   // Get products with filters
   static async getProducts(filters = {}) {
     try {
-      const query = {};
-
-      // Category filter
-      if (filters.category) {
-        query.category = filters.category;
-      }
-
-      // Brand filter
-      if (filters.brand && Array.isArray(filters.brand) && filters.brand.length > 0) {
-        query.brand = { $in: filters.brand };
-      }
-
-      // Price range filter
-      if (filters.priceRange) {
-        query.price = {};
-        if (filters.priceRange.min !== undefined) {
-          query.price.$gte = filters.priceRange.min;
-        }
-        if (filters.priceRange.max !== undefined) {
-          query.price.$lte = filters.priceRange.max;
-        }
-      }
-
-      // Rating filter
-      if (filters.rating !== undefined) {
-        query.rating = { $gte: filters.rating };
-      }
-
-      // In stock filter
-      if (filters.inStock !== undefined) {
-        query.inStock = filters.inStock;
-      }
-
-      // Build sort object
-      const sort = {};
-      if (filters.sortBy) {
-        let sortField = filters.sortBy;
-        
-        if (filters.sortBy === 'newest') {
-          sortField = 'createdAt';
-        }
-        
-        const sortOrder = filters.sortOrder === 'desc' ? -1 : 1;
-        sort[sortField] = sortOrder;
-      } else {
-        // Default sort by createdAt descending
-        sort.createdAt = -1;
-      }
-
       const products = await this.getCollection()
-        .find(query)
+        .find({})
         .toArray();
 
-      return products
-        .map(product => this._decorateProduct(product))
-        .sort((a, b) => {
-          const [sortField, direction] = Object.entries(sort)[0] || ["createdAt", -1];
-          const left = a[sortField];
-          const right = b[sortField];
-
-          if (left instanceof Date && right instanceof Date) {
-            return (left.getTime() - right.getTime()) * direction;
-          }
-
-          return ((left || 0) - (right || 0)) * direction;
-        });
+      const decoratedProducts = products.map(product => this._decorateProduct(product));
+      const filteredProducts = applyProductFilters(decoratedProducts, filters);
+      return sortProducts(filteredProducts, filters.sortBy || "newest", filters.sortOrder || "desc");
     } catch (error) {
       console.error('Error getting products:', error);
       throw error;
@@ -278,7 +281,6 @@ export class Product {
     const withDates = this._transformDates(product);
     return {
       ...withDates,
-      score: this.calculateProductScore(withDates),
     };
   }
 
@@ -294,144 +296,4 @@ export class Product {
     return match ? Number(match[1]) : null;
   }
 
-  static calculateProductScore(product) {
-    const baseScore =
-      Math.min(50, (Number(product.rating) || 0) * 10) +
-      Math.min(20, (Number(product.reviewCount) || 0) / 150) +
-      (product.inStock ? 5 : 0);
-
-    const rules = CATEGORY_SCORE_RULES[product.category] || [];
-    const specScore = rules.reduce((total, rule) => {
-      const numericValue = this._extractNumber(this._getNestedValue(product, rule.path));
-      if (numericValue === null) return total;
-
-      const cappedValue = Math.min(numericValue, rule.max);
-      if (rule.invert) {
-        return total + Math.max(0, (rule.max - cappedValue)) * Math.abs(rule.weight);
-      }
-      return total + cappedValue * rule.weight;
-    }, 0);
-
-    const featureBoost = Math.min(10, (product.features?.length || 0) * 2);
-    const pricePenalty = product.price > 0 ? Math.min(15, product.price / 400) : 0;
-
-    return Math.max(
-      35,
-      Math.min(100, Math.round(baseScore + specScore + featureBoost - pricePenalty))
-    );
-  }
-
-  static _extractSearchIntent(query) {
-    const categoryMatchers = [
-      { category: "smartphone", pattern: /\b(phone|phones|mobile|mobiles|smartphone|smartphones)\b/ },
-      { category: "tablet", pattern: /\b(tablet|tablets|ipad|ipads|tab|tabs)\b/ },
-      { category: "earbuds", pattern: /\b(earbud|earbuds|buds)\b/ },
-      { category: "headphone", pattern: /\b(headphone|headphones|headset|headsets)\b/ },
-      { category: "laptop", pattern: /\b(laptop|laptops|notebook|notebooks|macbook|macbooks)\b/ },
-      { category: "monitor", pattern: /\b(monitor|monitors|display|displays)\b/ },
-      { category: "smartwatch", pattern: /\b(watch|watches|smartwatch|smartwatches)\b/ },
-    ];
-
-    const category = categoryMatchers.find((entry) => entry.pattern.test(query))?.category;
-    const requiresBattery = /\b(battery|battery life|long battery|good battery|all day)\b/.test(query);
-    const requiresCamera = /\b(camera|camera quality|photo|photos|photography)\b/.test(query);
-    const recommendsBest = /\b(best|top|recommended|recommend)\b/.test(query);
-    const year = query.match(/\b20\d{2}\b/)?.[0];
-
-    return {
-      category,
-      requiresBattery,
-      requiresCamera,
-      recommendsBest,
-      year: year ? Number(year) : null,
-    };
-  }
-
-  static _matchesIntent(product, intent) {
-    if (intent.category && product.category !== intent.category) {
-      return false;
-    }
-
-    if (intent.year && product.createdAt instanceof Date) {
-      const productYear = product.createdAt.getFullYear();
-      if (productYear < intent.year - 1) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  static _calculateSearchScore(product, query, tokens, intent = {}) {
-    const productScore = Number(product.score) || this.calculateProductScore(product);
-    const haystack = [
-      product.name,
-      product.brand,
-      product.category,
-      product.description,
-      ...(product.features || []),
-      JSON.stringify(product.specifications || {}),
-    ]
-      .join(" ")
-      .toLowerCase();
-
-    let score = 0;
-
-    if (product.name.toLowerCase() === query) score += 80;
-    if (product.name.toLowerCase().includes(query)) score += 45;
-    if (product.description?.toLowerCase().includes(query)) score += 20;
-    if (product.brand?.toLowerCase() === query) score += 20;
-
-    for (const token of tokens) {
-      if (product.name.toLowerCase().includes(token)) score += 18;
-      else if (product.brand.toLowerCase().includes(token)) score += 12;
-      else if (product.category.toLowerCase().includes(token)) score += 10;
-      else if (haystack.includes(token)) score += 6;
-    }
-
-    if (/\b(best|top|recommended|recommend)\b/.test(query)) {
-      score += productScore * 0.2;
-    }
-
-    if (intent.category && product.category === intent.category) {
-      score += 35;
-    }
-
-    if (intent.requiresBattery) {
-      const batteryValue = this._extractNumber(this._getNestedValue(product, "specifications.battery"));
-      if (batteryValue !== null) {
-        score += Math.min(24, batteryValue / 250);
-      } else if ((product.features || []).some((feature) => /battery/i.test(feature))) {
-        score += 12;
-      } else {
-        score -= 8;
-      }
-    }
-
-    if (intent.requiresCamera) {
-      const cameraValue = this._extractNumber(this._getNestedValue(product, "specifications.camera.main"));
-      if (cameraValue !== null) {
-        score += Math.min(20, cameraValue / 6);
-      } else {
-        score -= 6;
-      }
-    }
-
-    if (intent.recommendsBest) {
-      score += product.rating * 4;
-      score += product.reviewCount > 0 ? Math.min(12, Math.log10(product.reviewCount + 1) * 4) : 0;
-    }
-
-    const underMatch = query.match(/\bunder\s+\$?(\d+)/);
-    if (underMatch && product.price <= Number(underMatch[1])) {
-      score += 15;
-    }
-
-    const aboveMatch = query.match(/\b(over|above)\s+\$?(\d+)/);
-    if (aboveMatch && product.price >= Number(aboveMatch[2])) {
-      score += 10;
-    }
-
-    return Math.round(score);
-  }
 }

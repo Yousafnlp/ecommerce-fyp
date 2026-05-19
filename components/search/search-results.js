@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/lib/redux";
 import { addCartItemAsync } from "@/store/slices/cartSlice";
 import { Database } from "@/lib/database";
@@ -16,10 +16,11 @@ import Link from "next/link";
 export function SearchResults({ products, query, totalResults }) {
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const user = useAppSelector((state) => state.auth.user);
   const [viewMode, setViewMode] = useState("grid");
-  const [sortBy, setSortBy] = useState("relevance");
   const [wishlist, setWishlist] = useState([]);
+  const sortBy = searchParams.get("sortBy") || "relevance";
 
   useEffect(() => {
     let active = true;
@@ -39,22 +40,32 @@ export function SearchResults({ products, query, totalResults }) {
     };
   }, [user]);
 
-  const sortedProducts = [...products].sort((a, b) => {
-    switch (sortBy) {
-      case "score":
-        return b.score - a.score;
-      case "price-low":
-        return a.price - b.price;
-      case "price-high":
-        return b.price - a.price;
-      case "rating":
-        return b.rating - a.rating;
-      case "newest":
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      default:
-        return 0;
+  const handleSortChange = (value) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (value === "relevance") {
+      params.delete("sortBy");
+      params.delete("sortOrder");
+    } else if (value === "price-low") {
+      params.set("sortBy", "price");
+      params.set("sortOrder", "asc");
+    } else if (value === "price-high") {
+      params.set("sortBy", "price");
+      params.set("sortOrder", "desc");
+    } else {
+      params.set("sortBy", value);
+      params.set("sortOrder", "desc");
     }
-  });
+
+    router.push(`/search?${params.toString()}`);
+  };
+
+  const selectedSortValue =
+    sortBy === "price"
+      ? searchParams.get("sortOrder") === "asc"
+        ? "price-low"
+        : "price-high"
+      : sortBy;
 
   const handleWishlist = async (productId) => {
     if (!user) {
@@ -336,7 +347,7 @@ export function SearchResults({ products, query, totalResults }) {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Select value={sortBy} onValueChange={setSortBy}>
+          <Select value={selectedSortValue} onValueChange={handleSortChange}>
             <SelectTrigger className="w-40">
               <SelectValue />
             </SelectTrigger>
@@ -372,13 +383,13 @@ export function SearchResults({ products, query, totalResults }) {
 
       {viewMode === "grid" ? (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {sortedProducts.map((product) => (
+          {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
       ) : (
         <div className="space-y-4">
-          {sortedProducts.map((product) => (
+          {products.map((product) => (
             <ProductCard key={product.id} product={product} compact />
           ))}
         </div>
