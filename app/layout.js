@@ -9,6 +9,7 @@ import { Provider } from "react-redux";
 import store from "@/store";
 import Script from "next/script";
 import { AuthBootstrap } from "@/components/root/AuthInit";
+import ChatBot from "@/components/chatbot/ChatBot";
 // export const metadata = {
 //   title: "SpecSmart - Smarter Choices. Sharper Tech",
 //   description:
@@ -22,6 +23,7 @@ export default function RootLayout({ children }) {
         <Provider store={store}>
           <AuthBootstrap /> {/* ✅ NOW SAFE */}
           <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+          <ChatBot />
         </Provider>
         <Analytics />
 
