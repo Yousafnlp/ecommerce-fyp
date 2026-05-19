@@ -360,7 +360,7 @@ export function AdminPanel() {
                     <Label htmlFor="category">Category</Label>
                     <select
                       id="category"
-                      className="flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm"
+                      className="flex h-9 w-full rounded-md border border-input bg-background text-foreground px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                       value={form.category}
                       onChange={(e) => handleChange("category", e.target.value)}
                     >
@@ -378,7 +378,7 @@ export function AdminPanel() {
                     <Label htmlFor="brand">Brand</Label>
                     <select
                       id="brand"
-                      className="flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm"
+                      className="flex h-9 w-full rounded-md border border-input bg-background text-foreground px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                       value={form.brand}
                       onChange={(e) => handleChange("brand", e.target.value)}
                     >
@@ -434,7 +434,7 @@ export function AdminPanel() {
                   <Label htmlFor="description">Description</Label>
                   <textarea
                     id="description"
-                    className="min-h-24 w-full rounded-md border bg-transparent px-3 py-2 text-sm"
+                    className="min-h-24 w-full rounded-md border border-input bg-background text-foreground placeholder:text-muted-foreground px-3 py-2 text-sm shadow-sm transition-colors resize-y focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                     value={form.description}
                     onChange={(e) => handleChange("description", e.target.value)}
                     required
@@ -471,18 +471,19 @@ export function AdminPanel() {
                       onChange={(e) => handleChange("reviewCount", e.target.value)}
                     />
                   </div>
-                  <div className="flex items-end gap-2">
+                  <div className="flex items-end pb-2 gap-2">
                     <input
                       id="inStock"
                       type="checkbox"
+                      className="h-4 w-4 rounded border-input accent-primary cursor-pointer"
                       checked={form.inStock}
                       onChange={(e) => handleChange("inStock", e.target.checked)}
                     />
-                    <Label htmlFor="inStock">In Stock</Label>
+                    <Label htmlFor="inStock" className="cursor-pointer">In Stock</Label>
                   </div>
                 </div>
 
-                <div className="space-y-3">
+                <div className="rounded-lg border border-border bg-muted/40 p-4 space-y-3">
                   <div>
                     <h3 className="font-semibold">Specifications</h3>
                     <p className="text-sm text-muted-foreground">
