@@ -28,12 +28,6 @@ const HeroSection = () => {
               Start Shopping
             </Button>
           </Link>
-          <Link href="/advisor">
-            <Button variant="outline" size="lg" className="text-lg px-8 bg-transparent">
-              <Headphones className="w-5 h-5 mr-2" />
-              Try AI Advisor
-            </Button>
-          </Link>
         </div>
 
         <FeatureHighlights />
