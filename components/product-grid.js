@@ -8,15 +8,17 @@ import { Database } from "@/lib/database";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, ShoppingCart, Heart } from "lucide-react";
+import { Star, ShoppingCart, Heart, GitCompare } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useCompare } from "@/lib/compare-context";
 
 export function ProductGrid({ products }) {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const user = useAppSelector((state) => state.auth.user);
   const [wishlistIds, setWishlistIds] = useState(new Set());
+  const { addToCompare, removeFromCompare, isInCompare, canAdd } = useCompare();
 
   useEffect(() => {
     let active = true;
@@ -172,6 +174,26 @@ export function ProductGrid({ products }) {
                   onClick={() => handleAddToCart(product.id)}
                 >
                   <ShoppingCart className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant={isInCompare(product.id) ? "default" : "outline"}
+                  size="sm"
+                  className="px-3 bg-transparent"
+                  disabled={!isInCompare(product.id) && !canAdd}
+                  title={
+                    isInCompare(product.id)
+                      ? "Remove from comparison"
+                      : canAdd
+                      ? "Add to comparison"
+                      : "Comparison full (max 4)"
+                  }
+                  onClick={() =>
+                    isInCompare(product.id)
+                      ? removeFromCompare(product.id)
+                      : addToCompare(product)
+                  }
+                >
+                  <GitCompare className="w-4 h-4" />
                 </Button>
               </div>
             </CardContent>

@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/lib/redux";
 import { addCartItemAsync } from "@/store/slices/cartSlice";
 import { Database } from "@/lib/database";
-import { ShoppingCart, Heart, Share2 } from "lucide-react";
+import { ShoppingCart, Heart, Share2, GitCompare } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useCompare } from "@/lib/compare-context";
 export function ProductActions({
   product
 }) {
@@ -15,6 +16,8 @@ export function ProductActions({
   const router = useRouter();
   const [wishlist, setWishlist] = useState(user?.wishlist || []);
   const [isSaving, setIsSaving] = useState(false);
+  const { addToCompare, removeFromCompare, isInCompare, canAdd } = useCompare();
+  const inCompare = isInCompare(product.id);
   const inStock = product?.inStock;
 
   useEffect(() => {
@@ -71,6 +74,24 @@ export function ProductActions({
       <Button variant="outline" size="lg" onClick={handleShare}>
         <Share2 className="w-4 h-4 mr-2" />
         Share
+      </Button>
+      <Button
+        variant={inCompare ? "default" : "outline"}
+        size="lg"
+        disabled={!inCompare && !canAdd}
+        title={
+          inCompare
+            ? "Remove from comparison"
+            : canAdd
+            ? "Add to comparison"
+            : "Comparison full (max 4)"
+        }
+        onClick={() =>
+          inCompare ? removeFromCompare(product.id) : addToCompare(product)
+        }
+      >
+        <GitCompare className="w-4 h-4 mr-2" />
+        {inCompare ? "In Compare" : "Compare"}
       </Button>
     </div>;
 }
