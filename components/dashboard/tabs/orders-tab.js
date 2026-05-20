@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import React from "react";
+import { formatPrice } from "@/lib/utils";
 const OrdersTab = ({
   orders = [],
   adminOrders = [],
@@ -30,7 +31,7 @@ const OrdersTab = ({
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>${Number(user?.role === "admin" ? adminSummary.totalRevenue : customerSpent).toFixed(2)}</CardTitle>
+            <CardTitle>{formatPrice(user?.role === "admin" ? adminSummary.totalRevenue : customerSpent)}</CardTitle>
             <CardDescription>{user?.role === "admin" ? "Total Revenue" : "Total Spent"}</CardDescription>
           </CardHeader>
         </Card>
@@ -60,11 +61,11 @@ const OrdersTab = ({
                       <span>
                         {item.name} x {item.quantity}
                       </span>
-                      <span>${(item.price * item.quantity).toFixed(2)}</span>
+                      <span>{formatPrice(item.price * item.quantity)}</span>
                     </div>)}
                 </div>
                 <div className="mt-3 text-right font-semibold">
-                  Total: ${Number(order.totals?.total || 0).toFixed(2)}
+                  Total: {formatPrice(order.totals?.total || 0)}
                 </div>
               </div>)}
           </div>}

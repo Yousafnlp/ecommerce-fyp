@@ -8,6 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useAppDispatch } from "@/lib/redux";
 import { addCartItemAsync } from "@/store/slices/cartSlice";
+import { formatPrice } from "@/lib/utils";
 
 function getBestIndex(products, getter, mode = "max") {
   const values = products.map((p) => {
@@ -142,7 +143,7 @@ export function ComparisonTable({ products }) {
                   >
                     Score: {product.score}
                   </Badge>
-                  <div className="text-lg font-bold">${product.price}</div>
+                  <div className="text-lg font-bold">{formatPrice(product.price)}</div>
                 </div>
               </div>
             </CardHeader>
@@ -180,10 +181,10 @@ export function ComparisonTable({ products }) {
                   <td className="p-4 text-muted-foreground font-medium">Price</td>
                   {products.map((product, idx) => (
                     <CellHighlight key={product.id} isBest={idx === bestPriceIdx}>
-                      <span className="font-semibold">${product.price}</span>
+                      <span className="font-semibold">{formatPrice(product.price)}</span>
                       {product.originalPrice && (
                         <span className="text-sm text-muted-foreground line-through ml-2">
-                          ${product.originalPrice}
+                          {formatPrice(product.originalPrice)}
                         </span>
                       )}
                     </CellHighlight>
