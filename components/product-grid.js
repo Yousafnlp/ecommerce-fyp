@@ -12,6 +12,7 @@ import { Star, ShoppingCart, Heart, GitCompare } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCompare } from "@/lib/compare-context";
+import { formatPrice } from "@/lib/utils";
 
 export function ProductGrid({ products }) {
   const dispatch = useAppDispatch();
@@ -141,10 +142,10 @@ export function ProductGrid({ products }) {
 
               <div className="mb-4 flex items-center justify-between">
                 <div>
-                  <div className="text-lg font-bold">${product.price}</div>
+                  <div className="text-lg font-bold">{formatPrice(product.price)}</div>
                   {product.originalPrice && (
                     <div className="text-sm text-muted-foreground line-through">
-                      ${product.originalPrice}
+                      {formatPrice(product.originalPrice)}
                     </div>
                   )}
                 </div>

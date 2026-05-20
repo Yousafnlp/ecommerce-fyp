@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Package, Star, TrendingUp } from "lucide-react";
+import { formatPrice } from "@/lib/utils";
 export function QuickStats({
   wishlistCount = 0,
   orderCount = 0,
@@ -22,7 +23,7 @@ export function QuickStats({
   }, {
     icon: TrendingUp,
     label: isAdmin ? "Order Revenue" : "Total Spent",
-    value: `$${Number(totalSpent).toFixed(2)}`
+    value: formatPrice(totalSpent)
   }];
   return <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
       {stats.map(({

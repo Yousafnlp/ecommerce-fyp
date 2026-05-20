@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAppSelector, useAppDispatch } from "@/lib/redux";
+import { formatPrice } from "@/lib/utils";
 import {
   selectCartItems,
   selectTotalItems,
@@ -489,7 +490,7 @@ export function CheckoutPageContent() {
                       </div>
                       <div className="text-right">
                         <div className="font-semibold">
-                          ${(product.price * product.quantity).toFixed(2)}
+                          {formatPrice(product.price * product.quantity)}
                         </div>
                       </div>
                     </div>
@@ -569,7 +570,7 @@ export function CheckoutPageContent() {
                       {product.name} × {product.quantity}
                     </span>
                     <span>
-                      ${(product.price * product.quantity).toFixed(2)}
+                      {formatPrice(product.price * product.quantity)}
                     </span>
                   </div>
                 ))}
@@ -579,26 +580,26 @@ export function CheckoutPageContent() {
 
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span>{formatPrice(subtotal)}</span>
               </div>
 
               <div className="flex justify-between">
                 <span>Shipping</span>
                 <span>
-                  {shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}
+                  {shipping === 0 ? "Free" : formatPrice(shipping)}
                 </span>
               </div>
 
               <div className="flex justify-between">
                 <span>Tax</span>
-                <span>${tax.toFixed(2)}</span>
+                <span>{formatPrice(tax)}</span>
               </div>
 
               <Separator />
 
               <div className="flex justify-between text-lg font-bold">
                 <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>{formatPrice(total)}</span>
               </div>
 
               <div className="flex items-center gap-2 text-sm text-muted-foreground">

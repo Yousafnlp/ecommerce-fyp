@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Minus, Plus, Star, Trash2 } from "lucide-react";
 import Image from "next/image";
+import { formatPrice } from "@/lib/utils";
 export function CartItem({
   product,
   updateQuantity,
@@ -60,13 +61,13 @@ export function CartItem({
                   </Button>
                 </div>
                 <span className="text-sm text-muted-foreground">
-                  ${product.price} each
+                  {formatPrice(product.price)} each
                 </span>
               </div>
 
               <div className="text-right">
                 <div className="text-lg font-bold">
-                  ${(product.price * product.quantity).toFixed(2)}
+                  {formatPrice(product.price * product.quantity)}
                 </div>
               </div>
             </div>
