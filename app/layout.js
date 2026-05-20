@@ -10,6 +10,8 @@ import store from "@/store";
 import Script from "next/script";
 import { AuthBootstrap } from "@/components/root/AuthInit";
 import ChatBot from "@/components/chatbot/ChatBot";
+import { CompareProvider } from "@/lib/compare-context";
+import { CompareBar } from "@/components/compare/CompareBar";
 // export const metadata = {
 //   title: "SpecSmart - Smarter Choices. Sharper Tech",
 //   description:
@@ -21,9 +23,12 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
         <Provider store={store}>
-          <AuthBootstrap /> {/* ✅ NOW SAFE */}
-          <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
-          <ChatBot />
+          <CompareProvider>
+            <AuthBootstrap />
+            <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+            <ChatBot />
+            <CompareBar />
+          </CompareProvider>
         </Provider>
         <Analytics />
 

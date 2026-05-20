@@ -9,7 +9,7 @@ export default async function ComparePage({ searchParams }) {
   const params = await searchParams;
   const productIds = params.products?.split(",") ?? [];
   const [products, allProducts] = await Promise.all([
-    productIds.length > 0 ? Database.getComparisonProducts(productIds) : [],
+    productIds.length > 0 ? Database.getProductsByIds(productIds) : [],
     Database.getProducts(),
   ]);
 
