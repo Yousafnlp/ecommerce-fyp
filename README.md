@@ -1,4 +1,3 @@
-md
 # Ecommerce Platform
 
 An ecommerce platform built with Next.js and TypeScript.
@@ -10,6 +9,7 @@ An ecommerce platform built with Next.js and TypeScript.
 *   **Checkout Process:** Secure and streamlined checkout experience.
 *   **User Authentication:** Sign-up and sign-in functionality.
 *   **Product Comparison:** Compare product features side-by-side.
+*   **AI Advisor Chat (RAG):** Ask product questions in plain English; answers are grounded in the live catalogue via semantic retrieval over a Qdrant vector index, with a keyword-search fallback.
 *   **Admin Dashboard:** (Potentially) Admin interface for managing products, users, and orders.
 
 ## Prerequisites & Dependencies
@@ -18,6 +18,12 @@ Before you begin, ensure you have the following installed:
 
 *   **Node.js:** Version 18 or higher is recommended.
 *   **npm** or **yarn** or **pnpm** or **bun**:  Package manager for installing dependencies.
+
+### Optional (for AI Advisor Chat)
+
+*   **MongoDB:** Required for the backend. See `backend/DATABASE_SETUP.md` for local and cloud options.
+*   **Qdrant:** Vector database powering the RAG pipeline. Run locally with `docker run -p 6333:6333 qdrant/qdrant` or use [Qdrant Cloud](https://cloud.qdrant.io/).
+*   **Gemini API key:** Generate one at [Google AI Studio](https://aistudio.google.com/apikey) and set it as `GEMINI_API_KEY` in `backend/.env`.
 
 ## Installation & Setup Instructions
 
@@ -69,3 +75,5 @@ This project utilizes the following open-source libraries and frameworks:
 *   [TypeScript](https://www.typescriptlang.org/)
 *   [Tailwind CSS](https://tailwindcss.com/)
 *   [tw-animate-css](https://github.com/jamiewilson/form-to-google-sheets) (Tailwind CSS plugin for CSS animations)
+*   [Qdrant](https://qdrant.tech/) (vector database for semantic search)
+*   [Google Generative AI](https://ai.google.dev/) (Gemini chat and embeddings)
