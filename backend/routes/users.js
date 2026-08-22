@@ -184,7 +184,7 @@ const TAX_RATE = 0.08;
 
 // Prices, product details and totals are always derived from the database.
 // Client-supplied prices/totals are never trusted (prevents price tampering).
-async function buildOrderFromRequest(rawItems) {
+export async function buildOrderFromRequest(rawItems) {
   const products = await hydrateProducts(
     rawItems.map((item) => item?.productId)
   );

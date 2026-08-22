@@ -2,6 +2,7 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import { User } from "../models/User.js";
 import { signAccessToken, signRefreshToken } from "../utils/jwt.js";
+import { validateSignupInput } from "../utils/signup-validation.js";
 import { authenticateRefreshToken } from "../middleware/authenticateRefreshToken.js";
 import { authenticateToken } from "../middleware/authenticateToken.js";
 import { createRateLimiter } from "../middleware/rateLimiter.js";
@@ -24,9 +25,14 @@ function setRefreshCookie(res, refreshToken) {
   });
 }
 
-router.post("/signup", authLimit, async (req, res) => {
+export async function signupHandler(req, res) {
   try {
     const { email, password, name } = req.body;
+
+    const invalid = validateSignupInput(req.body);
+    if (invalid) {
+      return res.status(400).json({ error: invalid });
+    }
 
     const existingUser = await User.findByEmail(email);
     if (existingUser) {
@@ -49,9 +55,9 @@ router.post("/signup", authLimit, async (req, res) => {
     console.error("Signup failed:", err);
     res.status(500).json({ error: "Signup failed", success: false });
   }
-});
+}
 
-router.post("/signin", authLimit, async (req, res) => {
+export async function signinHandler(req, res) {
   try {
     const { email, password } = req.body;
     const found = await User.findByEmail(email);
@@ -83,9 +89,9 @@ router.post("/signin", authLimit, async (req, res) => {
     console.error("Signin failed:", err);
     res.status(500).json({ error: "Signin failed", success: false });
   }
-});
+}
 
-router.post("/signout", (req, res) => {
+export function signoutHandler(req, res) {
   res.clearCookie("refreshToken", {
     httpOnly: true,
     sameSite: "lax",
@@ -94,7 +100,37 @@ router.post("/signout", (req, res) => {
   });
 
   res.json({ success: true });
-});
+}
+
+export async function refreshHandler(req, res) {
+  try {
+    const userId = req.refresh.id;
+    const found = await User.findById(userId);
+    if (!found) return res.status(400).json({ error: "Invalid credentials" });
+
+    if (found.status === "disabled") {
+      return res.status(403).json({ error: "This account has been disabled" });
+    }
+
+    const { passwordHash, ...user } = found;
+
+    const accessToken = signAccessToken(user);
+
+    res.json({
+      success: true,
+      data: { token: accessToken },
+    });
+  } catch (err) {
+    console.error("Token refresh failed:", err);
+    res.status(500).json({ error: "Token refresh failed", success: false });
+  }
+}
+
+router.post("/signup", authLimit, signupHandler);
+
+router.post("/signin", authLimit, signinHandler);
+
+router.post("/signout", signoutHandler);
 
 router.get("/fetchUser", authenticateToken, async (req, res) => {
   try {
@@ -117,28 +153,6 @@ router.get("/fetchUser", authenticateToken, async (req, res) => {
   }
 });
 
-router.post("/refresh", authLimit, authenticateRefreshToken, async (req, res) => {
-  try {
-    const userId = req.refresh.id;
-    const found = await User.findById(userId);
-    if (!found) return res.status(400).json({ error: "Invalid credentials" });
-
-    if (found.status === "disabled") {
-      return res.status(403).json({ error: "This account has been disabled" });
-    }
-
-    const { passwordHash, ...user } = found;
-
-    const accessToken = signAccessToken(user);
-
-    res.json({
-      success: true,
-      data: { token: accessToken },
-    });
-  } catch (err) {
-    console.error("Token refresh failed:", err);
-    res.status(500).json({ error: "Token refresh failed", success: false });
-  }
-});
+router.post("/refresh", authLimit, authenticateRefreshToken, refreshHandler);
 
 export default router;
