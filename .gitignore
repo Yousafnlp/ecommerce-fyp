@@ -43,3 +43,8 @@ next-env.d.ts
 # for organizing problems
 todo.txt
 test*.txt
+.docgen_tmp
+# docs / reports
+docs/specmart docs/
+docs/*.docx
+tests/
