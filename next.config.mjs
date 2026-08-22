@@ -1,5 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async rewrites() {
+    // Proxy API calls to the Express backend on the same origin, so the
+    // browser never triggers CORS (works from any localhost port).
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${process.env.BACKEND_URL || "http://localhost:3001"}/api/:path*`,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "**.gstatic.com" },

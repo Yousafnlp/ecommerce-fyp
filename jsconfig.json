@@ -2,8 +2,13 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@components/*": ["./components/*"],
+      "@lib/*": ["./lib/*"],
+      "@store/*": ["./store/*"],
+      "@config/*": ["./config/*"],
+      "@hooks/*": ["./hooks/*"]
     }
   },
-  "include": ["**/*.js", "**/*.jsx", "app/**/*", "components/**/*"]
+  "include": ["**/*.js", "**/*.jsx", "app/**/*", "components/**/*", "config/**/*", "hooks/**/*", "store/**/*"]
 }

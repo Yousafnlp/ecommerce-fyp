@@ -1,0 +1,24 @@
+diff --git a/node_modules/@radix-ui/react-menu/dist/index.js b/node_modules/@radix-ui/react-menu/dist/index.js
+index b3f6113..87a70a1 100644
+--- a/node_modules/@radix-ui/react-menu/dist/index.js
++++ b/node_modules/@radix-ui/react-menu/dist/index.js
+@@ -848,6 +848,7 @@ __name(getCheckedState, "getCheckedState");
+ function focusFirst(candidates) {
+   const PREVIOUSLY_FOCUSED_ELEMENT = document.activeElement;
+   for (const candidate of candidates) {
++    if (!candidate || !candidate.isConnected) continue;
+     if (candidate === PREVIOUSLY_FOCUSED_ELEMENT) return;
+     candidate.focus();
+     if (document.activeElement !== PREVIOUSLY_FOCUSED_ELEMENT) return;
+diff --git a/node_modules/@radix-ui/react-menu/dist/index.mjs b/node_modules/@radix-ui/react-menu/dist/index.mjs
+index cd4303a..5d18788 100644
+--- a/node_modules/@radix-ui/react-menu/dist/index.mjs
++++ b/node_modules/@radix-ui/react-menu/dist/index.mjs
+@@ -782,6 +782,7 @@ __name(getCheckedState, "getCheckedState");
+ function focusFirst(candidates) {
+   const PREVIOUSLY_FOCUSED_ELEMENT = document.activeElement;
+   for (const candidate of candidates) {
++    if (!candidate || !candidate.isConnected) continue;
+     if (candidate === PREVIOUSLY_FOCUSED_ELEMENT) return;
+     candidate.focus();
+     if (document.activeElement !== PREVIOUSLY_FOCUSED_ELEMENT) return;
