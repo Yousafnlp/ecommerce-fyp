@@ -1,4 +1,4 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+﻿# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
 /node_modules
@@ -40,10 +40,15 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# local scratch folders
+.tmp-shots/
+
 # for organizing problems
 todo.txt
 test*.txt
 .docgen_tmp
+
 # docs / reports
 docs/specmart docs/
-docs/*.docx
+docs/backups/
+docs/SpecSmart_FYP_Report_v2_updated.docx
