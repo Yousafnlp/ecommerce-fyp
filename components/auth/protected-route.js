@@ -1,6 +1,6 @@
 "use client";
 
-import { useAppSelector } from "@/lib/redux";
+import { useAppSelector } from "@/store/hooks";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
@@ -10,7 +10,7 @@ export function ProtectedRoute({ children }) {
   const router = useRouter();
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/auth/signin");
+      router.push("/signin");
     }
   }, [user, isLoading, router]);
   if (isLoading) {

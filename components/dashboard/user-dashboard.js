@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAppSelector } from "@/lib/redux";
+import { useAppSelector } from "@/store/hooks";
 import { Database } from "@/lib/database";
 import { AuthenticatedHeader } from "../layout/authenticated-header";
 import { WelcomeSection } from "./welcome-section";

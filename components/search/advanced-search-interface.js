@@ -12,8 +12,10 @@ import { Filter, Mic, MicOff, Search, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ProductSearchAutocomplete } from "./product-search-autocomplete";
-import { useWebSpeechRecognition } from "./useWebSpeechRecognition";
-import { useWhisperFallback } from "./useWhisperFallback";
+import { useWebSpeechRecognition } from "./use-web-speech-recognition";
+import { useWhisperFallback } from "./use-whisper-fallback";
+import { categories, brands, pluralizeCategory } from "@/config/categories";
+import { formatPrice } from "@/lib/utils";
 export function AdvancedSearchInterface({
   initialQuery,
   initialFilters
@@ -41,6 +43,7 @@ export function AdvancedSearchInterface({
     if (searchQuery) params.set("q", searchQuery);
     if (filters.category) params.set("category", filters.category);
     if (filters.brand && filters.brand.length > 0) params.set("brand", filters.brand[0]);
+    if (filters.features && filters.features.length > 0) params.set("features", filters.features.join(","));
     if (priceRange[0] > 0) params.set("minPrice", priceRange[0].toString());
     if (priceRange[1] < 5000) params.set("maxPrice", priceRange[1].toString());
     if (filters.rating) params.set("rating", filters.rating.toString());
@@ -60,8 +63,6 @@ export function AdvancedSearchInterface({
       [key]: value
     }));
   };
-  const brands = ["Apple", "Samsung", "Sony", "Dell", "LG", "Intel", "ASUS", "AMD", "Anker", "TP-Link", "Seagate", "Google", "Garmin"];
-  const categories = ["smartphone", "laptop", "headphone", "monitor", "processor", "charger", "earbuds", "power bank", "lcd", "smartwatch", "router", "console", "storage", "tablet"];
   return <div className="space-y-6">
       {/* Main Search */}
       <Card>
@@ -88,19 +89,19 @@ export function AdvancedSearchInterface({
                     Voice search might not work on non-Chrome browsers
                   </TooltipContent>
                 </Tooltip>
-            </TooltipProvider> : <Button variant="ghost" size="sm" className={`absolute right-1 top-1 h-8 w-8 p-0 ${isListening ? "text-red-500" : ""}`} onClick={handleWebspeechRecording}>
+            </TooltipProvider> : <Button variant="ghost" size="sm" className={`absolute right-1 top-1 h-8 w-8 p-0 ${isListening ? "text-danger" : ""}`} onClick={handleWebspeechRecording}>
                 {isListening || isLoading ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
               </Button>}
           </ProductSearchAutocomplete>
 
           {/* Voice Status */}
-          {isListening && <div className="flex items-center gap-2 text-sm text-red-500">
-              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+          {isListening && <div className="flex items-center gap-2 text-sm text-danger">
+              <div className="w-2 h-2 bg-danger rounded-full animate-pulse-soft" />
               Listening... Speak now
             </div>}
 
           {isLoading && <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <div className="animate-spin w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full" />
+              <div className="animate-spin w-4 h-4 border-2 border-ring/40 border-t-transparent rounded-full" />
               Processing audio...
             </div>}
 
@@ -130,7 +131,7 @@ export function AdvancedSearchInterface({
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
                 {categories.map(category => <SelectItem key={category} value={category} className="capitalize">
-                    {category}s
+                    {pluralizeCategory(category)}
                   </SelectItem>)}
               </SelectContent>
             </Select>
@@ -157,8 +158,8 @@ export function AdvancedSearchInterface({
             <Label>Price Range</Label>
             <Slider value={priceRange} onValueChange={setPriceRange} max={5000} min={0} step={50} className="w-full" />
             <div className="flex items-center justify-between text-sm text-muted-foreground">
-              <span>${priceRange[0]}</span>
-              <span>${priceRange[1]}</span>
+              <span>{formatPrice(priceRange[0])}</span>
+              <span>{formatPrice(priceRange[1])}</span>
             </div>
           </div>
 
@@ -177,6 +178,25 @@ export function AdvancedSearchInterface({
                 <SelectItem value="3.0">3.0+ Stars</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Features */}
+          <div className="space-y-2">
+            <Label>Features</Label>
+            <div className="flex flex-wrap gap-2">
+              {["battery", "camera", "display", "gaming", "audio", "performance"].map(feature => {
+                const active = (filters.features || []).includes(feature);
+                return <button key={feature} type="button" onClick={() => {
+                  const next = (filters.features || []).slice();
+                  const idx = next.indexOf(feature);
+                  if (idx !== -1) next.splice(idx, 1);
+                  else next.push(feature);
+                  updateFilter("features", next.length > 0 ? next : undefined);
+                }} className={`rounded-full px-3 py-1 text-xs font-medium border transition-all ${active ? "bg-gradient-brand text-white border-transparent shadow-[var(--shadow-card)]" : "bg-card/50 text-muted-foreground border-border/60 hover:border-ring/40"}`}>
+                  {feature}
+                </button>;
+              })}
+            </div>
           </div>
 
           {/* Sort Options */}
@@ -230,7 +250,7 @@ export function AdvancedSearchInterface({
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
-            {["Best smartphones 2024", "Gaming laptops under $1500", "Wireless headphones", "4K cameras", "Smartwatches with GPS", "Budget tablets"].map(search => <Badge key={search} variant="secondary" className="cursor-pointer hover:bg-primary hover:text-primary-foreground" onClick={() => {
+            {["Best smartphones 2024", "Gaming laptops under $1500", "Wireless headphones", "4K cameras", "Smartwatches with GPS", "Budget tablets"].map(search => <Badge key={search} variant="secondary" className="cursor-pointer hover:bg-gradient-brand hover:text-white hover:border-transparent transition-all" onClick={() => {
             setQuery(search);
             handleSearch(search);
           }}>

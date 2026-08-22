@@ -2,16 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAppDispatch, useAppSelector } from "@/lib/redux";
-import { addCartItemAsync } from "@/store/slices/cartSlice";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { addCartItemAsync } from "@/store/slices/cart-slice";
 import { Database } from "@/lib/database";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Star, Grid, List, ShoppingCart, Heart, Zap, TrendingUp } from "lucide-react";
+import { Star, Grid, List, ShoppingCart, Heart, Zap, TrendingUp, GitCompare } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { formatPrice } from "@/lib/utils";
+import { useCompare } from "@/store/hooks";
 
 export function SearchResults({ products, query, totalResults }) {
   const dispatch = useAppDispatch();
@@ -21,6 +23,12 @@ export function SearchResults({ products, query, totalResults }) {
   const [viewMode, setViewMode] = useState("grid");
   const [wishlist, setWishlist] = useState([]);
   const sortBy = searchParams.get("sortBy") || "relevance";
+  const {
+    removeFromCompare,
+    isInCompare,
+    canAddProduct,
+    tryAddToCompare,
+  } = useCompare();
 
   useEffect(() => {
     let active = true;
@@ -69,7 +77,7 @@ export function SearchResults({ products, query, totalResults }) {
 
   const handleWishlist = async (productId) => {
     if (!user) {
-      router.push("/auth/signin");
+      router.push("/signin");
       return;
     }
 
@@ -86,10 +94,10 @@ export function SearchResults({ products, query, totalResults }) {
 
     if (compact) {
       return (
-        <Card key={product.id} className="transition-shadow hover:shadow-md">
+        <Card key={product.id} className="transition-all hover:shadow-[var(--shadow-lift)] hover:border-ring/30">
           <CardContent className="p-6">
             <div className="flex gap-6">
-              <div className="relative h-32 w-32 overflow-hidden rounded-lg bg-muted shrink-0">
+              <div className="relative h-32 w-32 overflow-hidden rounded-xl bg-muted/60 shrink-0 ring-1 ring-border/40">
                 <Image
                   src={product.image || "/placeholder.svg"}
                   alt={product.name}
@@ -107,7 +115,7 @@ export function SearchResults({ products, query, totalResults }) {
                       <Badge variant="outline" className="text-xs">
                         {product.brand}
                       </Badge>
-                      <Badge className="bg-primary text-xs">
+                      <Badge variant="brand" className="text-xs">
                         Score: {product.score}
                       </Badge>
                     </div>
@@ -117,27 +125,27 @@ export function SearchResults({ products, query, totalResults }) {
                     </p>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold">${product.price}</div>
+                    <div className="text-2xl font-bold">{formatPrice(product.price)}</div>
                     {product.originalPrice && (
                       <div className="text-sm text-muted-foreground line-through">
-                        ${product.originalPrice}
+                        {formatPrice(product.originalPrice)}
                       </div>
                     )}
                   </div>
                 </div>
                 <div className="mb-4 flex items-center gap-4">
                   <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    <Star className="w-4 h-4 fill-[var(--color-star)] text-[var(--color-star)]" />
                     <span className="text-sm font-medium">{product.rating}</span>
                     <span className="text-xs text-muted-foreground">
                       ({product.reviewCount} reviews)
                     </span>
                   </div>
                   <div
-                    className={`rounded-full px-2 py-1 text-xs ${
+                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium border ${
                       product.inStock
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
+                        ? "bg-success/10 text-success border-success/20"
+                        : "bg-danger/10 text-danger border-danger/20"
                     }`}
                   >
                     {product.inStock ? "In Stock" : "Out of Stock"}
@@ -165,11 +173,26 @@ export function SearchResults({ products, query, totalResults }) {
                   >
                     <Heart className={`w-4 h-4 ${liked ? "fill-current" : ""}`} />
                   </Button>
-                  <Link href={`/compare?products=${product.id}`}>
-                    <Button variant="outline" size="sm">
-                      Compare
-                    </Button>
-                  </Link>
+                  <Button
+                    variant={isInCompare(product.id) ? "default" : "outline"}
+                    size="sm"
+                    disabled={!isInCompare(product.id) && !canAddProduct(product).ok}
+                    title={
+                      isInCompare(product.id)
+                        ? "Remove from comparison"
+                        : canAddProduct(product).ok
+                        ? "Add to comparison"
+                        : canAddProduct(product).message
+                    }
+                    onClick={() =>
+                      isInCompare(product.id)
+                        ? removeFromCompare(product.id)
+                        : tryAddToCompare(product)
+                    }
+                  >
+                    <GitCompare className="w-4 h-4 mr-2" />
+                    {isInCompare(product.id) ? "In Compare" : "Compare"}
+                  </Button>
                 </div>
               </div>
             </div>
@@ -181,17 +204,17 @@ export function SearchResults({ products, query, totalResults }) {
     return (
       <Card
         key={product.id}
-        className="group transition-all duration-300 hover:shadow-lg"
+        className="group transition-all duration-300 hover:shadow-[var(--shadow-lift)] hover:border-ring/30"
       >
         <CardHeader className="p-4">
-          <div className="aspect-square relative mb-4 overflow-hidden rounded-lg bg-muted">
+          <div className="aspect-square relative mb-4 overflow-hidden rounded-xl bg-muted/60">
             <Image
               src={product.image || "/placeholder.svg"}
               alt={product.name}
               fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              className="object-cover transition-transform duration-500 group-hover:scale-110"
             />
-            <Badge className="absolute top-2 right-2 bg-primary">
+            <Badge variant="brand" className="absolute top-2 right-2">
               Score: {product.score}
             </Badge>
             {product.originalPrice && (
@@ -218,17 +241,17 @@ export function SearchResults({ products, query, totalResults }) {
         <CardContent className="p-4 pt-0">
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-1">
-              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+              <Star className="w-4 h-4 fill-[var(--color-star)] text-[var(--color-star)]" />
               <span className="text-sm font-medium">{product.rating}</span>
               <span className="text-xs text-muted-foreground">
                 ({product.reviewCount})
               </span>
             </div>
             <div
-              className={`rounded-full px-2 py-1 text-xs ${
+              className={`rounded-full px-2.5 py-0.5 text-xs font-medium border ${
                 product.inStock
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-700"
+                  ? "bg-success/10 text-success border-success/20"
+                  : "bg-danger/10 text-danger border-danger/20"
               }`}
             >
               {product.inStock ? "In Stock" : "Out of Stock"}
@@ -236,10 +259,10 @@ export function SearchResults({ products, query, totalResults }) {
           </div>
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <div className="text-lg font-bold">${product.price}</div>
+              <div className="text-lg font-bold">{formatPrice(product.price)}</div>
               {product.originalPrice && (
                 <div className="text-sm text-muted-foreground line-through">
-                  ${product.originalPrice}
+                  {formatPrice(product.originalPrice)}
                 </div>
               )}
             </div>
@@ -261,7 +284,7 @@ export function SearchResults({ products, query, totalResults }) {
               variant="outline"
               size="sm"
               disabled={!product.inStock}
-              className="px-3 bg-transparent"
+              className="px-3"
               onClick={() =>
                 dispatch(addCartItemAsync({ productId: product.id, quantity: 1 }))
               }
@@ -306,9 +329,9 @@ export function SearchResults({ products, query, totalResults }) {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="flex items-center gap-3 rounded-lg border p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <Zap className="h-5 w-5 text-primary" />
+              <div className="flex items-center gap-3 rounded-2xl border border-border/70 p-4 transition-all hover:border-ring/30 hover:shadow-[var(--shadow-card)]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-brand-soft">
+                  <Zap className="h-5 w-5 text-primary dark:text-primary-foreground" />
                 </div>
                 <div>
                   <h3 className="font-medium">Smart Scoring</h3>
@@ -317,9 +340,9 @@ export function SearchResults({ products, query, totalResults }) {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 rounded-lg border p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <TrendingUp className="h-5 w-5 text-primary" />
+              <div className="flex items-center gap-3 rounded-2xl border border-border/70 p-4 transition-all hover:border-ring/30 hover:shadow-[var(--shadow-card)]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-brand-soft">
+                  <TrendingUp className="h-5 w-5 text-primary dark:text-primary-foreground" />
                 </div>
                 <div>
                   <h3 className="font-medium">Natural Search</h3>

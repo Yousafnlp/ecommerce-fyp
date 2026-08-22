@@ -1,5 +1,5 @@
 // components/products/products-content.tsx
-import { ProductGrid } from "@/components/product-grid";
+import { ProductGrid } from "@/components/shared/product-grid";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";

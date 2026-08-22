@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAppSelector, useAppDispatch } from "@/lib/redux";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { formatPrice } from "@/lib/utils";
 import {
   selectCartItems,
   selectTotalItems,
   clearCart,
   clearCartAsync,
-} from "@/store/slices/cartSlice";
+} from "@/store/slices/cart-slice";
 import { Database } from "@/lib/database";
 import { Button } from "@/components/ui/button";
 import {
@@ -567,7 +567,7 @@ export function CheckoutPageContent() {
                     className="flex justify-between text-sm"
                   >
                     <span className="truncate mr-2">
-                      {product.name} × {product.quantity}
+                      {product.name} Ãƒâ€” {product.quantity}
                     </span>
                     <span>
                       {formatPrice(product.price * product.quantity)}

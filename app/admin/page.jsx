@@ -1,10 +1,10 @@
-import { ProtectedRoute } from "@/components/auth/protected-route";
-import { AdminPanel } from "@/components/admin/admin-panel";
+import { DashboardOverview } from "@/components/admin/dashboard-overview";
 
-export default function AdminPage() {
-  return (
-    <ProtectedRoute>
-      <AdminPanel />
-    </ProtectedRoute>
-  );
+export const metadata = {
+  title: "Dashboard · Admin · SpecSmart",
+  description: "Store overview with product, user, order and revenue stats.",
+};
+
+export default function AdminDashboardPage() {
+  return <DashboardOverview />;
 }

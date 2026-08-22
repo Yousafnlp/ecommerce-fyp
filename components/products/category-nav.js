@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { pluralizeCategory } from "@/config/categories";
 export function CategoryNav({
   categories,
   activeCategory
@@ -13,7 +14,7 @@ export function CategoryNav({
         </Link>
         {categories.map(category => <Link key={category} href={`/products?category=${category}`}>
             <Button variant={activeCategory === category ? "default" : "outline"} size="sm" className="capitalize">
-              {category}s
+              {pluralizeCategory(category)}
             </Button>
           </Link>)}
       </div>

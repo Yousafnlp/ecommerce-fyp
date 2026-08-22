@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Star } from "lucide-react";
 import Link from "next/link";
 import { Button } from "../ui/button";
+import { formatPrice } from "@/lib/utils";
 const FeatureProducts = async () => {
   const featuredProducts = await Database.getFeaturedProducts();
   return <section className="py-16 px-4 bg-muted/30">
@@ -17,13 +18,11 @@ const FeatureProducts = async () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredProducts.map(product => <Card key={product.id} className="group hover:shadow-lg transition-all duration-300">
+          {featuredProducts.map((product, i) => <Card key={product.id} className="group hover:shadow-[var(--shadow-lift)] hover:border-ring/30 transition-all duration-300 animate-fade-up" style={{ animationDelay: `${i * 80}ms` }}>
               <CardHeader className="p-4">
-                <div className="aspect-square relative mb-4 overflow-hidden rounded-lg bg-muted">
-                  <Image src={product.image || "/placeholder.svg"} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
-                  {/* <Badge className="absolute top-2 right-2 bg-primary">
-                      Score: {product.score}
-                    </Badge> */}
+                <div className="aspect-square relative mb-4 overflow-hidden rounded-xl bg-muted/60">
+                  <Image src={product.image || "/placeholder.svg"} alt={product.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
+                  <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-background/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
                 <CardTitle className="text-lg line-clamp-2">
                   {product.name}
@@ -35,7 +34,7 @@ const FeatureProducts = async () => {
               <CardContent className="p-4 pt-0">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    <Star className="w-4 h-4 fill-[var(--color-star)] text-[var(--color-star)]" />
                     <span className="text-sm font-medium">
                       {product.rating}
                     </span>
@@ -44,9 +43,9 @@ const FeatureProducts = async () => {
                     </span>
                   </div>
                   <div className="text-right">
-                    <div className="text-lg font-bold">${product.price}</div>
+                    <div className="text-lg font-bold">{formatPrice(product.price)}</div>
                     {product.originalPrice && <div className="text-xs text-muted-foreground line-through">
-                        ${product.originalPrice}
+                        {formatPrice(product.originalPrice)}
                       </div>}
                   </div>
                 </div>

@@ -10,6 +10,6 @@ const TooltipContent = React.forwardRef(({
   className,
   sideOffset = 4,
   ...props
-}, ref) => <TooltipPrimitive.Content ref={ref} sideOffset={sideOffset} className={cn("z-50 overflow-hidden rounded-md bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-50", className)} {...props} />);
+}, ref) => <TooltipPrimitive.Content ref={ref} sideOffset={sideOffset} className={cn("z-50 overflow-hidden rounded-lg bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-[var(--shadow-lift)] animate-in fade-in-50 border border-border/70", className)} {...props} />);
 TooltipContent.displayName = TooltipPrimitive.Content.displayName;
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };

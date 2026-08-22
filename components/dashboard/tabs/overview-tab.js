@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { formatPrice } from "@/lib/utils";
 const OverviewTab = ({
   orders = [],
   wishlistProducts = [],
@@ -53,7 +54,7 @@ const OverviewTab = ({
                   <div className="w-12 h-12 bg-muted rounded-lg" />
                   <div className="flex-1">
                     <p className="font-medium">{product.name}</p>
-                    <p className="text-sm text-muted-foreground">${product.price}</p>
+                    <p className="text-sm text-muted-foreground">{formatPrice(product.price)}</p>
                   </div>
                   <Badge>Score: {product.score}</Badge>
                 </div>)}
