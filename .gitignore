@@ -47,4 +47,3 @@ test*.txt
 # docs / reports
 docs/specmart docs/
 docs/*.docx
-tests/
