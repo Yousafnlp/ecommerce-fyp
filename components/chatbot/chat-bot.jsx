@@ -325,6 +325,8 @@ export default function ChatBot() {
   return (
     <>
       {/* Floating toggle button */}
+      {/* Inline position:fixed so the .shine utility (position:relative) can
+          never knock the launcher out of the viewport corner. */}
       <button
         ref={launcherRef}
         onClick={() => setIsOpen((o) => !o)}
@@ -332,6 +334,7 @@ export default function ChatBot() {
         aria-expanded={isOpen}
         aria-controls="specsmart-chat-panel"
         aria-haspopup="dialog"
+        style={{ position: "fixed" }}
         className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] right-[calc(1.5rem+env(safe-area-inset-right))] z-[60] flex h-14 w-14 items-center justify-center rounded-full bg-gradient-brand text-white shadow-[var(--shadow-glow)] hover:brightness-110 active:scale-95 transition-all shine"
       >
         {isOpen ? (
