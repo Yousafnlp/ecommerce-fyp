@@ -4,6 +4,11 @@ import { getDB } from "../config/database.js";
 
 const COLLECTION_NAME = "users";
 
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "admin@specsmart.com")
+  .split(",")
+  .map((email) => email.trim().toLowerCase())
+  .filter(Boolean);
+
 export class User {
   /* Collection */
 
@@ -85,6 +90,7 @@ export class User {
       name: user.name,
       avatar: user.avatar,
       role: user.role || "user",
+      status: user.status || "active",
       passwordHash: user.passwordHash,
       preferences: user.preferences,
       cart,
@@ -129,7 +135,8 @@ export class User {
       passwordHash,
       name,
       avatar: "/placeholder.svg",
-      role: normalizedEmail === "admin@specsmart.com" ? "admin" : "user",
+      role: ADMIN_EMAILS.includes(normalizedEmail) ? "admin" : "user",
+      status: "active",
       preferences: this._defaultPreferences(),
       ...this._defaultCommerce(),
       createdAt: now,
@@ -166,7 +173,9 @@ export class User {
       { returnDocument: "after" }
     );
 
-    return this._transform(result.value);
+    if (!result) return null;
+    const { passwordHash, ...safeUser } = result;
+    return this._transform(safeUser);
   }
 
   /* Update preferences */
@@ -186,7 +195,9 @@ export class User {
       { returnDocument: "after" }
     );
 
-    return this._transform(result.value);
+    if (!result) return null;
+    const { passwordHash, ...safeUser } = result;
+    return this._transform(safeUser);
   }
 
   /* Password helpers */
@@ -216,6 +227,129 @@ export class User {
     return await this.getCollection().deleteOne({
       _id: new ObjectId(id),
     });
+  }
+
+  /* Admin user management */
+
+  static escapeRegExp(value) {
+    return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
+  /**
+   * Lists accounts for the admin Users screen.
+   * The projection explicitly excludes passwordHash and other sensitive
+   * fields — only safe, display-oriented data ever leaves this method.
+   */
+  static async listUsers({ q, role, status } = {}) {
+    const filter = {};
+
+    if (q && String(q).trim()) {
+      const matcher = new RegExp(this.escapeRegExp(q.trim()), "i");
+      filter.$or = [{ name: matcher }, { email: matcher }];
+    }
+    if (role === "admin" || role === "user") {
+      // Legacy docs may lack a role field; treat missing as "user".
+      filter.role = role === "user" ? { $in: [null, "user"] } : "admin";
+    }
+    if (status === "active" || status === "disabled") {
+      filter.status = status === "active" ? { $in: [null, "active"] } : "disabled";
+    }
+
+    const users = await this.getCollection()
+      .aggregate([
+        { $match: filter },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            email: 1,
+            avatar: 1,
+            role: { $ifNull: ["$role", "user"] },
+            status: { $ifNull: ["$status", "active"] },
+            createdAt: 1,
+            orderCount: { $size: { $ifNull: ["$orders", []] } },
+          },
+        },
+        { $sort: { createdAt: -1 } },
+      ])
+      .toArray();
+
+    return users.map((user) => ({
+      id: user._id.toString(),
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar,
+      role: user.role,
+      status: user.status,
+      createdAt: user.createdAt,
+      orderCount: user.orderCount || 0,
+    }));
+  }
+
+  /** Number of administrators that are not disabled. */
+  static async countActiveAdmins(excludeId) {
+    const filter = {
+      role: "admin",
+      status: { $in: [null, "active"] },
+    };
+    if (excludeId) {
+      filter._id = { $ne: new ObjectId(excludeId) };
+    }
+    return await this.getCollection().countDocuments(filter);
+  }
+
+  static async updateRole(id, role) {
+    const result = await this.getCollection().findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $set: { role, updatedAt: new Date() } },
+      { returnDocument: "after", projection: { passwordHash: 0 } }
+    );
+    if (!result) return null;
+    const { _id, ...rest } = result;
+    return { id: _id.toString(), ...rest };
+  }
+
+  static async updateStatus(id, status) {
+    const result = await this.getCollection().findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $set: { status, updatedAt: new Date() } },
+      { returnDocument: "after", projection: { passwordHash: 0 } }
+    );
+    if (!result) return null;
+    const { _id, ...rest } = result;
+    return { id: _id.toString(), ...rest };
+  }
+
+  /**
+   * Removes a deleted product from every user's cart and wishlist.
+   * Orders are untouched — they embed denormalized snapshots.
+   */
+  static async removeProductReferences(productId) {
+    return await this.getCollection().updateMany(
+      {},
+      {
+        $pull: {
+          wishlist: String(productId),
+          cart: { productId: String(productId) },
+        },
+      }
+    );
+  }
+
+  static async getAdminUserStats() {
+    const collection = this.getCollection();
+    const [totalUsers, totalAdmins, disabledUsers] = await Promise.all([
+      collection.countDocuments({}),
+      collection.countDocuments({ role: "admin" }),
+      collection.countDocuments({ status: "disabled" }),
+    ]);
+
+    return {
+      totalUsers,
+      totalAdmins,
+      activeUsers: totalUsers - disabledUsers,
+      disabledUsers,
+    };
   }
 
   static async getCommerce(id) {
@@ -282,6 +416,14 @@ export class User {
     );
 
     return cart.map((item) => this._normalizeCartItem(item));
+  }
+
+  static async clearCart(id) {
+    await this.getCollection().updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { cart: [], updatedAt: new Date() } }
+    );
+    return [];
   }
 
   static async toggleWishlist(id, productId) {

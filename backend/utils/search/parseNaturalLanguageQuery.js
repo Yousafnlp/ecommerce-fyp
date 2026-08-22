@@ -87,13 +87,19 @@ function extractPriceRange(query) {
   for (const pattern of patterns.under) {
     const match = query.match(pattern);
     const max = normalizePrice(match?.[1]);
-    if (max !== undefined) priceRange.max = max;
+    if (max !== undefined) {
+      priceRange.max =
+        priceRange.max !== undefined ? Math.min(priceRange.max, max) : max;
+    }
   }
 
   for (const pattern of patterns.above) {
     const match = query.match(pattern);
     const min = normalizePrice(match?.[1]);
-    if (min !== undefined) priceRange.min = min;
+    if (min !== undefined) {
+      priceRange.min =
+        priceRange.min !== undefined ? Math.max(priceRange.min, min) : min;
+    }
   }
 
   return priceRange.min !== undefined || priceRange.max !== undefined ? priceRange : undefined;

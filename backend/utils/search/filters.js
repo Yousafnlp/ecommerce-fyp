@@ -1,3 +1,5 @@
+import { FEATURE_ALIASES } from "./aliases.js";
+
 export function normalizeText(value) {
   return String(value ?? "")
     .toLowerCase()
@@ -119,4 +121,3 @@ export function applyProductFilters(products, filters = {}) {
     return true;
   });
 }
-import { FEATURE_ALIASES } from "./aliases.js";

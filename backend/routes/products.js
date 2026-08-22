@@ -1,19 +1,23 @@
 import express from 'express';
 import { Product } from '../models/Product.js';
+import { User } from '../models/User.js';
 import { authenticateToken } from "../middleware/authenticateToken.js";
+import { requireAdmin } from "../middleware/requireAdmin.js";
 import { normalizeList } from "../utils/search/filters.js";
 
 const router = express.Router();
 
-function requireAdmin(req, res, next) {
-  if (req.user?.role !== "admin") {
-    return res.status(403).json({
-      success: false,
-      message: "Admin access required",
-    });
-  }
-  next();
+function sendValidationError(res, errors) {
+  const summary = Object.entries(errors)
+    .map(([field, message]) => `${field}: ${message}`)
+    .join("; ");
+  return res.status(400).json({
+    success: false,
+    message: `Validation failed — ${summary}`,
+    errors,
+  });
 }
+
 
 function parseNumericParam(value) {
   if (value === undefined || value === null || value === "") return undefined;
@@ -37,8 +41,11 @@ function buildUiFilters(query) {
     if (maxPrice !== undefined) filters.priceRange.max = maxPrice;
   }
 
-  const rating = parseNumericParam(query.rating);
+const rating = parseNumericParam(query.rating);
   if (rating !== undefined) filters.rating = rating;
+
+  const features = normalizeList(query.features);
+  if (features.length > 0) filters.features = features;
 
   if (query.inStock !== undefined) filters.inStock = query.inStock === "true";
   if (query.sortBy) filters.sortBy = String(query.sortBy);
@@ -225,7 +232,12 @@ router.get('/', async (req, res) => {
 
 router.post("/", authenticateToken, requireAdmin, async (req, res) => {
   try {
-    const product = await Product.create(req.body);
+    const { valid, errors, data } = Product.validateProductInput(req.body);
+    if (!valid) {
+      return sendValidationError(res, errors);
+    }
+
+    const product = await Product.create(data);
     res.status(201).json({
       success: true,
       data: product,
@@ -235,6 +247,86 @@ router.post("/", authenticateToken, requireAdmin, async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to create product",
+      error: error.message,
+    });
+  }
+});
+
+// PUT /api/products/:id - Update a product (admin only)
+router.put("/:id", authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const existing = await Product.getProductById(req.params.id);
+    if (!existing) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    const { valid, errors, data } = Product.validateProductInput(req.body, {
+      partial: true,
+    });
+    if (!valid) {
+      return sendValidationError(res, errors);
+    }
+
+    // originalPrice: null means "clear the field" — move it to $unset.
+    const patch = { ...data };
+    const unset = {};
+    if (patch.originalPrice === null) {
+      delete patch.originalPrice;
+      unset.originalPrice = "";
+    }
+
+    const product = await Product.updateById(req.params.id, patch, { unset });
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      data: product,
+    });
+  } catch (error) {
+    console.error("Error updating product:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update product",
+      error: error.message,
+    });
+  }
+});
+
+// DELETE /api/products/:id - Delete a product (admin only)
+router.delete("/:id", authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const deleted = await Product.deleteById(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    // Orders embed denormalized copies of item data, so order history stays
+    // intact. Carts and wishlists hold live product references — remove them
+    // so users never see dangling entries.
+    const cleanedUsers = await User.removeProductReferences(deleted.id);
+
+    res.json({
+      success: true,
+      data: { id: deleted.id, name: deleted.name },
+      meta: { cartsAndWishlistsCleaned: cleanedUsers.modifiedCount },
+    });
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete product",
       error: error.message,
     });
   }

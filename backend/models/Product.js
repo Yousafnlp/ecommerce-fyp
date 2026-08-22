@@ -5,6 +5,34 @@ import { sortProducts } from "../utils/search/sort.js";
 
 const COLLECTION_NAME = 'products';
 
+const VALID_CATEGORIES = [
+  "smartphone",
+  "tablet",
+  "laptop",
+  "monitor",
+  "charger",
+  "console",
+  "earbuds",
+  "headphone",
+  "processor",
+  "smartwatch",
+  "router",
+  "storage",
+  "power bank",
+  "lcd",
+];
+
+function asNumber(value) {
+  if (value === undefined || value === null || value === "") return undefined;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : NaN;
+}
+
+function asStringArray(value) {
+  if (!Array.isArray(value)) return undefined;
+  return value.map((item) => String(item).trim()).filter(Boolean);
+}
+
 const CATEGORY_SCORE_RULES = {
   smartphone: [
     { path: "specifications.ram", max: 16, weight: 1.8 },
@@ -208,6 +236,164 @@ export class Product {
     }
   }
 
+  /**
+   * Validates product input for create (full) or update (partial).
+   * Returns { valid, errors, data } where data holds normalized values
+   * for every field that was provided and passed validation.
+   */
+  static validateProductInput(input = {}, { partial = false } = {}) {
+    const errors = {};
+    const data = {};
+
+    // name
+    if (input.name !== undefined || !partial) {
+      const name = String(input.name ?? "").trim();
+      if (!name) errors.name = "Name is required";
+      else if (name.length > 200) errors.name = "Name must be 200 characters or fewer";
+      else data.name = name;
+    }
+
+    // brand
+    if (input.brand !== undefined || !partial) {
+      const brand = String(input.brand ?? "").trim();
+      if (!brand) errors.brand = "Brand is required";
+      else data.brand = brand;
+    }
+
+    // category
+    if (input.category !== undefined || !partial) {
+      const category = String(input.category ?? "").trim();
+      if (!VALID_CATEGORIES.includes(category)) {
+        errors.category = `Category must be one of: ${VALID_CATEGORIES.join(", ")}`;
+      } else {
+        data.category = category;
+      }
+    }
+
+    // price
+    if (input.price !== undefined || !partial) {
+      const price = asNumber(input.price);
+      if (price === undefined || Number.isNaN(price)) errors.price = "Price is required and must be a number";
+      else if (price < 0) errors.price = "Price cannot be negative";
+      else data.price = price;
+    }
+
+    // originalPrice (null clears the field on update)
+    if (input.originalPrice !== undefined) {
+      if (input.originalPrice === null || input.originalPrice === "") {
+        data.originalPrice = null;
+      } else {
+        const originalPrice = asNumber(input.originalPrice);
+        if (Number.isNaN(originalPrice)) errors.originalPrice = "Original price must be a number";
+        else if (originalPrice < 0) errors.originalPrice = "Original price cannot be negative";
+        else data.originalPrice = originalPrice;
+      }
+    }
+
+    // image
+    if (input.image !== undefined) {
+      data.image = String(input.image).trim() || "/placeholder.svg";
+    } else if (!partial) {
+      data.image = "/placeholder.svg";
+    }
+
+    // images
+    if (input.images !== undefined) {
+      const images = asStringArray(input.images);
+      if (images === undefined) errors.images = "Images must be an array of strings";
+      else data.images = images;
+    } else if (!partial) {
+      data.images = [];
+    }
+
+    // description
+    if (input.description !== undefined || !partial) {
+      const description = String(input.description ?? "").trim();
+      if (!description) errors.description = "Description is required";
+      else data.description = description;
+    }
+
+    // features
+    if (input.features !== undefined) {
+      const features = asStringArray(input.features);
+      if (features === undefined) errors.features = "Features must be an array of strings";
+      else data.features = features;
+    } else if (!partial) {
+      data.features = [];
+    }
+
+    // rating
+    if (input.rating !== undefined) {
+      const rating = asNumber(input.rating);
+      if (rating === undefined || Number.isNaN(rating)) errors.rating = "Rating must be a number";
+      else if (rating < 0 || rating > 5) errors.rating = "Rating must be between 0 and 5";
+      else data.rating = rating;
+    } else if (!partial) {
+      data.rating = 0;
+    }
+
+    // reviewCount
+    if (input.reviewCount !== undefined) {
+      const reviewCount = asNumber(input.reviewCount);
+      if (reviewCount === undefined || Number.isNaN(reviewCount)) errors.reviewCount = "Review count must be a number";
+      else if (reviewCount < 0) errors.reviewCount = "Review count cannot be negative";
+      else data.reviewCount = Math.round(reviewCount);
+    } else if (!partial) {
+      data.reviewCount = 0;
+    }
+
+    // inStock
+    if (input.inStock !== undefined) {
+      data.inStock = Boolean(input.inStock);
+    } else if (!partial) {
+      data.inStock = false;
+    }
+
+    // specifications
+    if (input.specifications !== undefined) {
+      if (typeof input.specifications !== "object" || input.specifications === null || Array.isArray(input.specifications)) {
+        errors.specifications = "Specifications must be an object";
+      } else {
+        data.specifications = input.specifications;
+      }
+    } else if (!partial) {
+      data.specifications = {};
+    }
+
+    return {
+      valid: Object.keys(errors).length === 0,
+      errors,
+      data,
+    };
+  }
+
+  static async updateById(id, patch, { unset } = {}) {
+    try {
+      const update = { $set: { ...patch, updatedAt: new Date() } };
+      if (unset && Object.keys(unset).length > 0) update.$unset = unset;
+
+      const result = await this.getCollection().findOneAndUpdate(
+        { id },
+        update,
+        { returnDocument: "after" }
+      );
+      return result ? this._decorateProduct(result) : null;
+    } catch (error) {
+      console.error("Error updating product:", error);
+      throw error;
+    }
+  }
+
+  static async deleteById(id) {
+    try {
+      const result = await this.getCollection().findOneAndDelete({ id });
+      return result ? this._decorateProduct(result) : null;
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      throw error;
+    }
+  }
+
   // Insert multiple products (for seeding)
   static async insertMany(products) {
     try {
@@ -223,7 +409,9 @@ export class Product {
     try {
       const now = new Date();
       const nextProduct = {
-        id: productInput.id || `${Date.now()}`,
+        id:
+        productInput.id ||
+        `${Date.now()}${Math.random().toString(36).slice(2, 6)}`,
         name: productInput.name,
         brand: productInput.brand,
         category: productInput.category,

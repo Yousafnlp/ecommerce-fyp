@@ -26,7 +26,7 @@ export function buildNameScores(products, matchedNames = []) {
       (total, nameQuery) => total + scoreNameAgainstQuery(product, nameQuery),
       0
     );
-    scores.set(product._id, totalScore / matchedNames.length); 
+    scores.set(product.id, totalScore / matchedNames.length); 
   }
   
   return scores;

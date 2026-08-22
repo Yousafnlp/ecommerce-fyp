@@ -14,7 +14,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const allowedOrigins = (
   process.env.CORS_ORIGINS ||
-  "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001"
+  "http://localhost:3000,http://localhost:3002,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001,http://localhost:3003,http://127.0.0.1:3003,http://localhost:3004,http://127.0.0.1:3004"
 )
   .split(",")
   .map((origin) => origin.trim())
@@ -41,11 +41,32 @@ app.options("*", cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-// Logging
+// Logging (secrets such as passwords are never written to logs)
+const REDACTED_KEYS = new Set([
+  "password",
+  "confirmPassword",
+  "passwordHash",
+  "currentPassword",
+  "newPassword",
+  "token",
+  "refreshToken",
+]);
+
+function redactBody(body) {
+  if (!body || typeof body !== "object") return body;
+  return Object.fromEntries(
+    Object.entries(body).map(([key, value]) => [
+      key,
+      REDACTED_KEYS.has(key) ? "[REDACTED]" : value,
+    ])
+  );
+}
+
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  console.log(req.body);
-  console.log("----");
+  if (req.body && Object.keys(req.body).length > 0) {
+    console.log(redactBody(req.body));
+  }
   next();
 });
 // Health check endpoint
@@ -83,13 +104,15 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
+let httpServer = null;
+
 async function startServer() {
   try {
     // Connect to MongoDB
     await connectDB();
 
     // Start Express server
-    app.listen(PORT, () => {
+    httpServer = app.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
       console.log(
         `📡 API endpoints available at http://localhost:${PORT}/api/products`,
@@ -103,17 +126,17 @@ async function startServer() {
 
 startServer();
 
-// Graceful shutdown
-process.on("SIGTERM", async () => {
-  console.log("SIGTERM signal received: closing HTTP server");
+async function shutdown(signal) {
+  console.log(`${signal} signal received: closing HTTP server`);
+  if (httpServer) {
+    await new Promise((resolve) => httpServer.close(resolve));
+  }
   const { closeDB } = await import("./config/database.js");
   await closeDB();
   process.exit(0);
-});
+}
 
-process.on("SIGINT", async () => {
-  console.log("SIGINT signal received: closing HTTP server");
-  const { closeDB } = await import("./config/database.js");
-  await closeDB();
-  process.exit(0);
-});
+// Graceful shutdown
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+
+process.on("SIGINT", () => shutdown("SIGINT"));
