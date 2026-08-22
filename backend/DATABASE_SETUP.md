@@ -170,3 +170,68 @@ The database configuration is in `backend/config/database.js`:
 - Reads from `process.env.MONGODB_URI`
 - Falls back to `mongodb://localhost:27017` if not set
 - Database name from `process.env.DB_NAME` or defaults to `my-app`
+
+## Qdrant Vector Database (RAG Setup)
+
+The AI advisor uses [Qdrant](https://qdrant.tech/) as a vector database to store embedded product documents and perform semantic retrieval. It is separate from MongoDB and is only needed for the AI advisor chat feature.
+
+### Option 1: Local Qdrant (Docker - Recommended)
+
+```bash
+docker run -p 6333:6333 qdrant/qdrant
+```
+
+### Option 2: Qdrant Cloud
+
+1. Create a cluster at [Qdrant Cloud](https://cloud.qdrant.io/)
+2. Copy the cluster URL (e.g. `https://xxx.aws.cloud.qdrant.io`)
+3. Generate an API key from the dashboard
+
+### Configure .env File
+
+Add the following to `backend/.env`:
+
+```env
+# Qdrant vector store (RAG)
+QDRANT_URL=http://localhost:6333
+QDRANT_API_KEY=
+QDRANT_COLLECTION=specsmart_products
+
+# RAG retrieval tuning
+RAG_TOP_K=8
+RAG_MIN_SCORE=0.3
+QDRANT_TIMEOUT_MS=3000
+
+# Gemini (chat + embeddings)
+GEMINI_API_KEY=your-google-ai-studio-api-key
+EMBEDDING_MODEL=gemini-embedding-2
+```
+
+### Build the Vector Index
+
+The index is created and verified automatically on the first chat message, and rebuilt when the product count changes. To pre-build it from the current catalogue:
+
+```bash
+cd backend
+npm run index:vectors
+```
+
+You can also force a rebuild through the admin API: `POST /api/chatbot/reindex` (requires an admin JWT).
+
+### Verify the Vector Store
+
+```bash
+curl http://localhost:3001/api/chatbot/status
+```
+
+The response includes a `vectorSearch` block with the collection name and point count, e.g.:
+
+```
+{ "configured": true, "vectorSearch": { "enabled": true, "collection": "specsmart_products", "points": 28, "url": "http://localhost:6333" } }
+```
+
+### Troubleshooting
+
+- **Connection Refused** - Ensure Qdrant is running (`docker run -p 6333:6333 qdrant/qdrant`) or that `QDRANT_URL`/`QDRANT_API_KEY` point to your cloud cluster.
+- **Chatbot still works without Qdrant** - This is expected: retrieval falls back to keyword search when the vector store is unreachable.
+- **Index out of date** - Run `npm run index:vectors` or use `POST /api/chatbot/reindex` to rebuild it.

@@ -1,10 +1,10 @@
 import jwt from "jsonwebtoken";
 
 const isProduction = process.env.NODE_ENV === "production";
-const ACCESS_SECRET =
+export const ACCESS_SECRET =
   process.env.ACCESS_SECRET ||
   (isProduction ? null : "dev-access-secret-change-me");
-const REFRESH_SECRET =
+export const REFRESH_SECRET =
   process.env.REFRESH_SECRET ||
   (isProduction ? null : "dev-refresh-secret-change-me");
 

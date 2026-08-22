@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { ACCESS_SECRET } from "../utils/jwt.js";
 
 export function authenticateToken(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -9,7 +10,7 @@ export function authenticateToken(req, res, next) {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.ACCESS_SECRET);
+    const decoded = jwt.verify(token, ACCESS_SECRET);
     req.user = decoded; // { id, email, iat, exp }
     next();
   } catch {

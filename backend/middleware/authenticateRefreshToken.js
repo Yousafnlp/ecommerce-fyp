@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { REFRESH_SECRET } from "../utils/jwt.js";
 
 export function authenticateRefreshToken(req, res, next) {
   const token = req.cookies.refreshToken;
@@ -8,7 +9,7 @@ export function authenticateRefreshToken(req, res, next) {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.REFRESH_SECRET);
+    const decoded = jwt.verify(token, REFRESH_SECRET);
     req.refresh = decoded; // { id, iat, exp }
     next();
   } catch {
