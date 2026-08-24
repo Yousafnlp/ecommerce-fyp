@@ -567,7 +567,7 @@ export function CheckoutPageContent() {
                     className="flex justify-between text-sm"
                   >
                     <span className="truncate mr-2">
-                      {product.name} Ãƒâ€” {product.quantity}
+                      {product.name}  ×  {product.quantity}
                     </span>
                     <span>
                       {formatPrice(product.price * product.quantity)}
